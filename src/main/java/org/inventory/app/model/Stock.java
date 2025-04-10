@@ -1,0 +1,18 @@
+package org.inventory.app.model;
+
+import jakarta.persistence.*;
+
+@Entity(name = "stock")
+public class Stock {
+    @Id
+    private Long productId;
+
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    private int quantity;
+
+    private String warehouseLocation;
+}
