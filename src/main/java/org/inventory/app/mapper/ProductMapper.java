@@ -28,6 +28,17 @@ public class ProductMapper {
         if (product.getSupplier() != null) {
             dto.setSupplierName(product.getSupplier().getName());
         }
+        if (product.getCategory() != null) {
+            dto.setCategoryID(product.getCategory().getId());
+        }
+
+        if (product.getBrand() != null) {
+            dto.setBrandID(product.getBrand().getId());
+        }
+
+        if (product.getSupplier() != null) {
+            dto.setSupplierID(product.getSupplier().getId());
+        }
 
         return dto;
     }

@@ -17,12 +17,17 @@ public class ProductDTO {
     private String description;
     private BigDecimal price;
 
+    private Long categoryID;
     private String categoryName;
+
+    private Long brandID;
     private String brandName;
+
+    private Long supplierID;
     private String supplierName;
 
-    private Long categoryID;
-    private Long brandID;
-    private Long supplierID;
+
+
+
 
 }
