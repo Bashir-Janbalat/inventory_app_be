@@ -21,4 +21,8 @@ public class ProductDTO {
     private String brandName;
     private String supplierName;
 
+    private Long categoryID;
+    private Long brandID;
+    private Long supplierID;
+
 }

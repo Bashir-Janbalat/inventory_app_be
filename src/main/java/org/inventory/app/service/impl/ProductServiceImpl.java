@@ -33,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public ProductDTO getProductById(Long id) {
-        return productMapper.toDto(productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found")));
+        return productMapper.toDto(productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product with ID '" + id + "' not found.")));
     }
 
     public ProductDTO createProduct(ProductDTO dto) {
@@ -45,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
 
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product existing = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID '" + id + "' not found."));
 
         Product updated = productMapper.toEntity(dto);
         updated.setId(id); // wichtig!
@@ -58,27 +58,27 @@ public class ProductServiceImpl implements ProductService {
 
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Product not found");
+            throw new ResourceNotFoundException("Product with ID '" + id + "' not found.");
         }
         productRepository.deleteById(id);
     }
 
     private void setReferences(Product product, ProductDTO dto) {
-        if (dto.getCategoryName() != null) {
-            Category category = categoryRepository.findByName(dto.getCategoryName())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category '" + dto.getCategoryName() + "' not found"));
+        if (dto.getCategoryID() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryID())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category with ID '" + dto.getCategoryID() + "' not found."));
             product.setCategory(category);
         }
 
-        if (dto.getBrandName() != null) {
-            Brand brand = brandRepository.findByName(dto.getBrandName())
-                    .orElseThrow(() -> new ResourceNotFoundException("Brand '" + dto.getBrandName() + "' not found"));
+        if (dto.getBrandID() != null) {
+            Brand brand = brandRepository.findById(dto.getBrandID())
+                    .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + dto.getBrandID() + "' not found."));
             product.setBrand(brand);
         }
 
-        if (dto.getSupplierName() != null) {
-            Supplier supplier = supplierRepository.findByName(dto.getSupplierName())
-                    .orElseThrow(() -> new ResourceNotFoundException("Supplier '" + dto.getSupplierName() + "' not found"));
+        if (dto.getSupplierID() != null) {
+            Supplier supplier = supplierRepository.findById(dto.getSupplierID())
+                    .orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + dto.getSupplierID() + "' not found."));
             product.setSupplier(supplier);
         }
     }
