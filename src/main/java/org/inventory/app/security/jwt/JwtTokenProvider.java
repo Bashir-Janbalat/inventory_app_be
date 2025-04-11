@@ -17,23 +17,21 @@ public class JwtTokenProvider {
 
     @Value( "${jwt.secret.key}")
     private String jwtSecret;
-    @Value( "${jwt.expiration.date}")
-    private long jwtExpirationDate;
+    @Value( "${jwt.expiration.time}")
+    private long jwtExpirationTime;
 
     public String generateToken(Authentication authentication) {
 
         String username = authentication.getName();
         Date currentDate = new Date();
-        Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
+        Date expireDate = new Date(currentDate.getTime() + jwtExpirationTime);
 
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
                 .expiration(expireDate)
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
-
-        return token;
     }
 
     private Key key(){
@@ -51,7 +49,6 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    // validate JWT token
     public boolean validateToken(String token){
         Jwts.parser()
                 .verifyWith((SecretKey) key())
