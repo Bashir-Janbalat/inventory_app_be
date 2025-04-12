@@ -2,7 +2,8 @@ package org.inventory.app.controller;
 
 import lombok.AllArgsConstructor;
 import org.inventory.app.dto.AuthResponseDto;
-import org.inventory.app.dto.LoginDto;
+import org.inventory.app.dto.LoginDTO;
+import org.inventory.app.dto.UserDTO;
 import org.inventory.app.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDTO loginDto) {
 
         String token = authService.login(loginDto);
 
@@ -27,5 +28,11 @@ public class AuthController {
         authResponseDto.setAccessToken(token);
 
         return new ResponseEntity<>(authResponseDto, HttpStatus.OK);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<Void> signup(@RequestBody UserDTO userDTO) {
+        authService.signup(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

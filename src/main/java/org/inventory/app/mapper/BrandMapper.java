@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BrandMapper {
 
-    // Konvertiert BrandDTO zu Brand (Entity)
+
     public Brand toEntity(BrandDTO brandDTO) {
         if (brandDTO == null) {
             return null;
@@ -18,7 +18,7 @@ public class BrandMapper {
 
         return brand;
     }
-    // Konvertiert Brand (Entity) zu BrandDTO
+
     public BrandDTO toDto(Brand brand) {
         if (brand == null) {
             return null;
