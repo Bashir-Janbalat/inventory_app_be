@@ -23,11 +23,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(productService.getProductById(id));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
     @PostMapping
@@ -37,20 +33,12 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO dto) {
-        try {
-            return ResponseEntity.ok(productService.updateProduct(id, dto));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(productService.updateProduct(id, dto));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deleteProduct(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException ex) {
-            return ResponseEntity.notFound().build();
-        }
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

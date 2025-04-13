@@ -2,6 +2,7 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
+import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
 import org.inventory.app.repository.BrandRepository;
@@ -25,7 +26,32 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public BrandDTO getBrandById(Long id) {
+        return brandMapper.toDto(brandRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found.")));
+    }
+
+    @Override
     public List<BrandDTO> getAllBrands() {
         return brandRepository.findAll().stream().map(brandMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
+        Brand existing = brandRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found."));
+
+        Brand updated = brandMapper.toEntity(brandDTO);
+        updated.setId(id);
+
+        Brand saved = brandRepository.save(updated);
+        return brandMapper.toDto(saved);
+    }
+
+    @Override
+    public void deleteBrand(Long id) {
+        if (!brandRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
+        }
+        brandRepository.deleteById(id);
     }
 }

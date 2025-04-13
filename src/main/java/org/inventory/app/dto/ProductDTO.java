@@ -3,8 +3,11 @@ package org.inventory.app.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.inventory.app.model.Image;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,6 +28,7 @@ public class ProductDTO {
 
     private Long supplierID;
     private String supplierName;
+    private List<Image> images = new ArrayList<>();
 
 
 

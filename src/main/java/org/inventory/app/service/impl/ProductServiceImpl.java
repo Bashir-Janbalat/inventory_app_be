@@ -81,5 +81,9 @@ public class ProductServiceImpl implements ProductService {
                     .orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + dto.getSupplierID() + "' not found."));
             product.setSupplier(supplier);
         }
+        if (!dto.getImages().isEmpty()) {
+            dto.getImages().forEach(image -> image.setProduct(product));
+            product.setImages(dto.getImages());
+        }
     }
 }

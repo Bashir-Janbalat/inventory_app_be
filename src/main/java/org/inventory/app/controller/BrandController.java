@@ -27,4 +27,15 @@ public class BrandController {
         List<BrandDTO> brands = brandService.getAllBrands();
         return ResponseEntity.ok(brands);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BrandDTO> getBrandById(@PathVariable Long id) {
+        return ResponseEntity.ok(brandService.getBrandById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDTO) {
+        return ResponseEntity.ok(brandService.updateBrand(id, brandDTO));
+    }
+
 }

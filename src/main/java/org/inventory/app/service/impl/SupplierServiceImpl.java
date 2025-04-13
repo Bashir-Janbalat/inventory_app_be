@@ -2,6 +2,7 @@ package org.inventory.app.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.inventory.app.dto.SupplierDTO;
+import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.SupplierMapper;
 import org.inventory.app.model.Supplier;
 import org.inventory.app.repository.SupplierRepository;
@@ -25,7 +26,33 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    public SupplierDTO getSupplierById(Long id) {
+        return supplierMapper.toDto(supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found.")));
+
+    }
+
+    @Override
     public List<SupplierDTO> getAllSuppliers() {
         return supplierRepository.findAll().stream().map(supplierMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
+        Supplier existing = supplierRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found."));
+
+        Supplier updated = supplierMapper.toEntity(supplierDTO);
+        updated.setId(id);
+
+        Supplier saved = supplierRepository.save(updated);
+        return supplierMapper.toDto(saved);
+    }
+
+    @Override
+    public void deleteSupplier(Long id) {
+        if (!supplierRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Supplier with ID '" + id + "' not found.");
+        }
+        supplierRepository.deleteById(id);
     }
 }
