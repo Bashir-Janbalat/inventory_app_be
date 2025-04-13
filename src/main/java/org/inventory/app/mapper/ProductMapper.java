@@ -57,8 +57,6 @@ public class ProductMapper {
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
 
-        // TODO Achtung: category, brand und supplier müssen separat gesetzt werden!
-        // zB. per Service oder Repository nach ID/Name laden
 
         return product;
     }
