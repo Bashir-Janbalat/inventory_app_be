@@ -38,4 +38,7 @@ public class Product {
     /* orphanRemoval = true – Wenn ein Bild aus der Liste entfernt wird, wird es auch aus der DB gelöscht */
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
+    @OneToOne(mappedBy = "product")
+    private Stock stock;
 }

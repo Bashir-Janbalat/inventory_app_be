@@ -40,6 +40,9 @@ public class ProductMapper {
         if (product.getSupplier() != null) {
             dto.setSupplierID(product.getSupplier().getId());
         }
+        if(product.getStock() != null){
+            dto.setStock(product.getStock());
+        }
 
         return dto;
     }
