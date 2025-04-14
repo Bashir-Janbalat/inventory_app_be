@@ -1,6 +1,5 @@
 package org.inventory.app.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,7 +12,6 @@ public class Stock {
     @MapsId
     @OneToOne
     @JoinColumn(name = "product_id")
-    @JsonIgnore
     private Product product;
 
     private int quantity;

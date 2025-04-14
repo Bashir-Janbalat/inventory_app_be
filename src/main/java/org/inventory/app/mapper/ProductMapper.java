@@ -1,11 +1,17 @@
 package org.inventory.app.mapper;
 
+import lombok.AllArgsConstructor;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.model.Product;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class ProductMapper {
+
+    private final StockMapper stockMapper;
+    private final ImageMapper imageMapper;
+    private final ProductAttributeMapper productAttributeMapper;
 
     public ProductDTO toDto(Product product) {
         if (product == null) return null;
@@ -16,7 +22,8 @@ public class ProductMapper {
         dto.setSku(product.getSku());
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
-        dto.setImages(product.getImages());
+        dto.setImages(product.getImages().stream().
+                map(imageMapper::toDto).toList());
 
         if (product.getCategory() != null) {
             dto.setCategoryName(product.getCategory().getName());
@@ -40,8 +47,12 @@ public class ProductMapper {
         if (product.getSupplier() != null) {
             dto.setSupplierID(product.getSupplier().getId());
         }
-        if(product.getStock() != null){
-            dto.setStock(product.getStock());
+        if (product.getStock() != null) {
+            dto.setStock(stockMapper.toDto(product.getStock()));
+        }
+        if (!product.getProductAttributes().isEmpty()) {
+            dto.setProductAttributes(product.getProductAttributes().stream().
+                    map(productAttributeMapper::toDto).toList());
         }
 
         return dto;
