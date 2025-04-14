@@ -1,9 +1,13 @@
 package org.inventory.app.security.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -15,10 +19,12 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value( "${jwt.secret.key}")
+    @Value("${jwt.secret.key}")
     private String jwtSecret;
-    @Value( "${jwt.expiration.time}")
+    @Value("${jwt.expiration.time}")
     private long jwtExpirationTime;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     public String generateToken(Authentication authentication) {
 
@@ -34,12 +40,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private Key key(){
+    private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    // extract username from JWT token
-    public String getUsername(String token){
+    public String getUsername(String token) {
 
         return Jwts.parser()
                 .verifyWith((SecretKey) key())
@@ -49,12 +54,20 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public boolean validateToken(String token){
-        Jwts.parser()
-                .verifyWith((SecretKey) key())
-                .build()
-                .parse(token);
-        return true;
-
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith((SecretKey) key())
+                    .build()
+                    .parse(token);
+            return true;
+        } catch (ExpiredJwtException ex) {
+            logger.error("JWT token is expired: {}", ex.getMessage());
+        } catch (JwtException ex) {
+            logger.error("JWT token is invalid: {}", ex.getMessage());
+        } catch (Exception ex) {
+            logger.error("An error occurred while validating the JWT token: {}", ex.getMessage());
+        }
+        return false;
     }
 }
