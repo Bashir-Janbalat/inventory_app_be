@@ -7,6 +7,7 @@ import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
 import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.service.BrandService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,8 +32,8 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public List<BrandDTO> getAllBrands() {
-        return brandRepository.findAll().stream().map(brandMapper::toDto).collect(Collectors.toList());
+    public List<BrandDTO> getAllBrands(Pageable pageable) {
+        return brandRepository.findAll(pageable).stream().map(brandMapper::toDto).collect(Collectors.toList());
     }
 
     @Override

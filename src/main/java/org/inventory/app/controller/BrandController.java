@@ -3,6 +3,8 @@ package org.inventory.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.service.BrandService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +25,9 @@ public class BrandController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BrandDTO>> getAllBrands() {
-        List<BrandDTO> brands = brandService.getAllBrands();
+    public ResponseEntity<List<BrandDTO>> getAllBrands(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<BrandDTO> brands = brandService.getAllBrands(pageable);
         return ResponseEntity.ok(brands);
     }
 

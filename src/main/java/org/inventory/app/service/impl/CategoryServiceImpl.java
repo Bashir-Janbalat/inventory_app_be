@@ -7,6 +7,7 @@ import org.inventory.app.mapper.CategoryMapper;
 import org.inventory.app.model.Category;
 import org.inventory.app.repository.CategoryRepository;
 import org.inventory.app.service.CategoryService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,9 +34,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
-        return categories.stream()
+    public List<CategoryDTO> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable).stream()
                 .map(categoryMapper::toDto)
                 .collect(Collectors.toList());
     }

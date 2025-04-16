@@ -3,6 +3,8 @@ package org.inventory.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.service.ProductService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +19,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductDTO> getAllProducts() {
-        return productService.getAllProducts();
+    public List<ProductDTO> getAllProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.getAllProducts(pageable);
     }
 
     @GetMapping("/{id}")

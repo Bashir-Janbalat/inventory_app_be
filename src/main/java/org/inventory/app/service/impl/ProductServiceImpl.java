@@ -13,6 +13,7 @@ import org.inventory.app.repository.CategoryRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.ProductService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,8 +33,8 @@ public class ProductServiceImpl implements ProductService {
     private final StockMapper stockMapper;
     private final ProductAttributeMapper productAttributeMapper;
 
-    public List<ProductDTO> getAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toList());
+    public List<ProductDTO> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).stream().map(productMapper::toDto).collect(Collectors.toList());
     }
 
     public ProductDTO getProductById(Long id) {
