@@ -62,7 +62,7 @@ public class SupplierControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("should return all suppliers sorted descending")
+    @DisplayName("should return all suppliers sorted ascending")
     @WithMockUser(roles = {"ADMIN"})
     void shouldReturnSuppliersSortedAscending() throws Exception {
         performGetRequest(BASE_URL_SUPPLIERS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
