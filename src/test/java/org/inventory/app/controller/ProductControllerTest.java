@@ -140,6 +140,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should handle invalid Product Data")
         void shouldHandleInvalidProductData() throws Exception {
             performPostRequest(BASE_URL_PRODUCTS, "{}")
                     .andExpect(status().isBadRequest())
@@ -149,6 +150,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should create a new product")
         public void createNewLaptopProductShouldReturnCreatedProduct() throws Exception {
             CategoryDTO laptops = categoryService.createCategory(new CategoryDTO("Laptops"));
             BrandDTO apple = brandService.createBrand(new BrandDTO("Apple"));
@@ -218,6 +220,7 @@ public class ProductControllerTest extends BaseControllerTest {
     class GetProductTests {
 
         @Test
+        @DisplayName("should return unauthorized without token")
         void shouldReturnUnauthorizedWithoutToken() throws Exception {
             performGetRequest(BASE_URL_PRODUCTS)
                     .andExpect(status().isUnauthorized());
@@ -225,6 +228,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return paginated products")
         public void shouldReturnPaginatedProducts() throws Exception {
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 1, "asc")
                     .andExpect(status().isOk());
@@ -233,6 +237,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return products sorted ascending")
         public void shouldReturnProductsSortedAscending() throws Exception {
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
                     .andExpect(status().isOk())
@@ -244,6 +249,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return products sorted descending")
         public void shouldReturnProductsSortedDescending() throws Exception {
 
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
@@ -256,6 +262,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return product by Id")
         public void shouldReturnProductByIdSamsungPhone() throws Exception {
             Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
             if (product.isEmpty()) {
@@ -269,6 +276,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return product by Id")
         public void shouldReturnProductByIdBoschWasher() throws Exception {
             Optional<Product> product = productRepository.findBySku(BOSCH_SKU);
             if (product.isEmpty()) {
@@ -282,6 +290,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return 404 when product not found")
         void shouldReturn404WhenProductNotFound() throws Exception {
             performGetRequest(BASE_URL_PRODUCTS + "/%d", 999)
                     .andExpect(status().isNotFound());
@@ -290,6 +299,7 @@ public class ProductControllerTest extends BaseControllerTest {
         @Test
         @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return products within time limit")
         void shouldReturnProductsWithinTimeLimit() throws Exception {
             mockMvc.perform(get(BASE_URL_PRODUCTS))
                     .andExpect(status().isOk())
@@ -304,6 +314,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should update existing product")
         void shouldUpdateExistingProduct() throws Exception {
             Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
             if (product.isEmpty()) {
@@ -328,6 +339,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return 404 when updating non existent product")
         void shouldReturn404WhenUpdatingNonExistentProduct() throws Exception {
             Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
             if (product.isEmpty()) {
@@ -347,6 +359,7 @@ public class ProductControllerTest extends BaseControllerTest {
         }
 
         @Test
+        @DisplayName("should return unauthorized for update without token")
         void shouldReturnUnauthorizedForUpdateWithoutToken() throws Exception {
             ProductDTO updateDto = new ProductDTO();
             updateDto.setName("Test Product");
@@ -356,6 +369,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should handle invalid product data for update")
         void shouldHandleInvalidProductDataForUpdate() throws Exception {
             Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
             if (product.isEmpty()) {
@@ -374,6 +388,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should delete existing product")
         void shouldDeleteExistingProduct() throws Exception {
             Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
             if (product.isEmpty()) {
@@ -388,12 +403,14 @@ public class ProductControllerTest extends BaseControllerTest {
 
         @Test
         @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return 404 When deleting non existent product")
         void shouldReturn404WhenDeletingNonExistentProduct() throws Exception {
             performDeleteRequest(BASE_URL_PRODUCTS + "/%d", 999)
                     .andExpect(status().isNotFound());
         }
 
         @Test
+        @DisplayName("should return unauthorized for delete without token")
         void shouldReturnUnauthorizedForDeleteWithoutToken() throws Exception {
             Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
             if (product.isEmpty()) {

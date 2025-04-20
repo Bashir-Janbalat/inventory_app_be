@@ -1,6 +1,7 @@
 package org.inventory.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.security.jwt.JwtTokenProvider;
 import org.inventory.app.service.BrandService;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public abstract class BaseControllerTest {
 
     protected static final String BASE_URL_PRODUCTS = "/api/products";
+    protected static final String BASE_URL_BRANDS = "/api/brands";
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
@@ -38,6 +40,8 @@ public abstract class BaseControllerTest {
     protected MockMvc mockMvc;
     @Autowired
     protected ProductRepository productRepository;
+    @Autowired
+    protected BrandRepository brandRepository;
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;

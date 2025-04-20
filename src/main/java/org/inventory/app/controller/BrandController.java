@@ -19,6 +19,8 @@ public class BrandController {
 
     private final BrandService brandService;
 
+
+
     @PostMapping
     public ResponseEntity<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
         BrandDTO createdBrand = brandService.createBrand(brandDTO);
