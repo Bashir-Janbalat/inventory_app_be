@@ -1,5 +1,6 @@
 package org.inventory.app.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.inventory.app.dto.AuthResponseDto;
 import org.inventory.app.dto.LoginDTO;
@@ -31,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Void> signup(@RequestBody @Valid UserDTO userDTO) {
         authService.signup(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

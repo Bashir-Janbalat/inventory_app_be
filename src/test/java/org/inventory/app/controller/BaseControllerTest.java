@@ -1,15 +1,9 @@
 package org.inventory.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.inventory.app.repository.BrandRepository;
-import org.inventory.app.repository.CategoryRepository;
-import org.inventory.app.repository.ProductRepository;
-import org.inventory.app.repository.SupplierRepository;
+import org.inventory.app.repository.*;
 import org.inventory.app.security.jwt.JwtTokenProvider;
-import org.inventory.app.service.BrandService;
-import org.inventory.app.service.CategoryService;
-import org.inventory.app.service.ProductService;
-import org.inventory.app.service.SupplierService;
+import org.inventory.app.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +23,8 @@ public abstract class BaseControllerTest {
     protected static final String BASE_URL_BRANDS = "/api/brands";
     protected static final String BASE_URL_SUPPLIERS = "/api/suppliers";
     protected static final String BASE_URL_CATEGORIES = "/api/categories";
+    protected static final String BASE_LOGIN_URL = "/api/auth/login";
+    protected static final String BASE_SIGNUP_URL = "/api/auth/signup";
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
@@ -39,6 +35,8 @@ public abstract class BaseControllerTest {
     protected BrandService brandService;
     @Autowired
     protected SupplierService supplierService;
+    @Autowired
+    protected UserService userService;
 
     @Autowired
     protected MockMvc mockMvc;
@@ -50,6 +48,8 @@ public abstract class BaseControllerTest {
     protected SupplierRepository supplierRepository;
     @Autowired
     protected CategoryRepository categoryRepository;
+    @Autowired
+    protected UserRepository userRepository;
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
