@@ -14,13 +14,16 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     private String name;
+
 
     @Column(unique = true)
     private String sku;
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
 
     private BigDecimal price;
 

@@ -3,20 +3,13 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.exception.ResourceNotFoundException;
-import org.inventory.app.mapper.ImageMapper;
-import org.inventory.app.mapper.ProductAttributeMapper;
 import org.inventory.app.mapper.ProductMapper;
-import org.inventory.app.mapper.StockMapper;
-import org.inventory.app.model.*;
-import org.inventory.app.repository.BrandRepository;
-import org.inventory.app.repository.CategoryRepository;
+import org.inventory.app.model.Product;
 import org.inventory.app.repository.ProductRepository;
-import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.ProductService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,13 +18,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final BrandRepository brandRepository;
-    private final SupplierRepository supplierRepository;
     private final ProductMapper productMapper;
-    private final ImageMapper imageMapper;
-    private final StockMapper stockMapper;
-    private final ProductAttributeMapper productAttributeMapper;
 
     public List<ProductDTO> getAllProducts(Pageable pageable) {
         return productRepository.findAll(pageable).stream().map(productMapper::toDto).collect(Collectors.toList());
@@ -43,7 +30,6 @@ public class ProductServiceImpl implements ProductService {
 
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = productMapper.toEntity(dto);
-        setReferences(product, dto);
         Product saved = productRepository.save(product);
         return productMapper.toDto(saved);
     }
@@ -55,7 +41,6 @@ public class ProductServiceImpl implements ProductService {
         Product updated = productMapper.toEntity(dto);
         updated.setId(id); // wichtig!
 
-        setReferences(updated, dto);
 
         Product saved = productRepository.save(updated);
         return productMapper.toDto(saved);
@@ -68,45 +53,5 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
-    private void setReferences(Product product, ProductDTO dto) {
-        if (dto.getCategoryID() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryID())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category with ID '" + dto.getCategoryID() + "' not found."));
-            product.setCategory(category);
-        }
 
-        if (dto.getBrandID() != null) {
-            Brand brand = brandRepository.findById(dto.getBrandID())
-                    .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + dto.getBrandID() + "' not found."));
-            product.setBrand(brand);
-        }
-
-        if (dto.getSupplierID() != null) {
-            Supplier supplier = supplierRepository.findById(dto.getSupplierID())
-                    .orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + dto.getSupplierID() + "' not found."));
-            product.setSupplier(supplier);
-        }
-        if (!dto.getImages().isEmpty()) {
-            List<Image> images = new ArrayList<>();
-            dto.getImages().forEach(imageDTO -> {
-                Image imageMapperEntity = imageMapper.toEntity(imageDTO);
-                imageMapperEntity.setProduct(product);
-                images.add(imageMapperEntity);
-            });
-            product.setImages(images);
-        }
-        if (dto.getStock() != null) {
-            Stock stockEntity = stockMapper.toEntity(dto.getStock());
-            stockEntity.setProduct(product);
-            product.setStock(stockEntity);
-        }
-        if (!dto.getProductAttributes().isEmpty()) {
-            product.setProductAttributes(dto.getProductAttributes().stream().map(productAttributeDTO -> {
-                ProductAttribute productAttribute = productAttributeMapper.toEntity(productAttributeDTO);
-                productAttribute.setProduct(product);
-                return productAttribute;
-            }).toList());
-
-        }
-    }
 }

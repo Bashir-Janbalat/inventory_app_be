@@ -1,14 +1,13 @@
 package org.inventory.app.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity(name = "product_attributes")
 @IdClass(ProductAttributeId.class)
 @Data
+@NoArgsConstructor
 public class ProductAttribute {
 
     @Id
@@ -19,5 +18,12 @@ public class ProductAttribute {
     @ManyToOne
     private Attribute attribute;
 
+    @Column(name = "attribute_value")
     private String value;
+
+    public ProductAttribute(Product product, Attribute attribute, String value) {
+        this.product = product;
+        this.attribute = attribute;
+        this.value = value;
+    }
 }

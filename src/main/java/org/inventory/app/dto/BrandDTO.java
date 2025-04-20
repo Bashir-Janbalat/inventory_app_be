@@ -11,4 +11,8 @@ public class BrandDTO {
 
     private Long id;
     private String name;
+
+    public BrandDTO(String name) {
+        this.name = name;
+    }
 }

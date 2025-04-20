@@ -1,5 +1,6 @@
 package org.inventory.app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.service.ProductService;
@@ -36,12 +37,12 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO dto) {
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody @Valid ProductDTO dto) {
         return ResponseEntity.ok(productService.createProduct(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO dto) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody @Valid ProductDTO dto) {
         return ResponseEntity.ok(productService.updateProduct(id, dto));
     }
 
