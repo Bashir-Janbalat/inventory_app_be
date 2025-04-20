@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.inventory.app.repository.BrandRepository;
+import org.inventory.app.repository.CategoryRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.security.jwt.JwtTokenProvider;
@@ -27,6 +28,7 @@ public abstract class BaseControllerTest {
     protected static final String BASE_URL_PRODUCTS = "/api/products";
     protected static final String BASE_URL_BRANDS = "/api/brands";
     protected static final String BASE_URL_SUPPLIERS = "/api/suppliers";
+    protected static final String BASE_URL_CATEGORIES = "/api/categories";
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
@@ -46,6 +48,8 @@ public abstract class BaseControllerTest {
     protected BrandRepository brandRepository;
     @Autowired
     protected SupplierRepository supplierRepository;
+    @Autowired
+    protected CategoryRepository categoryRepository;
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
