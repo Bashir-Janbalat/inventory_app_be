@@ -1,7 +1,6 @@
 package org.inventory.app.security.jwt;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +32,7 @@ public class JwtTokenProvider {
                 .subject(username)
                 .issuedAt(new Date())
                 .expiration(expireDate)
-                .signWith(key(), SignatureAlgorithm.HS256)
+                .signWith(key())
                 .compact();
     }
 
