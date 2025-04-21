@@ -3,6 +3,7 @@ package org.inventory.app.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,5 +55,18 @@ public class GlobalExceptionHandler {
         String message = "Validation Failed: " + errors;
         errorResponse.setMessage(message);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
+        errorResponse.setTimestamp(timestamp);
+        errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
+        errorResponse.setError("Access Denied.!!");
+        String message = "Access Denied. You don't have permission to access this resource.";
+        errorResponse.setMessage(message);
+        errorResponse.setPath(request.getRequestURI());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 }

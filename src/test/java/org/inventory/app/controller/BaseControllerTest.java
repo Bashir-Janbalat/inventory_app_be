@@ -50,9 +50,12 @@ public abstract class BaseControllerTest {
     protected CategoryRepository categoryRepository;
     @Autowired
     protected UserRepository userRepository;
+    @Autowired
+    protected RoleRepository roleRepository;
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
+
 
 
     protected ResultActions performGetRequest(String url, Object... params) throws Exception {
@@ -76,5 +79,6 @@ public abstract class BaseControllerTest {
         return mockMvc.perform(delete(String.format(url, params))
                 .contentType(MediaType.APPLICATION_JSON));
     }
+
 }
 

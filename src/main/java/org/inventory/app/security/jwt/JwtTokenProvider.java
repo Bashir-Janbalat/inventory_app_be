@@ -1,16 +1,14 @@
 package org.inventory.app.security.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -24,7 +22,6 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration.time}")
     private long jwtExpirationTime;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     public String generateToken(Authentication authentication) {
 
@@ -55,19 +52,20 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith((SecretKey) key())
-                    .build()
-                    .parse(token);
-            return true;
-        } catch (ExpiredJwtException ex) {
-            logger.error("JWT token is expired: {}", ex.getMessage());
-        } catch (JwtException ex) {
-            logger.error("JWT token is invalid: {}", ex.getMessage());
-        } catch (Exception ex) {
-            logger.error("An error occurred while validating the JWT token: {}", ex.getMessage());
+        Jwts.parser()
+                .verifyWith((SecretKey) key())
+                .build()
+                .parse(token);
+        return true;
+    }
+
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
-        return false;
+
+        return null;
     }
 }
