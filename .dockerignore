@@ -1,0 +1,6 @@
+.idea
+.env
+.env-docker
+.gitattributes
+.gitignore
+qodana.yaml
