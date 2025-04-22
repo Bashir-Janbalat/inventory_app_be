@@ -101,6 +101,11 @@ on:
 
 Die Tests wurden mit einer In-Memory H2-Datenbank durchgeführt, um die Funktionalität in einer isolierten Umgebung zu validieren.
 
+````bash
+
+mvn test
+````
+
 🧠 Autor
 
 Bashir Janbalat
