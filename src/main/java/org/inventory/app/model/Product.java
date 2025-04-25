@@ -1,22 +1,15 @@
 package org.inventory.app.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity( name = "products")
-@Data
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class Product extends BaseEntity {
 
     private String name;
-
 
     @Column(unique = true)
     private String sku;
