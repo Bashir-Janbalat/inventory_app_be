@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.service.ProductService;
 import org.springframework.data.domain.Page;
@@ -20,14 +21,15 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> getAllProducts(
+    public ResponseEntity<PagedResponseDTO<ProductDTO>> getAllProducts(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(productService.getAllProducts(pageable));
+        Page<ProductDTO> allProducts = productService.getAllProducts(pageable);
+        return ResponseEntity.ok(new PagedResponseDTO<>(allProducts));
     }
 
     @GetMapping("/{id}")

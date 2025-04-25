@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.service.BrandService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +28,7 @@ public class BrandController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BrandDTO>> getAllBrands(
+    public ResponseEntity<PagedResponseDTO<BrandDTO>> getAllBrands(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
@@ -35,7 +36,7 @@ public class BrandController {
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size,sort);
         Page<BrandDTO> brands = brandService.getAllBrands(pageable);
-        return ResponseEntity.ok(brands);
+        return ResponseEntity.ok(new PagedResponseDTO<>(brands));
     }
 
     @GetMapping("/{id}")

@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.CategoryDTO;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.service.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CategoryDTO>> getAllCategories(
+    public ResponseEntity<PagedResponseDTO<CategoryDTO>> getAllCategories(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
@@ -34,7 +35,7 @@ public class CategoryController {
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size,sort);
         Page<CategoryDTO> categories = categoryService.getAllCategories(pageable);
-        return ResponseEntity.ok(categories);
+        return ResponseEntity.ok(new PagedResponseDTO<>(categories));
     }
 
     @GetMapping("/{id}")
