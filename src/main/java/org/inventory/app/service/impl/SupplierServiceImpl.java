@@ -7,11 +7,9 @@ import org.inventory.app.mapper.SupplierMapper;
 import org.inventory.app.model.Supplier;
 import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.SupplierService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -33,8 +31,9 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public List<SupplierDTO> getAllSuppliers(Pageable pageable) {
-        return supplierRepository.findAll(pageable).stream().map(supplierMapper::toDto).collect(Collectors.toList());
+    public Page<SupplierDTO> getAllSuppliers(Pageable pageable) {
+        Page<Supplier> suppliers = supplierRepository.findAll(pageable);
+        return suppliers.map(supplierMapper::toDto);
     }
 
     @Override

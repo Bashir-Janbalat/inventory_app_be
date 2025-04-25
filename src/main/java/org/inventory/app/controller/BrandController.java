@@ -3,14 +3,13 @@ package org.inventory.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.service.BrandService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/brands")
@@ -28,14 +27,14 @@ public class BrandController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BrandDTO>> getAllBrands(
+    public ResponseEntity<Page<BrandDTO>> getAllBrands(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size,sort);
-        List<BrandDTO> brands = brandService.getAllBrands(pageable);
+        Page<BrandDTO> brands = brandService.getAllBrands(pageable);
         return ResponseEntity.ok(brands);
     }
 

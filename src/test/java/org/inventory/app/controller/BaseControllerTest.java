@@ -39,7 +39,7 @@ public abstract class BaseControllerTest {
     protected UserService userService;
 
     @Autowired
-    protected MockMvc mockMvc;
+    private MockMvc mockMvc;
     @Autowired
     protected ProductRepository productRepository;
     @Autowired

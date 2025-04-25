@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -232,7 +231,7 @@ public class ProductControllerTest extends BaseControllerTest {
         public void shouldReturnPaginatedProducts() throws Exception {
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 1, "asc")
                     .andExpect(status().isOk());
-            assertProductBoschWasher(result, "$[0]");
+            assertProductBoschWasher(result, "$.content[0]");
         }
 
         @Test
@@ -241,10 +240,11 @@ public class ProductControllerTest extends BaseControllerTest {
         public void shouldReturnProductsSortedAscending() throws Exception {
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(2)));
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(2));
 
-            assertProductBoschWasher(result, "$[0]");
-            assertProductSamsungPhone(result, "$[1]");
+            assertProductBoschWasher(result, "$.content[0]");
+            assertProductSamsungPhone(result, "$.content[1]");
         }
 
         @Test
@@ -254,10 +254,10 @@ public class ProductControllerTest extends BaseControllerTest {
 
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(2)));
-
-            assertProductSamsungPhone(result, "$[0]");
-            assertProductBoschWasher(result, "$[1]");
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(2));
+            assertProductSamsungPhone(result, "$.content[0]");
+            assertProductBoschWasher(result, "$.content[1]");
         }
 
         @Test
@@ -301,9 +301,10 @@ public class ProductControllerTest extends BaseControllerTest {
         @WithMockUser(roles = {"ADMIN"})
         @DisplayName("should return products within time limit")
         void shouldReturnProductsWithinTimeLimit() throws Exception {
-            mockMvc.perform(get(BASE_URL_PRODUCTS))
+            performGetRequest(BASE_URL_PRODUCTS+"?page=%d&size=%d", 0, 100)
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(2)));
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(2));
         }
     }
 

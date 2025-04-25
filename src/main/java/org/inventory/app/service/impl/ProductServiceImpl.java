@@ -7,11 +7,9 @@ import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.Product;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.ProductService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +18,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public List<ProductDTO> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable).stream().map(productMapper::toDto).collect(Collectors.toList());
+    public Page<ProductDTO> getAllProducts(Pageable pageable) {
+        Page<Product> productPage = productRepository.findAll(pageable);
+        return productPage.map(productMapper::toDto);
     }
 
     public ProductDTO getProductById(Long id) {

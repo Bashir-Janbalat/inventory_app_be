@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +57,9 @@ public class SupplierControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.contactEmail").value(supplierDTO.getContactEmail()));
 
         performGetRequest(BASE_URL_SUPPLIERS)
-                .andExpect(jsonPath("$", hasSize(testSuppliers.size() + 1)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(testSuppliers.size()+ 1));
     }
 
     @Test
@@ -67,13 +68,14 @@ public class SupplierControllerTest extends BaseControllerTest {
     void shouldReturnSuppliersSortedAscending() throws Exception {
         performGetRequest(BASE_URL_SUPPLIERS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(testSuppliers.size())))
-                .andExpect(jsonPath("$[0].name").value(testSuppliers.get(0).getName()))
-                .andExpect(jsonPath("$[0].contactEmail").value(testSuppliers.get(0).getContactEmail()))
-                .andExpect(jsonPath("$[1].name").value(testSuppliers.get(1).getName()))
-                .andExpect(jsonPath("$[1].contactEmail").value(testSuppliers.get(1).getContactEmail()))
-                .andExpect(jsonPath("$[2].name").value(testSuppliers.get(2).getName()))
-                .andExpect(jsonPath("$[2].contactEmail").value(testSuppliers.get(2).getContactEmail()));
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(testSuppliers.size()))
+                .andExpect(jsonPath("$.content[0].name").value(testSuppliers.get(0).getName()))
+                .andExpect(jsonPath("$.content[0].contactEmail").value(testSuppliers.get(0).getContactEmail()))
+                .andExpect(jsonPath("$.content[1].name").value(testSuppliers.get(1).getName()))
+                .andExpect(jsonPath("$.content[1].contactEmail").value(testSuppliers.get(1).getContactEmail()))
+                .andExpect(jsonPath("$.content[2].name").value(testSuppliers.get(2).getName()))
+                .andExpect(jsonPath("$.content[2].contactEmail").value(testSuppliers.get(2).getContactEmail()));
     }
 
     @Test
@@ -82,12 +84,13 @@ public class SupplierControllerTest extends BaseControllerTest {
     void shouldReturnSuppliersSortedDescending() throws Exception {
         performGetRequest(BASE_URL_SUPPLIERS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(testSuppliers.size())))
-                .andExpect(jsonPath("$[0].name").value(testSuppliers.get(2).getName()))
-                .andExpect(jsonPath("$[0].contactEmail").value(testSuppliers.get(2).getContactEmail()))
-                .andExpect(jsonPath("$[1].name").value(testSuppliers.get(1).getName()))
-                .andExpect(jsonPath("$[1].contactEmail").value(testSuppliers.get(1).getContactEmail()))
-                .andExpect(jsonPath("$[2].name").value(testSuppliers.get(0).getName()));
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(testSuppliers.size()))
+                .andExpect(jsonPath("$.content[0].name").value(testSuppliers.get(2).getName()))
+                .andExpect(jsonPath("$.content[0].contactEmail").value(testSuppliers.get(2).getContactEmail()))
+                .andExpect(jsonPath("$.content[1].name").value(testSuppliers.get(1).getName()))
+                .andExpect(jsonPath("$.content[1].contactEmail").value(testSuppliers.get(1).getContactEmail()))
+                .andExpect(jsonPath("$.content[2].name").value(testSuppliers.get(0).getName()));
     }
 
     @Test

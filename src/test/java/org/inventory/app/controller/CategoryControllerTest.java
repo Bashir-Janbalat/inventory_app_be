@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +52,7 @@ public class CategoryControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(categoryDTO.getName()));
 
         performGetRequest(BASE_URL_CATEGORIES)
-                .andExpect(jsonPath("$", hasSize(categoryDTOS.size() + 1)));
+                .andExpect(jsonPath("$.totalElements").value(categoryDTOS.size() + 1));
     }
 
     @Test
@@ -62,10 +61,11 @@ public class CategoryControllerTest extends BaseControllerTest {
     void shouldReturnCategoriesSortedAscending() throws Exception {
         performGetRequest(BASE_URL_CATEGORIES + "?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(categoryDTOS.size())))
-                .andExpect(jsonPath("$[0].name").value(categoryDTOS.get(0).getName()))
-                .andExpect(jsonPath("$[1].name").value(categoryDTOS.get(1).getName()))
-                .andExpect(jsonPath("$[2].name").value(categoryDTOS.get(2).getName()));
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(categoryDTOS.size()))
+                .andExpect(jsonPath("$.content[0].name").value(categoryDTOS.get(0).getName()))
+                .andExpect(jsonPath("$.content[1].name").value(categoryDTOS.get(1).getName()))
+                .andExpect(jsonPath("$.content[2].name").value(categoryDTOS.get(2).getName()));
     }
 
     @Test
@@ -74,10 +74,11 @@ public class CategoryControllerTest extends BaseControllerTest {
     void shouldReturnCategoriesSortedDescending() throws Exception {
         performGetRequest(BASE_URL_CATEGORIES + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(categoryDTOS.size())))
-                .andExpect(jsonPath("$[0].name").value(categoryDTOS.get(2).getName()))
-                .andExpect(jsonPath("$[1].name").value(categoryDTOS.get(1).getName()))
-                .andExpect(jsonPath("$[2].name").value(categoryDTOS.get(0).getName()));
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(categoryDTOS.size()))
+                .andExpect(jsonPath("$.content[0].name").value(categoryDTOS.get(2).getName()))
+                .andExpect(jsonPath("$.content[1].name").value(categoryDTOS.get(1).getName()))
+                .andExpect(jsonPath("$.content[2].name").value(categoryDTOS.get(0).getName()));
     }
 
     @Test

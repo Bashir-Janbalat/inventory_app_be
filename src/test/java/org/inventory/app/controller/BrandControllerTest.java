@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,30 +52,35 @@ public class BrandControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.name").value(brandDTO.getName()));
 
         performGetRequest(BASE_URL_BRANDS)
-                .andExpect(jsonPath("$", hasSize(testBrands.size() + 1)));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(testBrands.size() + 1));
     }
+
     @Test
     @DisplayName("should return all brands sorted descending")
     @WithMockUser(roles = {"ADMIN"})
     void shouldReturnBrandsSortedAscending() throws Exception {
-        performGetRequest(BASE_URL_BRANDS+"?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
+        performGetRequest(BASE_URL_BRANDS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "asc")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(testBrands.size())))
-                .andExpect(jsonPath("$[0].name").value(testBrands.get(0).getName()))
-                .andExpect(jsonPath("$[1].name").value(testBrands.get(1).getName()))
-                .andExpect(jsonPath("$[2].name").value(testBrands.get(2).getName()));
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.content[0].name").value(testBrands.get(0).getName()))
+                .andExpect(jsonPath("$.content[1].name").value(testBrands.get(1).getName()))
+                .andExpect(jsonPath("$.content[2].name").value(testBrands.get(2).getName()));
     }
 
     @Test
     @DisplayName("should return all brands sorted descending")
     @WithMockUser(roles = {"ADMIN"})
     void shouldReturnBrandsSortedDescending() throws Exception {
-        performGetRequest(BASE_URL_BRANDS+"?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
+        performGetRequest(BASE_URL_BRANDS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(testBrands.size())))
-                .andExpect(jsonPath("$[0].name").value(testBrands.get(2).getName()))
-                .andExpect(jsonPath("$[1].name").value(testBrands.get(1).getName()))
-                .andExpect(jsonPath("$[2].name").value(testBrands.get(0).getName()));
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.content[0].name").value(testBrands.get(2).getName()))
+                .andExpect(jsonPath("$.content[1].name").value(testBrands.get(1).getName()))
+                .andExpect(jsonPath("$.content[2].name").value(testBrands.get(0).getName()));
     }
 
     @Test

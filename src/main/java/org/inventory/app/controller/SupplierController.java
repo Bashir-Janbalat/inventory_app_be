@@ -3,14 +3,13 @@ package org.inventory.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.SupplierDTO;
 import org.inventory.app.service.SupplierService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/suppliers")
@@ -27,14 +26,14 @@ public class SupplierController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SupplierDTO>> getAllSuppliers(
+    public ResponseEntity<Page<SupplierDTO>> getAllSuppliers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        List<SupplierDTO> suppliers = supplierService.getAllSuppliers(pageable);
+        Page<SupplierDTO> suppliers = supplierService.getAllSuppliers(pageable);
         return ResponseEntity.ok(suppliers);
     }
 
