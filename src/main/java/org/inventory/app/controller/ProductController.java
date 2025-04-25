@@ -23,10 +23,11 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<PagedResponseDTO<ProductDTO>> getAllProducts(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by("name").descending() :
-                Sort.by("name").ascending();
+                Sort.by(sortBy).descending() :
+                Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<ProductDTO> allProducts = productService.getAllProducts(pageable);
         return ResponseEntity.ok(new PagedResponseDTO<>(allProducts));
