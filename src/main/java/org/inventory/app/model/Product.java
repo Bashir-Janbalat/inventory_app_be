@@ -1,12 +1,16 @@
 package org.inventory.app.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity( name = "products")
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class Product extends BaseEntity {
 
     private String name;
