@@ -52,5 +52,11 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
     }
 
+    @Override
+    public Page<ProductDTO> searchProducts(String searchBy, Pageable pageable) {
+        Page<Product> productPage = productRepository.findByNameContainingIgnoreCase(searchBy, pageable);
+        return productPage.map(productMapper::toDto);
+    }
+
 
 }

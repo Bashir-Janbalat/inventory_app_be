@@ -1,5 +1,6 @@
 package org.inventory.app.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.inventory.app.dto.*;
 import org.inventory.app.model.Product;
 import org.junit.jupiter.api.*;
@@ -305,6 +306,62 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.totalPages").value(1))
                     .andExpect(jsonPath("$.totalElements").value(2));
+        }
+        @Test
+        @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should return product searched by name")
+        void shouldReturnProductSearchedBy() throws Exception {
+
+            CategoryDTO laptops = categoryService.createCategory(new CategoryDTO("Laptops"));
+            BrandDTO apple = brandService.createBrand(new BrandDTO("Apple"));
+            SupplierDTO appleDE = supplierService.createSupplier(new SupplierDTO("Apple Deutschland GmbH", "apple.support@apple.de"));
+
+            ProductDTO productDto = ProductDTO.builder()
+                    .name("SearchBy Product")
+                    .sku("MBP16-M2-32GB")
+                    .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
+                    .price(BigDecimal.valueOf(3499.99))
+                    .categoryID(laptops.getId())
+                    .brandID(apple.getId())
+                    .supplierID(appleDE.getId())
+                    .images(List.of(ImageDTO.builder()
+                            .imageUrl("https://store.apple.com/macbook-pro-16-space-gray.png")
+                            .altText("MacBook Pro 16 Zoll in Space Grau")
+                            .build()))
+                    .stock(StockDTO.builder()
+                            .quantity(15)
+                            .warehouseLocation("Berlin-Mitte")
+                            .build())
+                    .productAttributes(List.of(
+                            ProductAttributeDTO.builder()
+                                    .attributeName("processor")
+                                    .attributeValue("Apple M2 Max")
+                                    .build(),
+                            ProductAttributeDTO.builder()
+                                    .attributeName("ram")
+                                    .attributeValue("32GB")
+                                    .build(),
+                            ProductAttributeDTO.builder()
+                                    .attributeName("storage")
+                                    .attributeValue("1TB SSD")
+                                    .build()
+                    ))
+                    .build();
+
+            String productJson = MAPPER.writeValueAsString(productDto);
+
+            performPostRequest(BASE_URL_PRODUCTS, productJson)
+                    .andExpect(status().isOk());
+
+            performGetRequest(
+                    String.format(BASE_URL_PRODUCTS + "?page=0&size=100&searchBy=%s", "SearchBy Product"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(1))
+                    .andExpect(jsonPath("$.content[0].name").value("SearchBy Product"))
+                    .andExpect(jsonPath("$.content[0].sku").value("MBP16-M2-32GB"))
+                    .andExpect(jsonPath("$.content[0].price").value(3499.99))
+                    .andExpect(jsonPath("$.content[0].description").value("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau"));
         }
     }
 

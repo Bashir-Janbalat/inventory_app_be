@@ -1,6 +1,9 @@
 package org.inventory.app.repository;
 
+import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +14,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
     Optional<Product> findBySku(String sku001);
+
+    Page<Product> findByNameContainingIgnoreCase(String searchBy, Pageable pageable);
 }
