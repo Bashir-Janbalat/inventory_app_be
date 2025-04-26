@@ -28,12 +28,17 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<PagedResponseDTO<CategoryDTO>> getAllCategories(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable;
+        if (page == null || size == null) {
+            pageable = Pageable.unpaged();
+        } else {
+            pageable = PageRequest.of(page, size, sort);
+        }
         Page<CategoryDTO> categories = categoryService.getAllCategories(pageable);
         return ResponseEntity.ok(new PagedResponseDTO<>(categories));
     }

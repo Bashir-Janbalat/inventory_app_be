@@ -20,7 +20,6 @@ public class BrandController {
     private final BrandService brandService;
 
 
-
     @PostMapping
     public ResponseEntity<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
         BrandDTO createdBrand = brandService.createBrand(brandDTO);
@@ -29,12 +28,17 @@ public class BrandController {
 
     @GetMapping
     public ResponseEntity<PagedResponseDTO<BrandDTO>> getAllBrands(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable;
+        if (page == null || size == null) {
+            pageable = Pageable.unpaged();
+        } else {
+            pageable = PageRequest.of(page, size, sort);
+        }
         Page<BrandDTO> brands = brandService.getAllBrands(pageable);
         return ResponseEntity.ok(new PagedResponseDTO<>(brands));
     }
