@@ -27,7 +27,8 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sortDirection,
             @RequestParam(defaultValue = "") String searchBy,
             @RequestParam(defaultValue = "") String categoryName,
-            @RequestParam(defaultValue = "") String brandName) {
+            @RequestParam(defaultValue = "") String brandName,
+            @RequestParam(defaultValue = "") String supplierName) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
@@ -36,6 +37,7 @@ public class ProductController {
                 searchBy,
                 categoryName,
                 brandName,
+                supplierName,
                 pageable
         );
         return ResponseEntity.ok(new PagedResponseDTO<>(products));

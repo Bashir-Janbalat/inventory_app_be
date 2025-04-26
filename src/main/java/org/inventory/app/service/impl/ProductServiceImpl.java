@@ -55,15 +55,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, Pageable pageable) {
+    public Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, String supplierName, Pageable pageable) {
 
-        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty()) {
+        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
             return getAllProducts(pageable);
         }
         Specification<Product> spec = Specification
                 .where(ProductSpecifications.hasNameLike(searchBy))
                 .and(ProductSpecifications.hasCategory(categoryName))
-                .and(ProductSpecifications.hasBrand(brandName));
+                .and(ProductSpecifications.hasBrand(brandName))
+                .and(ProductSpecifications.hasSupplier(supplierName));
 
         return productRepository.findAll(spec, pageable).map(productMapper::toDto);
     }

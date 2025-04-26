@@ -28,12 +28,17 @@ public class SupplierController {
 
     @GetMapping
     public ResponseEntity<PagedResponseDTO<SupplierDTO>> getAllSuppliers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "asc") String sortDirection) {
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable;
+        if (page == null || size == null) {
+            pageable = Pageable.unpaged();
+        } else {
+            pageable = PageRequest.of(page, size, sort);
+        }
         Page<SupplierDTO> suppliers = supplierService.getAllSuppliers(pageable);
         return ResponseEntity.ok(new PagedResponseDTO<>(suppliers));
     }

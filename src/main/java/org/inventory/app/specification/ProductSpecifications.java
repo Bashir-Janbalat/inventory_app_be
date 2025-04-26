@@ -38,4 +38,16 @@ public class ProductSpecifications {
             );
         };
     }
+
+    public static Specification<Product> hasSupplier(String supplierName) {
+        return (root, query, cb) -> {
+            if (supplierName == null || supplierName.isBlank()) {
+                return cb.conjunction();
+            }
+            return cb.equal(
+                    root.join("supplier", JoinType.LEFT).get("name"),
+                    supplierName
+            );
+        };
+    }
 }
