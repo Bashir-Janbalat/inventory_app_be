@@ -7,8 +7,10 @@ import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.Product;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.ProductService;
+import org.inventory.app.specification.ProductSpecifications;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,9 +55,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDTO> searchProducts(String searchBy, Pageable pageable) {
-        Page<Product> productPage = productRepository.findByNameContainingIgnoreCase(searchBy, pageable);
-        return productPage.map(productMapper::toDto);
+    public Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, Pageable pageable) {
+
+        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty()) {
+            return getAllProducts(pageable);
+        }
+        Specification<Product> spec = Specification
+                .where(ProductSpecifications.hasNameLike(searchBy))
+                .and(ProductSpecifications.hasCategory(categoryName))
+                .and(ProductSpecifications.hasBrand(brandName));
+
+        return productRepository.findAll(spec, pageable).map(productMapper::toDto);
     }
 
 

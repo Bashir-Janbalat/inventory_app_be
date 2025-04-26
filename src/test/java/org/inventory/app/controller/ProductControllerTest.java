@@ -1,6 +1,5 @@
 package org.inventory.app.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.inventory.app.dto.*;
 import org.inventory.app.model.Product;
 import org.junit.jupiter.api.*;
@@ -89,9 +88,6 @@ public class ProductControllerTest extends BaseControllerTest {
         product.setProductAttributes(productAttributeDTOS);
         return product;
     }
-
-
-
 
 
     private void assertProductBoschWasher(ResultActions actions, String prefix) throws Exception {
@@ -213,6 +209,186 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.productAttributes[2].attributeValue", is("1TB SSD")));
         }
 
+        @Test
+        @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should filter products by search term, categoryName and brandName")
+        public void shouldFilterMacBookOnly() throws Exception {
+            // 1) Setup: Kategorie, Marken und Supplier anlegen
+            CategoryDTO laptops = categoryService.createCategory(new CategoryDTO("Laptops"));
+            BrandDTO apple = brandService.createBrand(new BrandDTO("Apple"));
+            SupplierDTO appleDE = supplierService.createSupplier(
+                    new SupplierDTO("Apple Deutschland GmbH", "apple.support@apple.de")
+            );
+
+            // 2) Erstes Produkt: Apple MacBook Pro 16
+            ProductDTO macBook = ProductDTO.builder()
+                    .name("Apple MacBook Pro 16")
+                    .sku("MBP16-M2-32GB")
+                    .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
+                    .price(BigDecimal.valueOf(3499.99))
+                    .categoryID(laptops.getId())
+                    .brandID(apple.getId())
+                    .supplierID(appleDE.getId())
+                    .images(List.of(
+                            ImageDTO.builder()
+                                    .imageUrl("https://store.apple.com/macbook-pro-16-space-gray.png")
+                                    .altText("MacBook Pro 16 Zoll in Space Grau")
+                                    .build()
+                    ))
+                    .stock(StockDTO.builder()
+                            .quantity(15)
+                            .warehouseLocation("Berlin-Mitte")
+                            .build()
+                    )
+                    .productAttributes(List.of(
+                            ProductAttributeDTO.builder().attributeName("processor").attributeValue("Apple M2 Max").build(),
+                            ProductAttributeDTO.builder().attributeName("ram").attributeValue("32GB").build(),
+                            ProductAttributeDTO.builder().attributeName("storage").attributeValue("1TB SSD").build()
+                    ))
+                    .build();
+
+            performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(macBook))
+                    .andExpect(status().isOk());
+
+            // 3) Zweites Produkt: Dell XPS 13
+            BrandDTO dell = brandService.createBrand(new BrandDTO("Dell"));
+            SupplierDTO dellDE = supplierService.createSupplier(
+                    new SupplierDTO("Dell Germany GmbH", "support@dell.de")
+            );
+
+            ProductDTO xps13 = ProductDTO.builder()
+                    .name("Dell XPS 13")
+                    .sku("XPS13-9300")
+                    .description("13 Zoll InfinityEdge Display, Intel i7, 16GB RAM, 512GB SSD")
+                    .price(BigDecimal.valueOf(1299.00))
+                    .categoryID(laptops.getId())
+                    .brandID(dell.getId())
+                    .supplierID(dellDE.getId())
+                    .images(List.of(
+                            ImageDTO.builder()
+                                    .imageUrl("https://example.com/dell-xps-13.png")
+                                    .altText("Dell XPS 13")
+                                    .build()
+                    ))
+                    .stock(StockDTO.builder()
+                            .quantity(10)
+                            .warehouseLocation("München")
+                            .build()
+                    )
+                    .productAttributes(List.of(
+                            ProductAttributeDTO.builder().attributeName("processor").attributeValue("Intel i7").build(),
+                            ProductAttributeDTO.builder().attributeName("ram").attributeValue("16GB").build(),
+                            ProductAttributeDTO.builder().attributeName("storage").attributeValue("512GB SSD").build()
+                    ))
+                    .build();
+
+            performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(xps13))
+                    .andExpect(status().isOk());
+
+            // 4) GET mit allen drei Filter-Parametern (MacBook, Laptops, Apple)
+            performGetRequest(
+                    BASE_URL_PRODUCTS +
+                            "?page=%d&size=%d&sortBy=%s&sortDirection=%s&searchBy=%s&categoryName=%s&brandName=%s",
+                    0, 10, "name", "asc",
+                    "MacBook", laptops.getName(), apple.getName()
+            )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalElements").value(1))
+                    .andExpect(jsonPath("$.content[0].name").value("Apple MacBook Pro 16"))
+                    .andExpect(jsonPath("$.content[0].categoryName").value("Laptops"))
+                    .andExpect(jsonPath("$.content[0].brandName").value("Apple"));
+        }
+
+        @Test
+        @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should filter products by categoryName only")
+        public void shouldFilterProductsByCategoryName() throws Exception {
+            // 1) Setup: zwei Kategorien, eine für Laptops und eine für Smartphones
+            CategoryDTO laptops = categoryService.createCategory(new CategoryDTO("Laptops"));
+            CategoryDTO smartphones = categoryService.createCategory(new CategoryDTO("Smartphones"));
+
+            // Brands und Supplier (wiederverwendbar)
+            BrandDTO apple = brandService.createBrand(new BrandDTO("Apple"));
+            SupplierDTO appleDE = supplierService.createSupplier(
+                    new SupplierDTO("Apple Deutschland GmbH", "apple.support@apple.de")
+            );
+
+            BrandDTO dell = brandService.createBrand(new BrandDTO("Dell"));
+            SupplierDTO dellDE = supplierService.createSupplier(
+                    new SupplierDTO("Dell Germany GmbH", "support@dell.de")
+            );
+
+            // 2) Produkt in Kategorie "Laptops"
+            ProductDTO macBook = ProductDTO.builder()
+                    .name("Apple MacBook Pro 16")
+                    .sku("MBP16-M2-32GB")
+                    .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
+                    .price(BigDecimal.valueOf(3499.99))
+                    .categoryID(laptops.getId())
+                    .brandID(apple.getId())
+                    .supplierID(appleDE.getId())
+                    .images(List.of(
+                            ImageDTO.builder()
+                                    .imageUrl("https://store.apple.com/macbook-pro-16-space-gray.png")
+                                    .altText("MacBook Pro 16 Zoll in Space Grau")
+                                    .build()
+                    ))
+                    .stock(StockDTO.builder()
+                            .quantity(15)
+                            .warehouseLocation("Berlin-Mitte")
+                            .build()
+                    )
+                    .productAttributes(List.of(
+                            ProductAttributeDTO.builder().attributeName("processor").attributeValue("Apple M2 Max").build(),
+                            ProductAttributeDTO.builder().attributeName("ram").attributeValue("32GB").build(),
+                            ProductAttributeDTO.builder().attributeName("storage").attributeValue("1TB SSD").build()
+                    ))
+                    .build();
+            performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(macBook))
+                    .andExpect(status().isOk());
+
+            // 3) Produkt in Kategorie "Smartphones"
+            ProductDTO galaxy = ProductDTO.builder()
+                    .name("Samsung Galaxy S21")
+                    .sku("SGS21-5G")
+                    .description("6.2 Zoll Dynamic AMOLED, Exynos 2100, 8GB RAM, 128GB Speicher")
+                    .price(BigDecimal.valueOf(849.00))
+                    .categoryID(smartphones.getId())
+                    .brandID(brandService.createBrand(new BrandDTO("Samsung")).getId())
+                    .supplierID(supplierService.createSupplier(
+                            new SupplierDTO("Samsung Germany GmbH", "support@samsung.de")
+                    ).getId())
+                    .images(List.of(
+                            ImageDTO.builder()
+                                    .imageUrl("https://example.com/galaxy-s21.png")
+                                    .altText("Samsung Galaxy S21")
+                                    .build()
+                    ))
+                    .stock(StockDTO.builder()
+                            .quantity(20)
+                            .warehouseLocation("Hamburg")
+                            .build()
+                    )
+                    .productAttributes(List.of(
+                            ProductAttributeDTO.builder().attributeName("display").attributeValue("Dynamic AMOLED").build(),
+                            ProductAttributeDTO.builder().attributeName("battery").attributeValue("4000mAh").build()
+                    ))
+                    .build();
+            performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(galaxy))
+                    .andExpect(status().isOk());
+
+            // 4) GET-Request nur mit categoryName=Laptops
+            performGetRequest(
+                    BASE_URL_PRODUCTS + "?page=%d&size=%d&sortBy=%s&sortDirection=%s&categoryName=%s",
+                    0, 10, "name", "asc", laptops.getName()
+            )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.totalElements").value(1))
+                    .andExpect(jsonPath("$.content[0].name").value("Apple MacBook Pro 16"))
+                    .andExpect(jsonPath("$.content[0].categoryName").value("Laptops"));
+        }
+
+
     }
 
     @Nested
@@ -302,11 +478,12 @@ public class ProductControllerTest extends BaseControllerTest {
         @WithMockUser(roles = {"ADMIN"})
         @DisplayName("should return products within time limit")
         void shouldReturnProductsWithinTimeLimit() throws Exception {
-            performGetRequest(BASE_URL_PRODUCTS+"?page=%d&size=%d", 0, 100)
+            performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d", 0, 100)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.totalPages").value(1))
                     .andExpect(jsonPath("$.totalElements").value(2));
         }
+
         @Test
         @WithMockUser(roles = {"ADMIN"})
         @DisplayName("should return product searched by name")

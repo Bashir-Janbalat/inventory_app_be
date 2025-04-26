@@ -25,18 +25,20 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection,
-            @RequestParam(defaultValue = "") String searchBy) {
+            @RequestParam(defaultValue = "") String searchBy,
+            @RequestParam(defaultValue = "") String categoryName,
+            @RequestParam(defaultValue = "") String brandName) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductDTO> allProducts;
-        if (!searchBy.isEmpty()) {
-            allProducts = productService.searchProducts(searchBy, pageable);
-        } else {
-            allProducts = productService.getAllProducts(pageable);
-        }
-        return ResponseEntity.ok(new PagedResponseDTO<>(allProducts));
+        Page<ProductDTO> products = productService.searchProducts(
+                searchBy,
+                categoryName,
+                brandName,
+                pageable
+        );
+        return ResponseEntity.ok(new PagedResponseDTO<>(products));
     }
 
     @GetMapping("/{id}")

@@ -14,5 +14,5 @@ public interface ProductService {
     void deleteProduct(Long id);
 
 
-    Page<ProductDTO> searchProducts(String searchBy, Pageable pageable);
+    Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, Pageable pageable);
 }
