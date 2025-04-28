@@ -10,7 +10,7 @@ Ein einfaches Inventarverwaltungssystem basierend auf **Spring Boot**, **MySQL**
 
 - ✅ Benutzer-Authentifizierung mit JWT (Login, Logout, Registrierung)
 - ✅ Rollenbasierter Zugriff (Admin & Benutzer)
-- ✅ CRUD für Produkte und Bilder
+- ✅ CRUD für Produkte und Categories und Brands und Suppliers
 - ✅ Dockerisierte Anwendung
 - ✅ Umgebungsbasierte Konfiguration über `.env`-Dateien
 - ✅ CI/CD mit GitHub Actions
@@ -19,7 +19,7 @@ Ein einfaches Inventarverwaltungssystem basierend auf **Spring Boot**, **MySQL**
 
 ## 🛠️ Technologien
 
-- Java 17 & Spring Boot
+- Java 18 & Spring Boot
 - Spring Security & JWT
 - Spring Data JPA (Hibernate)
 - MySQL (Docker)
