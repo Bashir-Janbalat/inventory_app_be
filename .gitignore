@@ -33,5 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 .env
-.env-docker
 build_and_run.bat
