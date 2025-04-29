@@ -1,6 +1,6 @@
 # 📦 Inventory Management System
 
-Ein einfaches Inventarverwaltungssystem basierend auf **Spring Boot**, **MySQL**, **Docker** und **JWT**.
+Ein einfaches Backend Inventarverwaltungssystem basierend auf **Spring Boot**, **MySQL**, **Docker** und **JWT**.
 
 🔗 [Projekt auf GitHub ansehen](https://github.com/Bashir-Janbalat/inventory_app)
 
@@ -19,7 +19,7 @@ Ein einfaches Inventarverwaltungssystem basierend auf **Spring Boot**, **MySQL**
 
 ## 🛠️ Technologien
 
-- Java 18 & Spring Boot
+- Java 17 & Spring Boot
 - Spring Security & JWT
 - Spring Data JPA (Hibernate)
 - MySQL (Docker)

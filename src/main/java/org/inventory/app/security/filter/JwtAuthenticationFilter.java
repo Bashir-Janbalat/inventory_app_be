@@ -44,6 +44,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = jwtTokenProvider.getTokenFromRequest(request);
 
             if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+                if (jwtTokenProvider.isTokenBlacklisted(token)) {
+                    logger.warn("Token blacklisted: {}", token);
+                    SecurityContextHolder.clearContext();
+                    sendErrorResponse(response, "Token blacklisted. Please login again.", HttpStatus.UNAUTHORIZED, request.getRequestURI());
+                    return;
+                }
                 String username = jwtTokenProvider.getUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

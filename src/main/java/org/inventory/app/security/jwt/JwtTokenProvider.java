@@ -4,7 +4,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -12,14 +14,18 @@ import org.springframework.util.StringUtils;
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret.key}")
     private String jwtSecret;
     @Value("${jwt.expiration.time}")
     private long jwtExpirationTime;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     public String generateToken(Authentication authentication) {
@@ -49,6 +55,15 @@ public class JwtTokenProvider {
                 .getPayload()
                 .getSubject();
     }
+    public long getExpirationFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration().getTime();
+
+    }
 
     public boolean validateToken(String token) {
         Jwts.parser()
@@ -66,5 +81,13 @@ public class JwtTokenProvider {
         }
 
         return null;
+    }
+
+    public void addTokenToBlacklist(String token, long expirationMillis) {
+        redisTemplate.opsForValue().set(token, "blacklisted", expirationMillis, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean isTokenBlacklisted(String token) {
+        return redisTemplate.hasKey(token);
     }
 }
