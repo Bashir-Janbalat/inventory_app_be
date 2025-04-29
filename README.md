@@ -20,7 +20,7 @@ Ein einfaches Backend Inventarverwaltungssystem basierend auf **Spring Boot**, *
 ## 🛠️ Technologien
 
 - Java 17 & Spring Boot
-- Spring Security & JWT
+- Spring Security & JWT & Redis
 - Spring Data JPA (Hibernate)
 - MySQL (Docker)
 - Docker & Docker Compose

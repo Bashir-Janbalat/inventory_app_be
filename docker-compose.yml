@@ -7,7 +7,14 @@ services:
       MYSQL_DATABASE: inventory_app
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - "3307:3306"
+      - "${MYSQL_PORT_HOST}:${MYSQL_PORT_CONTAINER}"
+
+  redis:
+    image: redis:7
+    container_name: redis_server
+    restart: always
+    ports:
+      - "${REDIS_PORT_HOST}:${REDIS_PORT_CONTAINER}"
 
   app:
     build:
@@ -16,7 +23,8 @@ services:
     container_name: inventory_app
     depends_on:
       - db
+      - redis
     env_file:
       - .env-docker
     ports:
-      - "8081:8080"
+      - "${APP_PORT_HOST}:${APP_PORT_CONTAINER}"
