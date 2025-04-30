@@ -85,6 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         errorResponse.setPath(path);
 
         objectMapper.writeValue(response.getWriter(), errorResponse);
+        response.flushBuffer();
     }
 }
 
