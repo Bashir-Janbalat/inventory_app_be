@@ -37,6 +37,14 @@ public abstract class BaseControllerTest {
     protected SupplierService supplierService;
     @Autowired
     protected UserService userService;
+    @Autowired
+    AttributeRepository attributeRepository;
+    @Autowired
+    ImageRepository imageRepository;
+    @Autowired
+    ProductAttributeRepository productAttributeRepository;
+    @Autowired
+    StockRepository stockRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,7 +63,6 @@ public abstract class BaseControllerTest {
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
-
 
 
     protected ResultActions performGetRequest(String url, Object... params) throws Exception {

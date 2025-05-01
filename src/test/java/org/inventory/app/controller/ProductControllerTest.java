@@ -23,14 +23,18 @@ public class ProductControllerTest extends BaseControllerTest {
     private static final String SAMSUNG_SKU = "SM-S918BUGGED";
     private static final String BOSCH_SKU = "WAU28S80AT";
 
+    private BrandDTO samsungBrand;
+    private CategoryDTO smartphoneCategory;
+    private SupplierDTO samsungSupplier;
+
 
     @BeforeEach
     public void setup() {
-        productRepository.deleteAll();
+        cleanDatabase();
 
-        CategoryDTO smartphoneCategory = categoryService.createCategory(new CategoryDTO("Smartphones"));
-        BrandDTO samsungBrand = brandService.createBrand(new BrandDTO("Samsung"));
-        SupplierDTO samsungSupplier = supplierService.createSupplier(new SupplierDTO("Samsung Electronics GmbH", "b2b.support@samsung.de"));
+        smartphoneCategory = categoryService.createCategory(new CategoryDTO("Smartphones"));
+        samsungBrand = brandService.createBrand(new BrandDTO("Samsung"));
+        samsungSupplier = supplierService.createSupplier(new SupplierDTO("Samsung Electronics GmbH", "b2b.support@samsung.de"));
 
         List<ImageDTO> samsungPhoneImages = List.of(
                 new ImageDTO("https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png",
@@ -66,15 +70,25 @@ public class ProductControllerTest extends BaseControllerTest {
     @AfterEach
     public void tearDown() {
         try {
-            productRepository.deleteAll();
-            productRepository.flush();
+            cleanDatabase();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static ProductDTO setReferences(CategoryDTO category, BrandDTO brand, SupplierDTO supplier, List<ImageDTO> images,
-                                            StockDTO stock, List<ProductAttributeDTO> productAttributeDTOS) {
+    private void cleanDatabase() {
+        productAttributeRepository.deleteAll();
+        attributeRepository.deleteAll();
+        imageRepository.deleteAll();
+        stockRepository.deleteAll();
+        productRepository.deleteAll();
+        brandRepository.deleteAll();
+        supplierRepository.deleteAll();
+        categoryRepository.deleteAll();
+    }
+
+    private ProductDTO setReferences(CategoryDTO category, BrandDTO brand, SupplierDTO supplier, List<ImageDTO> images,
+                                     StockDTO stock, List<ProductAttributeDTO> productAttributeDTOS) {
         ProductDTO product = new ProductDTO();
         product.setCategoryID(category.getId());
         product.setCategoryName(category.getName());
@@ -308,9 +322,9 @@ public class ProductControllerTest extends BaseControllerTest {
             CategoryDTO smartphones = categoryService.createCategory(new CategoryDTO("Smartphones"));
 
             // Brands und Supplier (wiederverwendbar)
-            BrandDTO apple = brandService.createBrand(new BrandDTO("Apple"));
+            BrandDTO otto = brandService.createBrand(new BrandDTO("Otto"));
             SupplierDTO appleDE = supplierService.createSupplier(
-                    new SupplierDTO("Apple Deutschland GmbH", "apple.support@apple.de")
+                    new SupplierDTO("Otto Deutschland GmbH", "Otto.support@apple.de")
             );
 
             BrandDTO dell = brandService.createBrand(new BrandDTO("Dell"));
@@ -325,7 +339,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
                     .price(BigDecimal.valueOf(3499.99))
                     .categoryID(laptops.getId())
-                    .brandID(apple.getId())
+                    .brandID(otto.getId())
                     .supplierID(appleDE.getId())
                     .images(List.of(
                             ImageDTO.builder()
@@ -354,7 +368,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .description("6.2 Zoll Dynamic AMOLED, Exynos 2100, 8GB RAM, 128GB Speicher")
                     .price(BigDecimal.valueOf(849.00))
                     .categoryID(smartphones.getId())
-                    .brandID(brandService.createBrand(new BrandDTO("Samsung")).getId())
+                    .brandID(samsungBrand.getId())
                     .supplierID(supplierService.createSupplier(
                             new SupplierDTO("Samsung Germany GmbH", "support@samsung.de")
                     ).getId())
