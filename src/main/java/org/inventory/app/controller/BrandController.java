@@ -1,5 +1,6 @@
 package org.inventory.app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.dto.PagedResponseDTO;
@@ -21,7 +22,7 @@ public class BrandController {
 
 
     @PostMapping
-    public ResponseEntity<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
+    public ResponseEntity<BrandDTO> createBrand(@RequestBody @Valid BrandDTO brandDTO) {
         BrandDTO createdBrand = brandService.createBrand(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBrand);
     }
