@@ -84,7 +84,7 @@ public class AuthControllerTest extends BaseControllerTest {
         String content = MAPPER.writeValueAsString(userDTO);
         performPostRequest(BASE_SIGNUP_URL, content)
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("Username already taken Please try again with a different username."));
+                .andExpect(jsonPath("$.message").value("Username already taken"));
     }
     @Test
     @DisplayName("signup - duplicate email")
@@ -98,7 +98,7 @@ public class AuthControllerTest extends BaseControllerTest {
         String content = MAPPER.writeValueAsString(userDTO);
         performPostRequest(BASE_SIGNUP_URL, content)
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("Email already registered Please try again with a different username."));
+                .andExpect(jsonPath("$.message").value("user with email 'test@example.com' already exists."));
     }
     @Test
     @DisplayName("signup - invalid email format")

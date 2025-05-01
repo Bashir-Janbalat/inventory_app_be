@@ -30,14 +30,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(AlreadyExistsException ex) {
         ErrorResponse errorResponse = new ErrorResponse();
         String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
         errorResponse.setTimestamp(timestamp);
         errorResponse.setStatus(HttpStatus.CONFLICT.value());
-        errorResponse.setError("User Already Exists!!");
-        errorResponse.setMessage(ex.getMessage() + " Please try again with a different username.");
+        errorResponse.setError("Already Exists!!");
+        errorResponse.setMessage(ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 

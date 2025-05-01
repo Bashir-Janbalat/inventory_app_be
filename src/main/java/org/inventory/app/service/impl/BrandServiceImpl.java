@@ -2,6 +2,7 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
+import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
@@ -20,6 +21,9 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandDTO createBrand(BrandDTO brandDTO) {
+        brandRepository.findBrandByName(brandDTO.getName()).ifPresent(value -> {
+            throw new AlreadyExistsException("Brand", "name", brandDTO.getName());
+        });
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));
         return brandMapper.toDto(savedBrand);
     }

@@ -2,7 +2,7 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.UserDTO;
-import org.inventory.app.exception.UserAlreadyExistsException;
+import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.mapper.UserMapper;
 import org.inventory.app.model.Role;
 import org.inventory.app.model.User;
@@ -27,11 +27,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(UserDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
-            throw new UserAlreadyExistsException("Username already taken");
+            throw new AlreadyExistsException("Username already taken");
         }
 
         if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new UserAlreadyExistsException("Email already registered");
+            throw new AlreadyExistsException("user", "email", userDTO.getEmail());
         }
         User user = userMapper.toEntity(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
