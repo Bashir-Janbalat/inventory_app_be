@@ -55,11 +55,23 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
+        String message = "An entry with the same details already exists.";
+        if (ex.getMessage() != null && ex.getMessage().contains("suppliers")) {
+            message = "A supplier with this name and email already exists.";
+        } else if (ex.getMessage() != null && ex.getMessage().contains("brands")) {
+            message = "A brand with this name already exists.";
+        } else if (ex.getMessage() != null && ex.getMessage().contains("categories")) {
+            message = "A category with this name already exists.";
+        } else if (ex.getMessage() != null && ex.getMessage().contains("products")) {
+            message = "A product with this name already exists.";
+        } else if (ex.getMessage() != null && ex.getMessage().contains("product_suppliers")) {
+            message = "This supplier is already assigned to the product.";
+        }
         return new ResponseEntity<>(
                 buildErrorResponse(
                         HttpStatus.CONFLICT,
                         "Duplicate Resource",
-                        "Duplicate entry detected. Please use a different value.",
+                        message,
                         request.getRequestURI()
                 ),
                 HttpStatus.CONFLICT
