@@ -11,6 +11,7 @@ import org.inventory.app.service.BrandService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class BrandServiceImpl implements BrandService {
     private final BrandMapper brandMapper;
 
     @Override
+    @Transactional
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
         brandRepository.findBrandByName(name).ifPresent(value -> {
@@ -30,19 +32,22 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BrandDTO getBrandById(Long id) {
         return brandMapper.toDto(brandRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found.")));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<BrandDTO> getAllBrands(Pageable pageable) {
         Page<Brand> brands = brandRepository.findAll(pageable);
         return brands.map(brandMapper::toDto);
     }
 
     @Override
+    @Transactional
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
-        Brand existing = brandRepository.findById(id)
+        brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found."));
 
         Brand updated = brandMapper.toEntity(brandDTO);
@@ -53,6 +58,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Transactional
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
             throw new ResourceNotFoundException("Brand with ID '" + id + "' not found.");

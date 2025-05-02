@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,23 +21,24 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
+    @Transactional(readOnly = true)
     public Page<ProductDTO> getAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAll(pageable);
         return productPage.map(productMapper::toDto);
     }
-
+    @Transactional(readOnly = true)
     public ProductDTO getProductById(Long id) {
         return productMapper.toDto(productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product with ID '" + id + "' not found.")));
     }
-
+    @Transactional
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = productMapper.toEntity(dto);
         Product saved = productRepository.save(product);
         return productMapper.toDto(saved);
     }
-
+    @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
-        Product existing = productRepository.findById(id)
+        productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID '" + id + "' not found."));
 
         Product updated = productMapper.toEntity(dto);
@@ -46,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
         Product saved = productRepository.save(updated);
         return productMapper.toDto(saved);
     }
-
+    @Transactional
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new ResourceNotFoundException("Product with ID '" + id + "' not found.");
@@ -55,6 +57,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, String supplierName, Pageable pageable) {
 
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {

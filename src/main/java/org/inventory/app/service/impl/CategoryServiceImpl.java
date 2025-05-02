@@ -10,6 +10,7 @@ import org.inventory.app.service.CategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
+    @Transactional
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         Category category = categoryMapper.toEntity(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
@@ -26,20 +28,23 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDTO getCategoryById(Long id) {
         return categoryMapper.toDto(categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with ID '" + id + "' not found.")));
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<CategoryDTO> getAllCategories(Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(pageable);
         return categories.map(categoryMapper::toDto);
     }
 
     @Override
+    @Transactional
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
-        Category existing = categoryRepository.findById(id)
+         categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with ID '" + id + "' not found."));
 
         Category updated = categoryMapper.toEntity(categoryDTO);
@@ -50,6 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("Category with ID '" + id + "' not found.");

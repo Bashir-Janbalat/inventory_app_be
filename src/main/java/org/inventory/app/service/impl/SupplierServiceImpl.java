@@ -10,6 +10,7 @@ import org.inventory.app.service.SupplierService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -19,26 +20,30 @@ public class SupplierServiceImpl implements SupplierService {
     private final SupplierMapper supplierMapper;
 
     @Override
+    @Transactional
     public SupplierDTO createSupplier(SupplierDTO supplierDTO) {
         Supplier savedSupplier = supplierRepository.save(supplierMapper.toEntity(supplierDTO));
         return supplierMapper.toDto(savedSupplier);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SupplierDTO getSupplierById(Long id) {
         return supplierMapper.toDto(supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found.")));
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<SupplierDTO> getAllSuppliers(Pageable pageable) {
         Page<Supplier> suppliers = supplierRepository.findAll(pageable);
         return suppliers.map(supplierMapper::toDto);
     }
 
     @Override
+    @Transactional
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
-        Supplier existing = supplierRepository.findById(id)
+         supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found."));
 
         Supplier updated = supplierMapper.toEntity(supplierDTO);
@@ -49,6 +54,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
+    @Transactional
     public void deleteSupplier(Long id) {
         if (!supplierRepository.existsById(id)) {
             throw new ResourceNotFoundException("Supplier with ID '" + id + "' not found.");
