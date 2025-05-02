@@ -25,7 +25,7 @@ class SimpleControllerForTestingAuthTest extends BaseControllerTest {
     public static final String VALID_TOKEN = "valid_token";
     public static final String TEST_ADMIN = "TEST_ADMIN";
     public static final String TEST_USER = "TEST_USER";
-    public static final String ACCESS_DENIED_MESSAGE = "Access Denied. You don't have permission to access this resource.";
+    public static final String ACCESS_DENIED_MESSAGE = "You don't have permission to access this resource.";
 
     @BeforeEach
     void setUp() {
@@ -96,7 +96,7 @@ class SimpleControllerForTestingAuthTest extends BaseControllerTest {
         mockJwt(VALID_TOKEN, true, TEST_ADMIN);
         performGetRequest("/api/user")
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value("Access Denied. You don't have permission to access this resource."));
+                .andExpect(jsonPath("$.message").value("You don't have permission to access this resource."));
     }
 
     @Test
@@ -128,7 +128,7 @@ class SimpleControllerForTestingAuthTest extends BaseControllerTest {
         when(jwtTokenProvider.getUsername(token)).thenReturn(username);
     }
 
-    private void mockJwtWithException(String token, Class<? extends RuntimeException> ex) throws Exception {
+    private void mockJwtWithException(String token, Class<? extends RuntimeException> ex) {
         when(jwtTokenProvider.getTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(jwtTokenProvider.validateToken(anyString())).thenThrow(ex);
     }
