@@ -9,7 +9,6 @@ import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
 import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.service.BrandService;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -49,19 +48,19 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
-        brandRepository.findById(id)
+        Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found."));
+        String name = brandDTO.getName().trim();
+        brandRepository.findByName(name).ifPresent(existingBrand -> {
+            if (!existingBrand.getId().equals(id)) {
+                throw new DuplicateResourceException("Brand name '" + brandDTO.getName() + "' already exists.");
+            }
+        });
 
-        try {
-            Brand updated = brandMapper.toEntity(brandDTO);
-            updated.setId(id);
+        brand.setName(brandDTO.getName());
 
-            Brand saved = brandRepository.save(updated);
-            return brandMapper.toDto(saved);
-
-        } catch (DataIntegrityViolationException ex) {
-            throw new DuplicateResourceException("Brand name '" + brandDTO.getName() + "' already exists.");
-        }
+        Brand saved = brandRepository.save(brand);
+        return brandMapper.toDto(saved);
     }
 
     @Override

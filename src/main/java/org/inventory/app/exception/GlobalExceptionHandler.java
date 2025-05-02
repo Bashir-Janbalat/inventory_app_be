@@ -1,6 +1,7 @@
 package org.inventory.app.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -48,7 +49,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex, HttpServletRequest request) {
         return new ResponseEntity<>(
-                buildErrorResponse(HttpStatus.CONFLICT, "Duplicate Resource", ex.getMessage() + " Please try again with a different name.", request.getRequestURI()),
+                buildErrorResponse(HttpStatus.CONFLICT, "Duplicate Resource", ex.getMessage(), request.getRequestURI()),
+                HttpStatus.CONFLICT
+        );
+    }
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(
+                buildErrorResponse(
+                        HttpStatus.CONFLICT,
+                        "Duplicate Resource",
+                        "Duplicate entry detected. Please use a different value.",
+                        request.getRequestURI()
+                ),
                 HttpStatus.CONFLICT
         );
     }
