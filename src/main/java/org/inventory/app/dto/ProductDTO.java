@@ -40,9 +40,10 @@ public class ProductDTO {
     private Long supplierID;
     private String supplierName;
     private String supplierContactEmail;
-
+    @Builder.Default
     private List<ImageDTO> images = new ArrayList<>();
     private StockDTO stock;
+    @Builder.Default
     private List<ProductAttributeDTO> productAttributes = new ArrayList<>();
 
 
