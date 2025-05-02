@@ -25,7 +25,7 @@ public class BrandServiceImpl implements BrandService {
     @Transactional
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
-        brandRepository.findBrandByName(name).ifPresent(value -> {
+        brandRepository.findByName(name).ifPresent(value -> {
             throw new AlreadyExistsException("Brand", "name", name);
         });
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));

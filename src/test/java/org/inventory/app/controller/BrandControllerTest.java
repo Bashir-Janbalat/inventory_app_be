@@ -87,7 +87,7 @@ public class BrandControllerTest extends BaseControllerTest {
     @DisplayName("should return brand by id")
     @WithMockUser(roles = {"ADMIN"})
     void getBrandById() throws Exception {
-        Optional<Brand> brand = brandRepository.findBrandByName("Test Brand 1");
+        Optional<Brand> brand = brandRepository.findByName("Test Brand 1");
         if (brand.isEmpty()) {
             throw new RuntimeException("Brand not found");
         }
@@ -100,7 +100,7 @@ public class BrandControllerTest extends BaseControllerTest {
     @DisplayName("should update brand")
     @WithMockUser(roles = {"ADMIN"})
     void updateBrand() throws Exception {
-        Optional<Brand> brand = brandRepository.findBrandByName("Test Brand 1");
+        Optional<Brand> brand = brandRepository.findByName("Test Brand 1");
         if (brand.isEmpty()) {
             throw new RuntimeException("Brand not found");
         }

@@ -2,6 +2,8 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.CategoryDTO;
+import org.inventory.app.exception.AlreadyExistsException;
+import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.CategoryMapper;
 import org.inventory.app.model.Category;
@@ -22,6 +24,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+        String name = categoryDTO.getName().trim();
+        categoryRepository.findByName(name).ifPresent(value -> {
+            throw new AlreadyExistsException("Category", "name", name);
+        });
         Category category = categoryMapper.toEntity(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toDto(savedCategory);
@@ -44,9 +50,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
-         categoryRepository.findById(id)
+        categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with ID '" + id + "' not found."));
-
+        String name = categoryDTO.getName().trim();
+        categoryRepository.findByName(name).ifPresent(existingCategory -> {
+            if (!existingCategory.getId().equals(id)) {
+                throw new DuplicateResourceException("Category name '" + categoryDTO.getName() + "' already exists.");
+            }
+        });
         Category updated = categoryMapper.toEntity(categoryDTO);
         updated.setId(id);
 

@@ -319,7 +319,7 @@ public class ProductControllerTest extends BaseControllerTest {
         public void shouldFilterProductsByCategoryName() throws Exception {
             // 1) Setup: zwei Kategorien, eine für Laptops und eine für Smartphones
             CategoryDTO laptops = categoryService.createCategory(new CategoryDTO("Laptops"));
-            CategoryDTO smartphones = categoryService.createCategory(new CategoryDTO("Smartphones"));
+            CategoryDTO phones = categoryService.createCategory(new CategoryDTO("phones"));
 
             // Brands und Supplier (wiederverwendbar)
             BrandDTO otto = brandService.createBrand(new BrandDTO("Otto"));
@@ -367,7 +367,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .sku("SGS21-5G")
                     .description("6.2 Zoll Dynamic AMOLED, Exynos 2100, 8GB RAM, 128GB Speicher")
                     .price(BigDecimal.valueOf(849.00))
-                    .categoryID(smartphones.getId())
+                    .categoryID(phones.getId())
                     .brandID(samsungBrand.getId())
                     .supplierID(supplierService.createSupplier(
                             new SupplierDTO("Samsung Germany GmbH", "support@samsung.de")
