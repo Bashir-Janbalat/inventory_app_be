@@ -10,4 +10,6 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long> {
     Optional<Supplier> findByName(String supplierName);
 
     Optional<Supplier> findSupplierByName(String name);
+
+    Optional<Supplier> findByNameAndContactEmail(String supplierName, String email);
 }

@@ -122,6 +122,7 @@ public class SupplierControllerTest extends BaseControllerTest {
 
         SupplierDTO supplierDTO = SupplierDTO.builder()
                 .name("Updated Supplier")
+                .contactEmail("test@gmail.com")
                 .build();
 
         String content = MAPPER.writeValueAsString(supplierDTO);

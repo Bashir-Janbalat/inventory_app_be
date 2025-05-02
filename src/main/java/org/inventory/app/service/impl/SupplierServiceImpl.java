@@ -45,7 +45,13 @@ public class SupplierServiceImpl implements SupplierService {
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
          supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found."));
-
+        String name = supplierDTO.getName().trim();
+        String email = supplierDTO.getName().trim();
+         supplierRepository.findByNameAndContactEmail(name,email).ifPresent(existingSupplier -> {
+             if (!existingSupplier.getId().equals(id)) {
+                 throw new ResourceNotFoundException("Supplier name '" + supplierDTO.getName() + "' already exists.");
+             }
+         });
         Supplier updated = supplierMapper.toEntity(supplierDTO);
         updated.setId(id);
 
