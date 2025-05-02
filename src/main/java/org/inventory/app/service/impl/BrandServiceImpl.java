@@ -21,8 +21,9 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandDTO createBrand(BrandDTO brandDTO) {
-        brandRepository.findBrandByName(brandDTO.getName()).ifPresent(value -> {
-            throw new AlreadyExistsException("Brand", "name", brandDTO.getName());
+        String name = brandDTO.getName().trim();
+        brandRepository.findBrandByName(name).ifPresent(value -> {
+            throw new AlreadyExistsException("Brand", "name", name);
         });
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));
         return brandMapper.toDto(savedBrand);
