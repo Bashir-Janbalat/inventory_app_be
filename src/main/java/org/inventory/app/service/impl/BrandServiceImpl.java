@@ -3,11 +3,13 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.exception.AlreadyExistsException;
+import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
 import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.service.BrandService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,11 +52,16 @@ public class BrandServiceImpl implements BrandService {
         brandRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found."));
 
-        Brand updated = brandMapper.toEntity(brandDTO);
-        updated.setId(id);
+        try {
+            Brand updated = brandMapper.toEntity(brandDTO);
+            updated.setId(id);
 
-        Brand saved = brandRepository.save(updated);
-        return brandMapper.toDto(saved);
+            Brand saved = brandRepository.save(updated);
+            return brandMapper.toDto(saved);
+
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicateResourceException("Brand name '" + brandDTO.getName() + "' already exists.");
+        }
     }
 
     @Override

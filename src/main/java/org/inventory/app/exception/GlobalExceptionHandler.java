@@ -16,57 +16,70 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private ErrorResponse buildErrorResponse(HttpStatus status, String error, String message, String path) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setTimestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER));
+        errorResponse.setStatus(status.value());
+        errorResponse.setError(error);
+        errorResponse.setMessage(message);
+        errorResponse.setPath(path);
+        return errorResponse;
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        errorResponse.setTimestamp(timestamp);
-        errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-        errorResponse.setError("Not Found");
-        errorResponse.setMessage(ex.getMessage());
-        errorResponse.setPath(request.getRequestURI());
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request.getRequestURI()),
+                HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(AlreadyExistsException ex) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        errorResponse.setTimestamp(timestamp);
-        errorResponse.setStatus(HttpStatus.CONFLICT.value());
-        errorResponse.setError("Already Exists!!");
-        errorResponse.setMessage(ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    public ResponseEntity<ErrorResponse> handleAlreadyExists(AlreadyExistsException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.CONFLICT, "Already Exists", ex.getMessage(), request.getRequestURI()),
+                HttpStatus.CONFLICT
+        );
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.CONFLICT, "Duplicate Resource", ex.getMessage() + " Please try again with a different name.", request.getRequestURI()),
+                HttpStatus.CONFLICT
+        );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
-        ErrorResponse errorResponse = new ErrorResponse();
-        String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        errorResponse.setTimestamp(timestamp);
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorResponse.setError("Argument Not Valid!!");
+
         String message = "Validation Failed: " + errors;
-        errorResponse.setMessage(message);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation Error", message, request.getRequestURI()),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        errorResponse.setTimestamp(timestamp);
-        errorResponse.setStatus(HttpStatus.FORBIDDEN.value());
-        errorResponse.setError("Access Denied.!!");
-        String message = "Access Denied. You don't have permission to access this resource.";
-        errorResponse.setMessage(message);
-        errorResponse.setPath(request.getRequestURI());
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.FORBIDDEN, "Access Denied", "You don't have permission to access this resource.", request.getRequestURI()),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request.getRequestURI()),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }
