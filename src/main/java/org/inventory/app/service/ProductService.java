@@ -12,7 +12,7 @@ public interface ProductService {
     ProductDTO createProduct(ProductDTO dto);
     ProductDTO updateProduct(Long id, ProductDTO dto);
     void deleteProduct(Long id);
-
+    Long getTotalProductCount();
 
     Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName,String supplierName, Pageable pageable);
 }

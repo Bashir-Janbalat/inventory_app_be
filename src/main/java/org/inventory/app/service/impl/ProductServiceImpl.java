@@ -100,4 +100,12 @@ public class ProductServiceImpl implements ProductService {
         log.info("Fetched {} products based on search filters (cached)", result.getTotalElements());
         return result.map(productMapper::toDto);
     }
+
+    @Override
+    @Cacheable(value = "BrandCountCache")
+    public Long getTotalProductCount() {
+        long count = productRepository.count();
+        log.info("Total Product count: {}", count);
+        return count;
+    }
 }

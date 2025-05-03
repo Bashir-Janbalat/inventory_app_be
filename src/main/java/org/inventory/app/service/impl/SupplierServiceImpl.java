@@ -69,7 +69,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     @CacheEvict(value = {"suppliers", "supplier"}, allEntries = true)
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
-        Supplier existingSupplier = supplierRepository.findById(id)
+        supplierRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Supplier with ID {} not found for update.", id);
                     return new ResourceNotFoundException("Supplier with ID '" + id + "' not found.");
@@ -104,5 +104,13 @@ public class SupplierServiceImpl implements SupplierService {
 
         supplierRepository.deleteById(id);
         log.info("Deleted supplier with ID: {}. Cache 'suppliers' and 'supplier' evicted.", id);
+    }
+
+    @Override
+    @Cacheable(value = "SupplierCountCache")
+    public Long getTotalSupplierCount() {
+        long count = supplierRepository.count();
+        log.info("Total Supplier count: {}", count);
+        return count;
     }
 }

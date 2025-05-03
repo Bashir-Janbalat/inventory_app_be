@@ -49,4 +49,10 @@ public class BrandController {
         return ResponseEntity.ok(brandService.updateBrand(id, brandDTO));
     }
 
+    @GetMapping("/brand-size")
+    public ResponseEntity<Long> getTotalBrandCount() {
+        Long count = brandService.getTotalBrandCount();
+        return ResponseEntity.ok(count);
+    }
+
 }

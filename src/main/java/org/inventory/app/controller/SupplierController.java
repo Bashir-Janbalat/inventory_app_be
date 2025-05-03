@@ -48,4 +48,9 @@ public class SupplierController {
         return ResponseEntity.ok(supplierService.updateSupplier(id, supplierDTO));
     }
 
+    @GetMapping("/supplier-size")
+    public ResponseEntity<Long> getTotalSupplierCount() {
+        Long count = supplierService.getTotalSupplierCount();
+        return ResponseEntity.ok(count);
+    }
 }

@@ -99,4 +99,12 @@ public class BrandServiceImpl implements BrandService {
         brandRepository.deleteById(id);
         log.info("Deleted brand with ID: {}. Cache 'brands' evicted.", id);
     }
+
+    @Override
+    @Cacheable(value = "BrandCountCache")
+    public Long getTotalBrandCount() {
+        long count = brandRepository.count();
+        log.info("Total Brand count: {}", count);
+        return count;
+    }
 }

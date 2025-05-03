@@ -12,4 +12,5 @@ public interface SupplierService {
     Page<SupplierDTO> getAllSuppliers(Pageable pageable);
     SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO);
     void deleteSupplier(Long id);
+    Long getTotalSupplierCount();
 }

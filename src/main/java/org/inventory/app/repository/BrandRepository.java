@@ -10,4 +10,6 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 
 
     Optional<Brand> findByName(@NotBlank(message = "Brand name is required") String name);
+
+    long count();
 }

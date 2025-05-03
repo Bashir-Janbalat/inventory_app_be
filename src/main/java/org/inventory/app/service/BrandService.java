@@ -11,4 +11,5 @@ public interface BrandService {
     Page<BrandDTO> getAllBrands(Pageable pageable);
     BrandDTO updateBrand(Long id,BrandDTO brandDTO);
     void deleteBrand(Long id);
+    Long getTotalBrandCount();
 }

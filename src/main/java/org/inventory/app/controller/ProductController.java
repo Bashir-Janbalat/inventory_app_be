@@ -63,4 +63,10 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/product-size")
+    public ResponseEntity<Long> getProductSize() {
+        Long productCount = productService.getTotalProductCount();
+        return ResponseEntity.ok(productCount);
+    }
 }

@@ -11,4 +11,5 @@ public interface CategoryService {
     Page<CategoryDTO> getAllCategories(Pageable pageable);
     CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
     void deleteCategory(Long id);
+    Long getTotalCategoryCount();
 }

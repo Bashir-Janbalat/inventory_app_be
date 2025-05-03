@@ -99,4 +99,12 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(id);
         log.info("Deleted category with ID {}", id);
     }
+
+    @Override
+    @Cacheable(value = "categoryCountCache")
+    public Long getTotalCategoryCount() {
+        long count = categoryRepository.count();
+        log.info("Total category count: {}", count);
+        return count;
+    }
 }

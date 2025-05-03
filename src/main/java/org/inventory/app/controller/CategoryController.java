@@ -48,4 +48,9 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(id, categoryDTO));
     }
 
+    @GetMapping("/category-size")
+    public ResponseEntity<Long> getTotalCategoryCount() {
+        Long count = categoryService.getTotalCategoryCount();
+        return ResponseEntity.ok(count);
+    }
 }
