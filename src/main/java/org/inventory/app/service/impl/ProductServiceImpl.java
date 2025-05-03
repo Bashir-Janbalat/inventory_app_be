@@ -83,7 +83,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "products", key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' + #supplierName + ':page:' + #pageable.pageNumber")
+    @Cacheable(value = "products", key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' " +
+            "+ #supplierName + ':page:' + #pageable.pageNumber+ ':size:' + #pageable.pageSize")
     public Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, String supplierName, Pageable pageable) {
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
             log.info("Empty search parameters - fetching all products.");
