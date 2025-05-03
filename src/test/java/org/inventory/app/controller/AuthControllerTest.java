@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import org.inventory.app.dto.LoginDTO;
 import org.inventory.app.dto.UserDTO;
+import org.inventory.app.model.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +21,9 @@ public class AuthControllerTest extends BaseControllerTest {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
+        roleRepository.deleteAll();
+        roleRepository.save(new Role("ROLE_ADMIN"));
+        roleRepository.save(new Role("ROLE_USER"));
         UserDTO userDTO = UserDTO.builder()
                 .name("Test User")
                 .username("testuser")
@@ -36,6 +40,7 @@ public class AuthControllerTest extends BaseControllerTest {
     @AfterEach
     void tearDown() {
         userRepository.deleteAll();
+        roleRepository.deleteAll();
         userRepository.flush();
     }
 

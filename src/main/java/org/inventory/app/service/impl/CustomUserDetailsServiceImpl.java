@@ -1,6 +1,7 @@
 package org.inventory.app.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.model.User;
 import org.inventory.app.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
@@ -24,15 +26,20 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username) .orElseThrow(() ->
-                new UsernameNotFoundException("User not exists by Username or Email"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    log.warn("User not found by username: {}", username);
+                    return new UsernameNotFoundException("User not found by username: " + username);
+                });
+
+        log.info("User '{}' found, authorities assigned.", username);
 
         Set<GrantedAuthority> authorities = user.getRoles().stream()
-                .map((role) -> new SimpleGrantedAuthority(role.getName()))
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toSet());
 
         return new org.springframework.security.core.userdetails.User(
-                username,
+                user.getUsername(),
                 user.getPassword(),
                 authorities
         );

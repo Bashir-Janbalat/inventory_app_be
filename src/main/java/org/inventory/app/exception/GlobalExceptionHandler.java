@@ -1,6 +1,7 @@
 package org.inventory.app.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -32,6 +34,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        log.warn("ResourceNotFoundException at [{}]: {}", request.getRequestURI(), ex.getMessage());
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request.getRequestURI()),
                 HttpStatus.NOT_FOUND
@@ -40,6 +43,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExists(AlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("AlreadyExistsException at [{}]: {}", request.getRequestURI(), ex.getMessage());
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.CONFLICT, "Already Exists", ex.getMessage(), request.getRequestURI()),
                 HttpStatus.CONFLICT
@@ -48,11 +52,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex, HttpServletRequest request) {
+        log.warn("DuplicateResourceException at [{}]: {}", request.getRequestURI(), ex.getMessage());
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.CONFLICT, "Duplicate Resource", ex.getMessage(), request.getRequestURI()),
                 HttpStatus.CONFLICT
         );
     }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
         String message = "An entry with the same details already exists.";
@@ -67,6 +73,7 @@ public class GlobalExceptionHandler {
         } else if (ex.getMessage() != null && ex.getMessage().contains("product_suppliers")) {
             message = "This supplier is already assigned to the product.";
         }
+        log.warn("DataIntegrityViolationException at [{}]: {}", request.getRequestURI(), message);
         return new ResponseEntity<>(
                 buildErrorResponse(
                         HttpStatus.CONFLICT,
@@ -86,6 +93,7 @@ public class GlobalExceptionHandler {
         );
 
         String message = "Validation Failed: " + errors;
+        log.warn("Validation error at [{}]: {}", request.getRequestURI(), message);
 
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation Error", message, request.getRequestURI()),
@@ -95,6 +103,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(HttpServletRequest request) {
+        log.warn("Access denied at [{}]", request.getRequestURI());
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.FORBIDDEN, "Access Denied", "You don't have permission to access this resource.", request.getRequestURI()),
                 HttpStatus.FORBIDDEN
@@ -103,16 +112,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(HttpServletRequest request) {
+        log.warn("Bad credentials attempt at [{}]", request.getRequestURI());
         return new ResponseEntity<>(
                 buildErrorResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", "Invalid username or password", request.getRequestURI()),
-                HttpStatus.UNAUTHORIZED);
+                HttpStatus.UNAUTHORIZED
+        );
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
-        return new ResponseEntity<>(
-                buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request.getRequestURI()),
-                HttpStatus.INTERNAL_SERVER_ERROR
+        log.error("Unhandled exception at [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
+        ErrorResponse errorResponse = buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                ex.getMessage(),
+                request.getRequestURI()
         );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

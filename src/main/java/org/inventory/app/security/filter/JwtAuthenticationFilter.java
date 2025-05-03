@@ -69,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             sendErrorResponse(response, "JWT token is invalid.", HttpStatus.UNAUTHORIZED, request.getRequestURI());
         } catch (Exception ex) {
             logger.error("Unexpected JWT validation error: {}", ex.getMessage(), ex);
-            sendErrorResponse(response, "Invalid token.", HttpStatus.UNAUTHORIZED, request.getRequestURI());
+            sendErrorResponse(response, "Authentication service unavailable. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR, request.getRequestURI());
         }
     }
 

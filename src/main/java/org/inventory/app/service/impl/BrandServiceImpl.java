@@ -1,6 +1,7 @@
 package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
@@ -9,11 +10,14 @@ import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
 import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.service.BrandService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
@@ -23,52 +27,76 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "brands", allEntries = true)
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
         brandRepository.findByName(name).ifPresent(value -> {
+            log.warn("Attempt to create duplicate brand with name '{}'", name);
             throw new AlreadyExistsException("Brand", "name", name);
         });
+
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));
+        log.info("Created new brand with ID: {}. Cache 'brands' evicted.", savedBrand.getId());
         return brandMapper.toDto(savedBrand);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "brands", key = "#id")
     public BrandDTO getBrandById(Long id) {
-        return brandMapper.toDto(brandRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found.")));
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Brand with ID {} not found.", id);
+                    return new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
+                });
+
+        log.info("Fetched brand with ID: {} from DB (and cached in 'brands')", id);
+        return brandMapper.toDto(brand);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "brands", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<BrandDTO> getAllBrands(Pageable pageable) {
         Page<Brand> brands = brandRepository.findAll(pageable);
+        log.info("Fetched {} brands from DB (page {} size {}) and cached the result", brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return brands.map(brandMapper::toDto);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "brands", allEntries = true)
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found."));
+                .orElseThrow(() -> {
+                    log.warn("Brand with ID {} not found for update.", id);
+                    return new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
+                });
+
         String name = brandDTO.getName().trim();
         brandRepository.findByName(name).ifPresent(existingBrand -> {
             if (!existingBrand.getId().equals(id)) {
-                throw new DuplicateResourceException("Brand name '" + brandDTO.getName() + "' already exists.");
+                log.warn("Duplicate brand name '{}' found for different ID {}", name, existingBrand.getId());
+                throw new DuplicateResourceException("Brand name '" + name + "' already exists.");
             }
         });
 
-        brand.setName(brandDTO.getName());
-
+        brand.setName(name);
         Brand saved = brandRepository.save(brand);
+        log.info("Updated brand with ID: {}. Cache 'brands' evicted.", id);
         return brandMapper.toDto(saved);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "brands", allEntries = true)
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
+            log.warn("Attempted to delete non-existent brand with ID {}", id);
             throw new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
         }
+
         brandRepository.deleteById(id);
+        log.info("Deleted brand with ID: {}. Cache 'brands' evicted.", id);
     }
 }

@@ -1,6 +1,7 @@
 package org.inventory.app.service.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.LoginDTO;
 import org.inventory.app.dto.UserDTO;
 import org.inventory.app.security.jwt.JwtTokenProvider;
@@ -13,8 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -23,20 +25,29 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String login(LoginDTO loginDto) {
+        log.info("User '{}' attempting to log in", loginDto.getUsername());
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getUsername(),
-                loginDto.getPassword()
-        ));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDto.getUsername(),
+                        loginDto.getPassword()
+                )
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return jwtTokenProvider.generateToken(authentication);
+        String token = jwtTokenProvider.generateToken(authentication);
+
+        log.info("User '{}' successfully authenticated", loginDto.getUsername());
+
+        return token;
     }
 
     @Override
     @Transactional
     public void signup(UserDTO userDto) {
+        log.info("User '{}' attempting to sign up", userDto.getUsername());
         userService.createUser(userDto);
+        log.info("User '{}' successfully signed up", userDto.getUsername());
     }
 }

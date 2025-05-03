@@ -34,12 +34,7 @@ public class BrandController {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
-        Pageable pageable;
-        if (page == null || size == null) {
-            pageable = Pageable.unpaged();
-        } else {
-            pageable = PageRequest.of(page, size, sort);
-        }
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<BrandDTO> brands = brandService.getAllBrands(pageable);
         return ResponseEntity.ok(new PagedResponseDTO<>(brands));
     }
