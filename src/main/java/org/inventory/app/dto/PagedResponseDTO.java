@@ -6,12 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagedResponseDTO<T> {
+public class PagedResponseDTO<T> implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private List<T> content;
     private int totalPages;
     private long totalElements;

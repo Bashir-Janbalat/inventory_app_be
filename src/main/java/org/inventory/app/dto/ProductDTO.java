@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +19,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductDTO {
-
+public class ProductDTO implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private Long id;
     @NotBlank(message = "Product name is required")
     private String name;

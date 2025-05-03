@@ -6,12 +6,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDTO {
-
+public class UserDTO implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private Long id;
     @NotEmpty(message = "Name is required")
     private String name;
