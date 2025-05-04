@@ -201,7 +201,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
 
             performPostRequest(BASE_URL_PRODUCTS, productJson)
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name", is("Apple MacBook Pro 16")))
                     .andExpect(jsonPath("$.sku", is("MBP16-M2-32GB")))
                     .andExpect(jsonPath("$.description", is("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")))
@@ -262,7 +262,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .build();
 
             performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(macBook))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             // 3) Zweites Produkt: Dell XPS 13
             BrandDTO dell = brandService.createBrand(new BrandDTO("Dell"));
@@ -297,7 +297,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .build();
 
             performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(xps13))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             // 4) GET mit allen drei Filter-Parametern (MacBook, Laptops, Apple)
             performGetRequest(
@@ -359,7 +359,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .build();
             performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(macBook))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             // 3) Produkt in Kategorie "Smartphones"
             ProductDTO galaxy = ProductDTO.builder()
@@ -389,7 +389,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .build();
             performPostRequest(BASE_URL_PRODUCTS, MAPPER.writeValueAsString(galaxy))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             // 4) GET-Request nur mit categoryName=Laptops
             performGetRequest(
@@ -542,7 +542,7 @@ public class ProductControllerTest extends BaseControllerTest {
             String productJson = MAPPER.writeValueAsString(productDto);
 
             performPostRequest(BASE_URL_PRODUCTS, productJson)
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             performGetRequest(
                     String.format(BASE_URL_PRODUCTS + "?page=0&size=100&searchBy=%s", "SearchBy Product"))
