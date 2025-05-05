@@ -61,17 +61,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
-        String message = "An entry with the same details already exists.";
-        if (ex.getMessage() != null && ex.getMessage().contains("suppliers")) {
-            message = "A supplier with this name and email already exists.";
-        } else if (ex.getMessage() != null && ex.getMessage().contains("brands")) {
-            message = "A brand with this name already exists.";
-        } else if (ex.getMessage() != null && ex.getMessage().contains("categories")) {
-            message = "A category with this name already exists.";
-        } else if (ex.getMessage() != null && ex.getMessage().contains("products")) {
-            message = "A product with this name already exists.";
-        } else if (ex.getMessage() != null && ex.getMessage().contains("product_suppliers")) {
-            message = "This supplier is already assigned to the product.";
+        String message = "The provided data conflicts with existing records.";
+        String dbMessage = ex.getMessage();
+
+        if (dbMessage != null) {
+            dbMessage = dbMessage.toLowerCase();
+            if (dbMessage.contains("suppliers")) {
+                message = "A supplier with this name and email already exists.";
+            } else if (dbMessage.contains("brands")) {
+                message = "A brand with this name already exists.";
+            } else if (dbMessage.contains("categories")) {
+                message = "A category with this name already exists.";
+            } else if (dbMessage.contains("products")) {
+                message = "A product with this SKU already exists.";
+            }
         }
         log.warn("DataIntegrityViolationException at [{}]: {}", request.getRequestURI(), message);
         return new ResponseEntity<>(

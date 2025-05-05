@@ -57,15 +57,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @CacheEvict(value = "products", allEntries = true)
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
-        productRepository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Attempted to update non-existent product with ID {}.", id);
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
 
-        Product updated = productMapper.toEntity(dto);
-        updated.setId(id);
-        Product saved = productRepository.save(updated);
+        productMapper.patchProductFromDTO(product,dto);
+        Product saved = productRepository.save(product);
         log.info("Updated product with ID {}. Cache 'products' evicted.", id);
         return productMapper.toDto(saved);
     }

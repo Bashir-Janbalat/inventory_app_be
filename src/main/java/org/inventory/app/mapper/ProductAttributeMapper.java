@@ -10,6 +10,7 @@ public class ProductAttributeMapper {
 
     public ProductAttributeDTO toDto(ProductAttribute productAttribute) {
         ProductAttributeDTO dto = new ProductAttributeDTO();
+        dto.setAttributeID(productAttribute.getAttribute().getId());
         dto.setAttributeName(productAttribute.getAttribute().getName());
         dto.setAttributeValue(productAttribute.getValue());
         return dto;
@@ -18,6 +19,7 @@ public class ProductAttributeMapper {
     public ProductAttribute toEntity(ProductAttributeDTO productAttributeDTO) {
         ProductAttribute productAttributeEntity = new ProductAttribute();
         Attribute attribute = new Attribute();
+        attribute.setId(productAttributeDTO.getAttributeID());
         attribute.setName(productAttributeDTO.getAttributeName());
         productAttributeEntity.setAttribute(attribute);
         productAttributeEntity.setValue(productAttributeDTO.getAttributeValue());

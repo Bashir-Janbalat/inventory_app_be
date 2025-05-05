@@ -1,21 +1,25 @@
 package org.inventory.app.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ImageDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private Long id;
     private String imageUrl;
     private String altText;
+
+    public ImageDTO(String imageUrl, String altText) {
+        this.imageUrl = imageUrl;
+        this.altText = altText;
+    }
 }

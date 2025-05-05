@@ -15,6 +15,12 @@ import java.io.Serializable;
 public class ProductAttributeDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    private Long attributeID;
     private String attributeName;
     private String attributeValue;
+
+    public ProductAttributeDTO(String attributeName, String attributeValue) {
+        this.attributeName = attributeName;
+        this.attributeValue = attributeValue;
+    }
 }

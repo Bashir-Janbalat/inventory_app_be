@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class StockDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private int quantity;
 
+    private int quantity;
     private String warehouseLocation;
 }

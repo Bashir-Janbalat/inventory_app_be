@@ -1,8 +1,10 @@
 package org.inventory.app.controller;
 
 import org.inventory.app.dto.*;
+import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.Product;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -27,6 +29,11 @@ public class ProductControllerTest extends BaseControllerTest {
     private CategoryDTO smartphoneCategory;
     private SupplierDTO samsungSupplier;
 
+    private ProductDTO savedSamsungPhone;
+    private ProductDTO savedBoschWasher;
+    @Autowired
+    private ProductMapper productMapper;
+
 
     @BeforeEach
     public void setup() {
@@ -48,7 +55,7 @@ public class ProductControllerTest extends BaseControllerTest {
         samsungPhone.setSku(SAMSUNG_SKU);
         samsungPhone.setDescription("6.8 Dynamic AMOLED 2X Display, 200MP Hauptkamera, 5000mAh Akku, 12GB RAM, 512GB Speicher");
         samsungPhone.setPrice(BigDecimal.valueOf(1399.99));
-        productService.createProduct(samsungPhone);
+        savedSamsungPhone = productService.createProduct(samsungPhone);
 
         CategoryDTO applianceCategory = categoryService.createCategory(new CategoryDTO("Haushaltsgeraete"));
         BrandDTO boschBrand = brandService.createBrand(new BrandDTO("BOSCH"));
@@ -64,7 +71,8 @@ public class ProductControllerTest extends BaseControllerTest {
         boschWasher.setSku(BOSCH_SKU);
         boschWasher.setDescription("Waschmaschine, 9 kg, 1400 U/min., EcoSilence Drive, SpeedPerfect, AllergiePlus, Nachlegefunktion");
         boschWasher.setPrice(BigDecimal.valueOf(799.99));
-        productService.createProduct(boschWasher);
+        savedBoschWasher = productService.createProduct(boschWasher);
+
     }
 
     @AfterEach
@@ -584,6 +592,90 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
                     .andExpect(jsonPath("$.description", is("Updated description")))
                     .andExpect(jsonPath("$.price", is(1299.99)));
+        }
+
+        @Test
+        @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should update existing product with an other Category")
+        void shouldUpdateExistingProductOtherCategory() throws Exception {
+            Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
+            if (product.isEmpty()) {
+                throw new RuntimeException("Product not found");
+            }
+            CategoryDTO testCategory = categoryService.createCategory(new CategoryDTO("OtherCategory"));
+            ProductDTO updateDto = ProductDTO.builder()
+                    .name("Samsung Galaxy S23 Ultra Updated")
+                    .sku(SAMSUNG_SKU)
+                    .description("Updated description")
+                    .price(BigDecimal.valueOf(1299.99))
+                    .categoryID(testCategory.getId())
+                    .brandID(product.get().getBrand().getId())
+                    .supplierID(product.get().getSupplier().getId())
+                    .build();
+            performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
+                    .andExpect(jsonPath("$.description", is("Updated description")))
+                    .andExpect(jsonPath("$.price", is(1299.99)))
+                    .andExpect(jsonPath("$.categoryName", is("OtherCategory")));
+        }
+
+        @Test
+        @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should update existing product with an other Supplier")
+        void shouldUpdateExistingProductOtherSupplier() throws Exception {
+            Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
+            if (product.isEmpty()) {
+                throw new RuntimeException("Product not found");
+            }
+            CategoryDTO testCategory = categoryService.createCategory(new CategoryDTO("OtherCategory"));
+            SupplierDTO testSupplier = supplierService.createSupplier(new SupplierDTO("TestSupplier", "test@gmail.com"));
+            ProductDTO updateDto = ProductDTO.builder()
+                    .name("Samsung Galaxy S23 Ultra Updated")
+                    .sku(SAMSUNG_SKU)
+                    .description("Updated description")
+                    .price(BigDecimal.valueOf(1299.99))
+                    .categoryID(testCategory.getId())
+                    .brandID(product.get().getBrand().getId())
+                    .supplierID(testSupplier.getId())
+                    .build();
+            performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
+                    .andExpect(jsonPath("$.description", is("Updated description")))
+                    .andExpect(jsonPath("$.price", is(1299.99)))
+                    .andExpect(jsonPath("$.categoryName", is("OtherCategory")))
+                    .andExpect(jsonPath("$.supplierName", is("TestSupplier")));
+            ;
+        }
+
+        @Test
+        @WithMockUser(roles = {"ADMIN"})
+        @DisplayName("should update existing product with a new Image")
+        void shouldUpdateExistingProductNewImage() throws Exception {
+            Optional<Product> product = productRepository.findBySku(SAMSUNG_SKU);
+            if (product.isEmpty()) {
+                throw new RuntimeException("Product not found");
+            }
+            ImageDTO dto = new ImageDTO("https://example.com/test-image-updated.png", "Test Image Updated");
+            ProductDTO updateDto = ProductDTO.builder()
+                    .name("Samsung Galaxy S23 Ultra Updated")
+                    .sku(SAMSUNG_SKU)
+                    .description("Updated description")
+                    .price(BigDecimal.valueOf(1299.99))
+                    .categoryID(product.get().getCategory().getId())
+                    .brandID(product.get().getBrand().getId())
+                    .supplierID(product.get().getSupplier().getId())
+                    .images(List.of(dto))
+                    .build();
+            performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
+                    .andExpect(jsonPath("$.description", is("Updated description")))
+                    .andExpect(jsonPath("$.price", is(1299.99)))
+                    .andExpect(jsonPath("$.images", hasSize(1)))
+                    .andExpect(jsonPath("$.images[0].imageUrl", is("https://example.com/test-image-updated.png")))
+                    .andExpect(jsonPath("$.images[0].altText", is("Test Image Updated")));
         }
 
         @Test
