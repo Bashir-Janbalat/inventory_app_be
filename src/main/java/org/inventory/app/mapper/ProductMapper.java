@@ -23,6 +23,7 @@ public class ProductMapper {
 
 
     private final StockMapper stockMapper;
+    private final WarehouseMapper warehouseMapper;
     private final ImageMapper imageMapper;
     private final ProductAttributeMapper productAttributeMapper;
     private final CategoryRepository categoryRepository;
@@ -38,7 +39,7 @@ public class ProductMapper {
         dto.setName(product.getName());
         dto.setSku(product.getSku());
         dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
+        dto.setPrice(product.getSellingPrice());
         dto.setImages(product.getImages().stream().map(imageMapper::toDto).toList());
 
         if (product.getCategory() != null) {
@@ -74,7 +75,7 @@ public class ProductMapper {
         product.setName(dto.getName());
         product.setSku(dto.getSku());
         product.setDescription(dto.getDescription());
-        product.setPrice(dto.getPrice());
+        product.setSellingPrice(dto.getPrice());
         setReferences(product, dto);
         return product;
     }
@@ -135,7 +136,7 @@ public class ProductMapper {
             product.setDescription(dto.getDescription());
         }
         if (dto.getPrice() != null) {
-            product.setPrice(dto.getPrice());
+            product.setSellingPrice(dto.getPrice());
         }
         if (dto.getCategoryID() != null) {
             categoryRepository.findById(dto.getCategoryID()).ifPresent(product::setCategory);
@@ -172,7 +173,7 @@ public class ProductMapper {
             if (product.getStock() != null) {
                 Stock existingStock = product.getStock();
                 existingStock.setQuantity(dto.getStock().getQuantity());
-                existingStock.setWarehouseLocation(dto.getStock().getWarehouseLocation());
+                existingStock.setWarehouse(warehouseMapper.toEntity(dto.getStock().getWarehouse()));
             } else {
                 Stock newStock = stockMapper.toEntity(dto.getStock());
                 newStock.setProduct(product);

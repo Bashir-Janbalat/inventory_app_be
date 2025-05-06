@@ -5,24 +5,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "stock")
+@IdClass(StockId.class)
 @Data
 @NoArgsConstructor
 public class Stock {
-    @Id
-    private Long productId;
 
-    @MapsId
+    @Id
     @OneToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
     private int quantity;
 
-    private String warehouseLocation;
 
-    public Stock(Product product, int quantity, String warehouseLocation) {
-        this.product = product;
-        this.quantity = quantity;
-        this.warehouseLocation = warehouseLocation;
-    }
 }

@@ -22,7 +22,9 @@ public class Product extends BaseEntity {
     private String description;
 
 
-    private BigDecimal price;
+    private BigDecimal costPrice;
+
+    private BigDecimal sellingPrice;
 
     @ManyToOne
     private Category category;

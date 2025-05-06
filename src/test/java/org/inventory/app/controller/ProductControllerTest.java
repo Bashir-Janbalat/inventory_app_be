@@ -46,7 +46,7 @@ public class ProductControllerTest extends BaseControllerTest {
         List<ImageDTO> samsungPhoneImages = List.of(
                 new ImageDTO("https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png",
                         "Samsung Galaxy S23 Ultra in Botanic Green"));
-        StockDTO samsungPhoneStock = new StockDTO(50, "Hamburg-Nord");
+        StockDTO samsungPhoneStock = new StockDTO(50, new WarehouseDTO("Hamburg-Warehous","Hamburg-Nord"));
         List<ProductAttributeDTO> samsungPhoneAttributes = List.of(
                 new ProductAttributeDTO("color", "Botanic Green"),
                 new ProductAttributeDTO("storage", "512GB"));
@@ -62,7 +62,7 @@ public class ProductControllerTest extends BaseControllerTest {
         SupplierDTO electronicPartnerSupplier = supplierService.createSupplier(new SupplierDTO("ElectronicPartner Deutschland", "grosshandel@ep-deutschland.de"));
 
         List<ImageDTO> boschWasherImages = List.of(new ImageDTO("https://media3.bosch-home.com/Product_Shots/1600x900/WAU28S80AT_def.png", "BOSCH Serie 6 Waschmaschine Frontansicht"));
-        StockDTO boschWasherStock = new StockDTO(25, "Muenchen-Zentral");
+        StockDTO boschWasherStock = new StockDTO(25, new WarehouseDTO("Warehous","Muenchen-Zentral"));
         List<ProductAttributeDTO> boschWasherAttributes = List.of(
                 new ProductAttributeDTO("energieeffizienzklasse", "A+++"),
                 new ProductAttributeDTO("fassungsvermögen", "9 KG"));
@@ -123,7 +123,7 @@ public class ProductControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath(prefix + ".supplierName", is("ElectronicPartner Deutschland")))
                 .andExpect(jsonPath(prefix + ".supplierContactEmail", is("grosshandel@ep-deutschland.de")))
                 .andExpect(jsonPath(prefix + ".stock.quantity", is(25)))
-                .andExpect(jsonPath(prefix + ".stock.warehouseLocation", is("Muenchen-Zentral")))
+                .andExpect(jsonPath(prefix + ".stock.warehouse.address", is("Muenchen-Zentral")))
                 .andExpect(jsonPath(prefix + ".images[0].imageUrl", is("https://media3.bosch-home.com/Product_Shots/1600x900/WAU28S80AT_def.png")))
                 .andExpect(jsonPath(prefix + ".images[0].altText", is("BOSCH Serie 6 Waschmaschine Frontansicht")))
                 .andExpect(jsonPath(prefix + ".productAttributes[0].attributeName", is("energieeffizienzklasse")))
@@ -143,7 +143,7 @@ public class ProductControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath(prefix + ".supplierName", is("Samsung Electronics GmbH")))
                 .andExpect(jsonPath(prefix + ".supplierContactEmail", is("b2b.support@samsung.de")))
                 .andExpect(jsonPath(prefix + ".stock.quantity", is(50)))
-                .andExpect(jsonPath(prefix + ".stock.warehouseLocation", is("Hamburg-Nord")))
+                .andExpect(jsonPath(prefix + ".stock.warehouse.address", is("Hamburg-Nord")))
                 .andExpect(jsonPath(prefix + ".images[0].imageUrl", is("https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png")))
                 .andExpect(jsonPath(prefix + ".images[0].altText", is("Samsung Galaxy S23 Ultra in Botanic Green")))
                 .andExpect(jsonPath(prefix + ".productAttributes[0].attributeName", is("color")))
@@ -188,7 +188,7 @@ public class ProductControllerTest extends BaseControllerTest {
                             .build()))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouseLocation("Berlin-Mitte")
+                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
                             .build())
                     .productAttributes(List.of(
                             ProductAttributeDTO.builder()
@@ -219,7 +219,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.supplierName", is("Apple Deutschland GmbH")))
                     .andExpect(jsonPath("$.supplierContactEmail", is("apple.support@apple.de")))
                     .andExpect(jsonPath("$.stock.quantity", is(15)))
-                    .andExpect(jsonPath("$.stock.warehouseLocation", is("Berlin-Mitte")))
+                    .andExpect(jsonPath("$.stock.warehouse.address", is("Berlin-Mitte")))
                     .andExpect(jsonPath("$.images[0].imageUrl", is("https://store.apple.com/macbook-pro-16-space-gray.png")))
                     .andExpect(jsonPath("$.images[0].altText", is("MacBook Pro 16 Zoll in Space Grau")))
                     .andExpect(jsonPath("$.productAttributes", hasSize(3)))
@@ -259,7 +259,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouseLocation("Berlin-Mitte")
+                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
                             .build()
                     )
                     .productAttributes(List.of(
@@ -294,7 +294,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(10)
-                            .warehouseLocation("München")
+                            .warehouse(new WarehouseDTO("Warehous","München"))
                             .build()
                     )
                     .productAttributes(List.of(
@@ -357,7 +357,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouseLocation("Berlin-Mitte")
+                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
                             .build()
                     )
                     .productAttributes(List.of(
@@ -388,7 +388,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(20)
-                            .warehouseLocation("Hamburg")
+                            .warehouse(new WarehouseDTO("Warehous","Hamburg"))
                             .build()
                     )
                     .productAttributes(List.of(
@@ -529,7 +529,7 @@ public class ProductControllerTest extends BaseControllerTest {
                             .build()))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouseLocation("Berlin-Mitte")
+                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
                             .build())
                     .productAttributes(List.of(
                             ProductAttributeDTO.builder()

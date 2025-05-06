@@ -24,8 +24,8 @@ public class Supplier {
     @NotBlank
     private String contactEmail;
 
-    public Supplier(String name, String contactEmail) {
-        this.name = name;
-        this.contactEmail = contactEmail;
-    }
+    private String phone;
+
+    private String address;
+
 }
