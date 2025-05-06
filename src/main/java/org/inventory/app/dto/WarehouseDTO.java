@@ -4,9 +4,11 @@ package org.inventory.app.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
-public class WarehouseDTO {
+public class WarehouseDTO implements Serializable {
 
     private Long id;
 
