@@ -13,7 +13,6 @@ public class BrandMapper {
             return null;
         }
         Brand brand = new Brand();
-        brand.setId(brandDTO.getId());
         brand.setName(brandDTO.getName());
 
         return brand;

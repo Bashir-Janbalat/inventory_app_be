@@ -24,7 +24,6 @@ public class WarehouseMapper {
             return null;
         }
         Warehouse warehouse = new Warehouse();
-        warehouse.setId(dto.getId());
         warehouse.setName(dto.getName());
         warehouse.setAddress(dto.getAddress());
         return warehouse;
