@@ -207,12 +207,8 @@ public class ProductMapper {
                 imagesToKeep.add(newImage);
             }
         }
-        product.getImages().removeIf(image -> !imagesToKeep.contains(image));
-        for (Image image : imagesToKeep) {
-            if (!product.getImages().contains(image)) {
-                product.getImages().add(image);
-            }
-        }
+        product.getImages().clear();
+        product.getImages().addAll(imagesToKeep);
     }
 
     private void updateAttributesFromDTO(Product product, ProductDTO dto) {
@@ -221,43 +217,23 @@ public class ProductMapper {
                         attr -> new ProductAttributeId(attr.getProduct().getId(), attr.getAttribute().getId()),
                         attr -> attr
                 ));
-
         List<ProductAttribute> attributesToKeep = new ArrayList<>();
-
         for (ProductAttributeDTO attributeDTO : dto.getProductAttributes()) {
-            if (attributeDTO.getAttributeID() != null) {
-                ProductAttributeId id = new ProductAttributeId(product.getId(), attributeDTO.getAttributeID());
-                if (existingAttributes.containsKey(id)) {
-                    // Update bestehendes Attribut
-                    ProductAttribute existingAttr = existingAttributes.get(id);
-                    existingAttr.setValue(attributeDTO.getAttributeValue());
-                    attributesToKeep.add(existingAttr);
-                } else {
-                    // Neues Attribut
-                    Attribute attribute = attributeRepository.findById(attributeDTO.getAttributeID())
-                            .orElseGet(() -> {
-                                Attribute newAttr = new Attribute();
-                                newAttr.setName(attributeDTO.getAttributeName());
-                                return attributeRepository.save(newAttr);
-                            });
-
-                    ProductAttribute newProductAttribute = new ProductAttribute(product, attribute, attributeDTO.getAttributeValue());
-                    attributesToKeep.add(newProductAttribute);
-                }
+            ProductAttributeId id = new ProductAttributeId(product.getId(), attributeDTO.getAttributeID());
+            if (attributeDTO.getAttributeID() != null && existingAttributes.containsKey(id)) {
+                ProductAttribute existingAttr = existingAttributes.get(id);
+                existingAttr.setValue(attributeDTO.getAttributeValue());
+                attributesToKeep.add(existingAttr);
+            } else {
+                Attribute attribute = attributeRepository.findFirstByName(attributeDTO.getAttributeName()).orElseGet(
+                        () -> attributeRepository.save(new Attribute(attributeDTO.getAttributeName()))
+                );
+                ProductAttribute newProductAttribute = new ProductAttribute(product, attribute, attributeDTO.getAttributeValue());
+                product.getProductAttributes().add(newProductAttribute);
+                attributesToKeep.add(newProductAttribute);
             }
         }
-
-        // Entferne Attribute, die im DTO nicht mehr vorhanden sind
-        product.getProductAttributes().removeIf(attr -> !attributesToKeep.contains(attr));
-
-        // Füge neue hinzu
-        for (ProductAttribute attr : attributesToKeep) {
-            if (!product.getProductAttributes().contains(attr)) {
-                product.getProductAttributes().add(attr);
-            }
-        }
+        product.getProductAttributes().clear();
+        product.getProductAttributes().addAll(attributesToKeep);
     }
-
-
-
 }
