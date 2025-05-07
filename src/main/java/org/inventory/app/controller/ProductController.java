@@ -39,6 +39,8 @@ public class ProductController {
                 categoryName,
                 brandName,
                 supplierName,
+                sortDirection,
+                sortBy,
                 pageable
         );
         return ResponseEntity.ok(new PagedResponseDTO<>(products));

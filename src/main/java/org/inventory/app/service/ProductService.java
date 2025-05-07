@@ -14,5 +14,7 @@ public interface ProductService {
     void deleteProduct(Long id);
     Long getTotalProductCount();
 
-    Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName,String supplierName, Pageable pageable);
+    Page<ProductDTO> searchProducts(String searchBy, String categoryName,
+                                    String brandName,String supplierName, String sortDirection,
+                                    String sortBy ,Pageable pageable);
 }
