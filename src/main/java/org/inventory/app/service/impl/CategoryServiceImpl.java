@@ -27,7 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category"}, allEntries = true)
+    @CacheEvict(value = {"categories", "category","categoryCount"}, allEntries = true)
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         String name = categoryDTO.getName().trim();
         categoryRepository.findByName(name).ifPresent(value -> {
@@ -66,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category"}, allEntries = true)
+    @CacheEvict(value = {"categories", "category","categoryCount"}, allEntries = true)
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         Category existing = categoryRepository.findById(id)
                 .orElseThrow(() -> {
@@ -90,7 +90,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category"}, allEntries = true)
+    @CacheEvict(value = {"categories", "category","categoryCount"}, allEntries = true)
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent category with ID {}", id);
@@ -101,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Cacheable(value = "categoryCountCache")
+    @Cacheable(value = "categoryCount")
     public Long getTotalCategoryCount() {
         long count = categoryRepository.count();
         log.info("Total category count: {}", count);

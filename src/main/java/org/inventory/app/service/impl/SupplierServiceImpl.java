@@ -27,7 +27,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier","supplierCount"}, allEntries = true)
     public SupplierDTO createSupplier(SupplierDTO supplierDTO) {
         String name = supplierDTO.getName().trim();
         String email = supplierDTO.getContactEmail().trim();
@@ -67,7 +67,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount"}, allEntries = true)
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
         supplierRepository.findById(id)
                 .orElseThrow(() -> {
@@ -95,7 +95,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount"}, allEntries = true)
     public void deleteSupplier(Long id) {
         if (!supplierRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent supplier with ID {}", id);
@@ -107,7 +107,7 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    @Cacheable(value = "SupplierCountCache")
+    @Cacheable(value = "supplierCount")
     public Long getTotalSupplierCount() {
         long count = supplierRepository.count();
         log.info("Total Supplier count: {}", count);

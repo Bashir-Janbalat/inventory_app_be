@@ -27,7 +27,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "brands", allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount"}, allEntries = true)
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
         brandRepository.findByName(name).ifPresent(value -> {
@@ -42,7 +42,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands", key = "#id")
+    @Cacheable(value = "brand", key = "#id")
     public BrandDTO getBrandById(Long id) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> {
@@ -65,7 +65,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "brands", allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount"}, allEntries = true)
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> {
@@ -89,7 +89,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "brands", allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount"}, allEntries = true)
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
@@ -101,7 +101,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @Cacheable(value = "BrandCountCache")
+    @Cacheable(value = "brandCount")
     public Long getTotalBrandCount() {
         long count = brandRepository.count();
         log.info("Total Brand count: {}", count);

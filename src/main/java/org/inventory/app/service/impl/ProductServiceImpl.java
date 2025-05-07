@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "products", key = "#id")
+    @Cacheable(value = "product", key = "#id")
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @CacheEvict(value = {"products","product","searchProducts","productCount"}, allEntries = true)
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = productMapper.toEntity(dto);
         Product saved = productRepository.save(product);
@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @CacheEvict(value = {"products","product","searchProducts","productCount"}, allEntries = true)
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @CacheEvict(value = {"products","product","searchProducts","productCount"}, allEntries = true)
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent product with ID {}.", id);
@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "products", key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' " +
+    @Cacheable(value = "searchProducts", key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' " +
             "+ #supplierName + ':page:' + #pageable.pageNumber+ ':size:' + #pageable.pageSize")
     public Page<ProductDTO> searchProducts(String searchBy, String categoryName, String brandName, String supplierName, Pageable pageable) {
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Cacheable(value = "BrandCountCache")
+    @Cacheable(value = "productCount")
     public Long getTotalProductCount() {
         long count = productRepository.count();
         log.info("Total Product count: {}", count);
