@@ -38,7 +38,7 @@ public class SupplierServiceImpl implements SupplierService {
         });
 
         Supplier savedSupplier = supplierRepository.save(supplierMapper.toEntity(supplierDTO));
-        log.info("Created new supplier with ID: {}. Cache 'suppliers' and 'supplier' evicted.", savedSupplier.getId());
+        log.info("Created new supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", savedSupplier.getId());
         return supplierMapper.toDto(savedSupplier);
     }
 
@@ -61,7 +61,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Cacheable(value = "suppliers", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<SupplierDTO> getAllSuppliers(Pageable pageable) {
         Page<Supplier> suppliers = supplierRepository.findAll(pageable);
-        log.info("Fetched {} suppliers from DB (and cached the page in 'suppliers')", suppliers.getTotalElements());
+        log.info("Fetched {} suppliers from DB (and cached in 'suppliers')", suppliers.getTotalElements());
         return suppliers.map(supplierMapper::toDto);
     }
 
@@ -89,7 +89,7 @@ public class SupplierServiceImpl implements SupplierService {
         updated.setId(id);
 
         Supplier saved = supplierRepository.save(updated);
-        log.info("Updated supplier with ID: {}. Cache 'suppliers' and 'supplier' evicted.", id);
+        log.info("Updated supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", id);
         return supplierMapper.toDto(saved);
     }
 
@@ -103,14 +103,14 @@ public class SupplierServiceImpl implements SupplierService {
         }
 
         supplierRepository.deleteById(id);
-        log.info("Deleted supplier with ID: {}. Cache 'suppliers' and 'supplier' evicted.", id);
+        log.info("Deleted supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", id);
     }
 
     @Override
     @Cacheable(value = "supplierCount")
     public Long getTotalSupplierCount() {
         long count = supplierRepository.count();
-        log.info("Total Supplier count: {}", count);
+        log.info("Fetched Supplier size: {} from DB (and cached in supplierCount)", count);
         return count;
     }
 }

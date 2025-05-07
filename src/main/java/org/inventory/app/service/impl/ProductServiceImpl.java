@@ -29,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<ProductDTO> getAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAll(pageable);
-        log.info("Fetched {} products from DB (cached the page)", productPage.getTotalElements());
+        log.info("Fetched {} products from DB (and cached in 'products')", productPage.getTotalElements());
         return productPage.map(productMapper::toDto);
     }
 
@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
                     log.warn("Product with ID {} not found.", id);
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
-        log.info("Fetched product with ID {} (cached)", id);
+        log.info("Fetched product with ID {} from DB (and cached in 'product')", id);
         return productMapper.toDto(product);
     }
 
@@ -50,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = productMapper.toEntity(dto);
         Product saved = productRepository.save(product);
-        log.info("Created product with ID {}. Cache 'products' evicted.", saved.getId());
+        log.info("Created product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", saved.getId());
         return productMapper.toDto(saved);
     }
 
@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
 
         productMapper.patchProductFromDTO(product,dto);
         Product saved = productRepository.save(product);
-        log.info("Updated product with ID {}. Cache 'products' evicted.", id);
+        log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
         return productMapper.toDto(saved);
     }
 
@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Product with ID '" + id + "' not found.");
         }
         productRepository.deleteById(id);
-        log.info("Deleted product with ID {}. Cache 'products' evicted.", id);
+        log.info("Deleted product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
                 .and(ProductSpecifications.hasSupplier(supplierName));
 
         Page<Product> result = productRepository.findAll(spec, pageable);
-        log.info("Fetched {} products based on search filters (cached)", result.getTotalElements());
+        log.info("Fetched {} products based on search filters from DB (and cached in searchProducts)", result.getTotalElements());
         return result.map(productMapper::toDto);
     }
 
@@ -110,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
     @Cacheable(value = "productCount")
     public Long getTotalProductCount() {
         long count = productRepository.count();
-        log.info("Total Product count: {}", count);
+        log.info("Fetched Product size: {} from DB (and cached in productCount)", count);
         return count;
     }
 }

@@ -36,7 +36,7 @@ public class BrandServiceImpl implements BrandService {
         });
 
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));
-        log.info("Created new brand with ID: {}. Cache 'brands' evicted.", savedBrand.getId());
+        log.info("Created new brand with ID: {}. Cache 'brands', 'brand', 'brandCount' evicted.", savedBrand.getId());
         return brandMapper.toDto(savedBrand);
     }
 
@@ -50,7 +50,7 @@ public class BrandServiceImpl implements BrandService {
                     return new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
                 });
 
-        log.info("Fetched brand with ID: {} from DB (and cached in 'brands')", id);
+        log.info("Fetched brand with ID: {} from DB (and cached in 'brand')", id);
         return brandMapper.toDto(brand);
     }
 
@@ -59,7 +59,7 @@ public class BrandServiceImpl implements BrandService {
     @Cacheable(value = "brands", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<BrandDTO> getAllBrands(Pageable pageable) {
         Page<Brand> brands = brandRepository.findAll(pageable);
-        log.info("Fetched {} brands from DB (page {} size {}) and cached the result", brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        log.info("Fetched {} brands from DB (page {} size {}) (and cached in brands)", brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return brands.map(brandMapper::toDto);
     }
 
@@ -83,7 +83,7 @@ public class BrandServiceImpl implements BrandService {
 
         brand.setName(name);
         Brand saved = brandRepository.save(brand);
-        log.info("Updated brand with ID: {}. Cache 'brands' evicted.", id);
+        log.info("Updated brand with ID: {}. Cache 'brands', 'brand', 'brandCount' evicted.", id);
         return brandMapper.toDto(saved);
     }
 
@@ -97,14 +97,14 @@ public class BrandServiceImpl implements BrandService {
         }
 
         brandRepository.deleteById(id);
-        log.info("Deleted brand with ID: {}. Cache 'brands' evicted.", id);
+        log.info("Deleted brand with ID: {}. Cache 'brands', 'brand', 'brandCount' evicted.", id);
     }
 
     @Override
     @Cacheable(value = "brandCount")
     public Long getTotalBrandCount() {
         long count = brandRepository.count();
-        log.info("Total Brand count: {}", count);
+        log.info("Fetched Brand size from DB (and cached in 'brandCount'): {}", count);
         return count;
     }
 }

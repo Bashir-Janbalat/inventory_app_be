@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryMapper.toEntity(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
-        log.info("Created new category with ID {}", savedCategory.getId());
+        log.info("Created new category with ID {} Cache 'categories','category','categoryCount' evicted", savedCategory.getId());
         return categoryMapper.toDto(savedCategory);
     }
 
@@ -51,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
                     return new ResourceNotFoundException("Category with ID '" + id + "' not found.");
                 });
 
-        log.info("Fetched category with ID {}", id);
+        log.info("Fetched category with ID {} from DB (and cached in 'category')", id);
         return categoryMapper.toDto(category);
     }
 
@@ -60,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Cacheable(value = "categories", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<CategoryDTO> getAllCategories(Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(pageable);
-        log.info("Fetched {} categories (page {} size {})", categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        log.info("Fetched {} categories (page {} size {}) from DB (and cached in 'categories')", categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return categories.map(categoryMapper::toDto);
     }
 
@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         existing.setName(name);
         Category saved = categoryRepository.save(existing);
-        log.info("Updated category with ID {}", id);
+        log.info("Updated category with ID {} Cache 'categories','category','categoryCount' evicted", id);
         return categoryMapper.toDto(saved);
     }
 
@@ -97,14 +97,14 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ResourceNotFoundException("Category with ID '" + id + "' not found.");
         }
         categoryRepository.deleteById(id);
-        log.info("Deleted category with ID {}", id);
+        log.info("Deleted category with ID {} Cache 'categories','category','categoryCount' evicted", id);
     }
 
     @Override
     @Cacheable(value = "categoryCount")
     public Long getTotalCategoryCount() {
         long count = categoryRepository.count();
-        log.info("Total category count: {}", count);
+        log.info("Fetched category size from DB (and cached in 'categoryCount'): {}", count);
         return count;
     }
 }
