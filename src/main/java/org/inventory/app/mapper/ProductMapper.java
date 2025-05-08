@@ -31,6 +31,7 @@ public class ProductMapper {
     private final AttributeRepository attributeRepository;
     private final StockRepository stockRepository;
     private final WarehouseRepository warehouseRepository;
+    private final WarehouseMapper warehouseMapper;
 
     public ProductDTO toDto(Product product) {
         if (product == null) return null;
@@ -186,7 +187,16 @@ public class ProductMapper {
                     existingStock.setQuantity(dto.getStock().getQuantity());
                 }
             } else {
-                throw new IllegalArgumentException("Warehouse ID is missing in the request.");
+                Warehouse newWarehouse = warehouseMapper.toEntity(dto.getStock().getWarehouse());
+                newWarehouse = warehouseRepository.save(newWarehouse);
+                Stock newStock = new Stock();
+                StockId newStockId = new StockId();
+                newStockId.setProduct(product.getId());
+                newStockId.setWarehouse(newWarehouse.getId());
+                newStock.setProduct(product);
+                newStock.setWarehouse(newWarehouse);
+                newStock.setQuantity(dto.getStock().getQuantity());
+                product.setStock(newStock);
             }
         }
     }
