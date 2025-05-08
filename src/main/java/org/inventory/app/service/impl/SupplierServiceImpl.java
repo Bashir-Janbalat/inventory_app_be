@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.SupplierDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
+import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.SupplierMapper;
 import org.inventory.app.model.Supplier;
+import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.SupplierService;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,6 +26,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -101,7 +104,10 @@ public class SupplierServiceImpl implements SupplierService {
             log.warn("Attempted to delete non-existent supplier with ID {}", id);
             throw new ResourceNotFoundException("Supplier with ID '" + id + "' not found.");
         }
-
+        if (productRepository.existsByCategoryId(id)) {
+            log.warn("Attempted to delete Supplier with ID {} that has associated products.", id);
+            throw new EntityHasAssociatedItemsException("Supplier", id);
+        }
         supplierRepository.deleteById(id);
         log.info("Deleted supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", id);
     }

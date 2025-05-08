@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
+import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
 import org.inventory.app.repository.BrandRepository;
+import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.BrandService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,6 +26,7 @@ public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
     private final BrandMapper brandMapper;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -94,6 +97,10 @@ public class BrandServiceImpl implements BrandService {
         if (!brandRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
             throw new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
+        }
+        if (productRepository.existsByCategoryId(id)) {
+            log.warn("Attempted to delete Brand with ID {} that has associated products.", id);
+            throw new EntityHasAssociatedItemsException("Brand", id);
         }
 
         brandRepository.deleteById(id);

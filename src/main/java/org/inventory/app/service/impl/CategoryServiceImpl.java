@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.CategoryDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
+import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.CategoryMapper;
 import org.inventory.app.model.Category;
 import org.inventory.app.repository.CategoryRepository;
+import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.CategoryService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,6 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -95,6 +98,10 @@ public class CategoryServiceImpl implements CategoryService {
         if (!categoryRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent category with ID {}", id);
             throw new ResourceNotFoundException("Category with ID '" + id + "' not found.");
+        }
+        if (productRepository.existsByCategoryId(id)) {
+            log.warn("Attempted to delete category with ID {} that has associated products.", id);
+            throw new EntityHasAssociatedItemsException("Category", id);
         }
         categoryRepository.deleteById(id);
         log.info("Deleted category with ID {} Cache 'categories','category','categoryCount' evicted", id);

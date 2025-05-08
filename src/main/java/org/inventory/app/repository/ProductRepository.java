@@ -16,4 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<Product> findBySku(String sku001);
 
     Page<Product> findByNameContainingIgnoreCase(String searchBy, Pageable pageable);
+
+    Boolean existsByCategoryId(Long id);
 }

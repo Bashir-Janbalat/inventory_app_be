@@ -133,4 +133,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    @ExceptionHandler(EntityHasAssociatedItemsException.class)
+    public ResponseEntity<ErrorResponse> handleEntityHasAssociatedItemsException(EntityHasAssociatedItemsException ex, HttpServletRequest request) {
+        ErrorResponse errorResponse = buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }
