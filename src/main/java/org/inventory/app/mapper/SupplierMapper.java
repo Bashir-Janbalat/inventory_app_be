@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class SupplierMapper {
 
 
-
     public Supplier toEntity(SupplierDTO supplierDTO) {
         if (supplierDTO == null) {
             return null;
@@ -16,7 +15,8 @@ public class SupplierMapper {
         Supplier supplier = new Supplier();
         supplier.setName(supplierDTO.getName());
         supplier.setContactEmail(supplierDTO.getContactEmail());
-
+        supplier.setAddress(supplierDTO.getAddress());
+        supplier.setPhone(supplierDTO.getPhone());
         return supplier;
     }
 
@@ -29,7 +29,8 @@ public class SupplierMapper {
         supplierDTO.setId(supplier.getId());
         supplierDTO.setName(supplier.getName());
         supplierDTO.setContactEmail(supplier.getContactEmail());
-
+        supplierDTO.setAddress(supplier.getAddress());
+        supplierDTO.setPhone(supplier.getPhone());
         return supplierDTO;
     }
 }

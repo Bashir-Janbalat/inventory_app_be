@@ -18,6 +18,8 @@ public class SupplierDTO implements Serializable {
     private Long id;
     private String name;
     private String contactEmail;
+    private String phone;
+    private String address;
 
     public SupplierDTO(String name, String contactEmail) {
         this.name = name;
