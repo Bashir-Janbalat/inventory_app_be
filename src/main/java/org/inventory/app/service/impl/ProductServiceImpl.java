@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -90,24 +89,39 @@ public class ProductServiceImpl implements ProductService {
                     log.warn("Attempted to update non-existent product with ID {}.", id);
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
-
+        int oldQuantity = product.getStock() != null ? product.getStock().getQuantity() : 0;
         productMapper.patchProductFromDTO(product, dto);
         Product saved = productRepository.save(product);
+        createStockUpdateMovement(saved, dto, oldQuantity)
+                .ifPresent(stockMovementRepository::save);
         log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
         return productMapper.toDto(saved);
+    }
+
+    private Optional<StockMovement> createStockUpdateMovement(Product product, ProductDTO dto, int oldQuantity) {
+        int newQuantity = dto.getStock().getQuantity();
+        int quantityDifference = newQuantity - oldQuantity;
+        if (quantityDifference == 0) {
+            return Optional.empty();
+        }
+        StockMovement movement = StockMovement.builder()
+                .product(product)
+                .warehouseId(dto.getStock().getWarehouse().getId())
+                .quantity(Math.abs(quantityDifference))
+                .movementType(quantityDifference > 0 ? MovementType.IN : MovementType.OUT)
+                .reason(MovementReason.UPDATED)
+                .username(getCurrentUserName())
+                .build();
+        return Optional.of(movement);
     }
 
     @Transactional
     @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
     public void deleteProduct(Long id) {
-        Optional<Product> product =productRepository.findById(id);
+        Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty()) {
             log.warn("Attempted to delete non-existent product with ID {}.", id);
             throw new ResourceNotFoundException("Product with ID '" + id + "' not found.");
-        }
-        List<StockMovement> movements = stockMovementRepository.findByProductId(product.get().getId());
-        for (StockMovement m : movements) {
-            m.setProduct(null); // Beziehung trennen
         }
         productRepository.deleteById(id);
         log.info("Deleted product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
