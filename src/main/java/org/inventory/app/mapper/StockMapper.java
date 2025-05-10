@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.StockDTO;
 import org.inventory.app.model.Stock;
 import org.inventory.app.repository.WarehouseRepository;
+import org.springframework.data.redis.connection.RedisSubscribedConnectionException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +24,11 @@ public class StockMapper {
     public Stock toEntity(StockDTO stockDTO) {
         Stock stockEntity = new Stock();
         stockEntity.setQuantity(stockDTO.getQuantity());
-        warehouseRepository.findById(stockDTO.getWarehouse().getId()).ifPresent(stockEntity::setWarehouse);
+        Long warehouseId = stockDTO.getWarehouse().getId();
+        stockEntity.setWarehouse(
+                warehouseRepository.findById(warehouseId)
+                        .orElseThrow(() -> new RedisSubscribedConnectionException("Warehouse not found: ID " + warehouseId))
+        );
         return stockEntity;
     }
 }

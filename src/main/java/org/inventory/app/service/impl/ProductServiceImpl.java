@@ -23,6 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -97,9 +100,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
     public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
+        Optional<Product> product =productRepository.findById(id);
+        if (product.isEmpty()) {
             log.warn("Attempted to delete non-existent product with ID {}.", id);
             throw new ResourceNotFoundException("Product with ID '" + id + "' not found.");
+        }
+        List<StockMovement> movements = stockMovementRepository.findByProductId(product.get().getId());
+        for (StockMovement m : movements) {
+            m.setProduct(null); // Beziehung trennen
         }
         productRepository.deleteById(id);
         log.info("Deleted product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);

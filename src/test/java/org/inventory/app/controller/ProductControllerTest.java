@@ -3,6 +3,7 @@ package org.inventory.app.controller;
 import org.inventory.app.dto.*;
 import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.Product;
+import org.inventory.app.repository.StockMovementRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -28,11 +29,14 @@ public class ProductControllerTest extends BaseControllerTest {
     private BrandDTO samsungBrand;
     private CategoryDTO smartphoneCategory;
     private SupplierDTO samsungSupplier;
+    private  WarehouseDTO warehouse;
 
     private ProductDTO savedSamsungPhone;
     private ProductDTO savedBoschWasher;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private StockMovementRepository stockMovementRepository;
 
 
     @BeforeEach
@@ -42,11 +46,13 @@ public class ProductControllerTest extends BaseControllerTest {
         smartphoneCategory = categoryService.createCategory(new CategoryDTO("Smartphones"));
         samsungBrand = brandService.createBrand(new BrandDTO("Samsung"));
         samsungSupplier = supplierService.createSupplier(new SupplierDTO("Samsung Electronics GmbH", "b2b.support@samsung.de"));
+        warehouse = warehouseService.createWarehouse(new WarehouseDTO("Warehous", "Muenchen-Zentral"));
+
 
         List<ImageDTO> samsungPhoneImages = List.of(
                 new ImageDTO("https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png",
                         "Samsung Galaxy S23 Ultra in Botanic Green"));
-        StockDTO samsungPhoneStock = new StockDTO(50, new WarehouseDTO("Hamburg-Warehous","Hamburg-Nord"));
+        StockDTO samsungPhoneStock = new StockDTO(50, warehouse);
         List<ProductAttributeDTO> samsungPhoneAttributes = List.of(
                 new ProductAttributeDTO("color", "Botanic Green"),
                 new ProductAttributeDTO("storage", "512GB"));
@@ -54,7 +60,7 @@ public class ProductControllerTest extends BaseControllerTest {
         samsungPhone.setName("Samsung Galaxy S23 Ultra");
         samsungPhone.setSku(SAMSUNG_SKU);
         samsungPhone.setDescription("6.8 Dynamic AMOLED 2X Display, 200MP Hauptkamera, 5000mAh Akku, 12GB RAM, 512GB Speicher");
-        samsungPhone.setPrice(BigDecimal.valueOf(1399.99));
+        samsungPhone.setCostPrice(BigDecimal.valueOf(1399.99));
         savedSamsungPhone = productService.createProduct(samsungPhone);
 
         CategoryDTO applianceCategory = categoryService.createCategory(new CategoryDTO("Haushaltsgeraete"));
@@ -62,7 +68,7 @@ public class ProductControllerTest extends BaseControllerTest {
         SupplierDTO electronicPartnerSupplier = supplierService.createSupplier(new SupplierDTO("ElectronicPartner Deutschland", "grosshandel@ep-deutschland.de"));
 
         List<ImageDTO> boschWasherImages = List.of(new ImageDTO("https://media3.bosch-home.com/Product_Shots/1600x900/WAU28S80AT_def.png", "BOSCH Serie 6 Waschmaschine Frontansicht"));
-        StockDTO boschWasherStock = new StockDTO(25, new WarehouseDTO("Warehous","Muenchen-Zentral"));
+        StockDTO boschWasherStock = new StockDTO(25, warehouse);
         List<ProductAttributeDTO> boschWasherAttributes = List.of(
                 new ProductAttributeDTO("energieeffizienzklasse", "A+++"),
                 new ProductAttributeDTO("fassungsvermögen", "9 KG"));
@@ -70,7 +76,7 @@ public class ProductControllerTest extends BaseControllerTest {
         boschWasher.setName("BOSCH Serie 6 WAU28S80");
         boschWasher.setSku(BOSCH_SKU);
         boschWasher.setDescription("Waschmaschine, 9 kg, 1400 U/min., EcoSilence Drive, SpeedPerfect, AllergiePlus, Nachlegefunktion");
-        boschWasher.setPrice(BigDecimal.valueOf(799.99));
+        boschWasher.setCostPrice(BigDecimal.valueOf(799.99));
         savedBoschWasher = productService.createProduct(boschWasher);
 
     }
@@ -89,10 +95,13 @@ public class ProductControllerTest extends BaseControllerTest {
         attributeRepository.deleteAll();
         imageRepository.deleteAll();
         stockRepository.deleteAll();
+        stockMovementRepository.deleteAll();
         productRepository.deleteAll();
         brandRepository.deleteAll();
         supplierRepository.deleteAll();
         categoryRepository.deleteAll();
+        warehouseRepository.deleteAll();
+
     }
 
     private ProductDTO setReferences(CategoryDTO category, BrandDTO brand, SupplierDTO supplier, List<ImageDTO> images,
@@ -117,7 +126,7 @@ public class ProductControllerTest extends BaseControllerTest {
         actions.andExpect(jsonPath(prefix + ".name", is("BOSCH Serie 6 WAU28S80")))
                 .andExpect(jsonPath(prefix + ".sku", is(BOSCH_SKU)))
                 .andExpect(jsonPath(prefix + ".description", is("Waschmaschine, 9 kg, 1400 U/min., EcoSilence Drive, SpeedPerfect, AllergiePlus, Nachlegefunktion")))
-                .andExpect(jsonPath(prefix + ".price", is(799.99)))
+                .andExpect(jsonPath(prefix + ".costPrice", is(799.99)))
                 .andExpect(jsonPath(prefix + ".categoryName", is("Haushaltsgeraete")))
                 .andExpect(jsonPath(prefix + ".brandName", is("BOSCH")))
                 .andExpect(jsonPath(prefix + ".supplierName", is("ElectronicPartner Deutschland")))
@@ -137,13 +146,13 @@ public class ProductControllerTest extends BaseControllerTest {
         actions.andExpect(jsonPath(prefix + ".name", is("Samsung Galaxy S23 Ultra")))
                 .andExpect(jsonPath(prefix + ".sku", is(SAMSUNG_SKU)))
                 .andExpect(jsonPath(prefix + ".description", is("6.8 Dynamic AMOLED 2X Display, 200MP Hauptkamera, 5000mAh Akku, 12GB RAM, 512GB Speicher")))
-                .andExpect(jsonPath(prefix + ".price", is(1399.99)))
+                .andExpect(jsonPath(prefix + ".costPrice", is(1399.99)))
                 .andExpect(jsonPath(prefix + ".categoryName", is("Smartphones")))
                 .andExpect(jsonPath(prefix + ".brandName", is("Samsung")))
                 .andExpect(jsonPath(prefix + ".supplierName", is("Samsung Electronics GmbH")))
                 .andExpect(jsonPath(prefix + ".supplierContactEmail", is("b2b.support@samsung.de")))
                 .andExpect(jsonPath(prefix + ".stock.quantity", is(50)))
-                .andExpect(jsonPath(prefix + ".stock.warehouse.address", is("Hamburg-Nord")))
+                .andExpect(jsonPath(prefix + ".stock.warehouse.address", is("Muenchen-Zentral")))
                 .andExpect(jsonPath(prefix + ".images[0].imageUrl", is("https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png")))
                 .andExpect(jsonPath(prefix + ".images[0].altText", is("Samsung Galaxy S23 Ultra in Botanic Green")))
                 .andExpect(jsonPath(prefix + ".productAttributes[0].attributeName", is("color")))
@@ -178,7 +187,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Apple MacBook Pro 16")
                     .sku("MBP16-M2-32GB")
                     .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
-                    .price(BigDecimal.valueOf(3499.99))
+                    .costPrice(BigDecimal.valueOf(3499.99))
                     .categoryID(laptops.getId())
                     .brandID(apple.getId())
                     .supplierID(appleDE.getId())
@@ -188,7 +197,7 @@ public class ProductControllerTest extends BaseControllerTest {
                             .build()))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
+                            .warehouse(warehouse)
                             .build())
                     .productAttributes(List.of(
                             ProductAttributeDTO.builder()
@@ -213,13 +222,13 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.name", is("Apple MacBook Pro 16")))
                     .andExpect(jsonPath("$.sku", is("MBP16-M2-32GB")))
                     .andExpect(jsonPath("$.description", is("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")))
-                    .andExpect(jsonPath("$.price", is(3499.99)))
+                    .andExpect(jsonPath("$.costPrice", is(3499.99)))
                     .andExpect(jsonPath("$.categoryName", is("Laptops")))
                     .andExpect(jsonPath("$.brandName", is("Apple")))
                     .andExpect(jsonPath("$.supplierName", is("Apple Deutschland GmbH")))
                     .andExpect(jsonPath("$.supplierContactEmail", is("apple.support@apple.de")))
                     .andExpect(jsonPath("$.stock.quantity", is(15)))
-                    .andExpect(jsonPath("$.stock.warehouse.address", is("Berlin-Mitte")))
+                    .andExpect(jsonPath("$.stock.warehouse.address", is("Muenchen-Zentral")))
                     .andExpect(jsonPath("$.images[0].imageUrl", is("https://store.apple.com/macbook-pro-16-space-gray.png")))
                     .andExpect(jsonPath("$.images[0].altText", is("MacBook Pro 16 Zoll in Space Grau")))
                     .andExpect(jsonPath("$.productAttributes", hasSize(3)))
@@ -247,7 +256,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Apple MacBook Pro 16")
                     .sku("MBP16-M2-32GB")
                     .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
-                    .price(BigDecimal.valueOf(3499.99))
+                    .costPrice(BigDecimal.valueOf(3499.99))
                     .categoryID(laptops.getId())
                     .brandID(apple.getId())
                     .supplierID(appleDE.getId())
@@ -259,7 +268,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
+                            .warehouse(warehouse)
                             .build()
                     )
                     .productAttributes(List.of(
@@ -282,7 +291,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Dell XPS 13")
                     .sku("XPS13-9300")
                     .description("13 Zoll InfinityEdge Display, Intel i7, 16GB RAM, 512GB SSD")
-                    .price(BigDecimal.valueOf(1299.00))
+                    .costPrice(BigDecimal.valueOf(1299.00))
                     .categoryID(laptops.getId())
                     .brandID(dell.getId())
                     .supplierID(dellDE.getId())
@@ -294,7 +303,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(10)
-                            .warehouse(new WarehouseDTO("Warehous","München"))
+                            .warehouse(warehouse)
                             .build()
                     )
                     .productAttributes(List.of(
@@ -345,7 +354,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Apple MacBook Pro 16")
                     .sku("MBP16-M2-32GB")
                     .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
-                    .price(BigDecimal.valueOf(3499.99))
+                    .costPrice(BigDecimal.valueOf(3499.99))
                     .categoryID(laptops.getId())
                     .brandID(otto.getId())
                     .supplierID(appleDE.getId())
@@ -357,7 +366,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
+                            .warehouse(warehouse)
                             .build()
                     )
                     .productAttributes(List.of(
@@ -374,7 +383,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Samsung Galaxy S21")
                     .sku("SGS21-5G")
                     .description("6.2 Zoll Dynamic AMOLED, Exynos 2100, 8GB RAM, 128GB Speicher")
-                    .price(BigDecimal.valueOf(849.00))
+                    .costPrice(BigDecimal.valueOf(849.00))
                     .categoryID(phones.getId())
                     .brandID(samsungBrand.getId())
                     .supplierID(supplierService.createSupplier(
@@ -388,7 +397,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     ))
                     .stock(StockDTO.builder()
                             .quantity(20)
-                            .warehouse(new WarehouseDTO("Warehous","Hamburg"))
+                            .warehouse(warehouse)
                             .build()
                     )
                     .productAttributes(List.of(
@@ -449,7 +458,7 @@ public class ProductControllerTest extends BaseControllerTest {
         @Test
         @WithMockUser(roles = {"ADMIN"})
         @DisplayName("should return products sorted descending")
-        public void shouldReturnProductsSortedDescending() throws Exception {
+        public void  shouldReturnProductsSortedDescending() throws Exception {
 
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
                     .andExpect(status().isOk())
@@ -519,7 +528,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("SearchBy Product")
                     .sku("MBP16-M2-32GB")
                     .description("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau")
-                    .price(BigDecimal.valueOf(3499.99))
+                    .costPrice(BigDecimal.valueOf(3499.99))
                     .categoryID(laptops.getId())
                     .brandID(apple.getId())
                     .supplierID(appleDE.getId())
@@ -529,7 +538,7 @@ public class ProductControllerTest extends BaseControllerTest {
                             .build()))
                     .stock(StockDTO.builder()
                             .quantity(15)
-                            .warehouse(new WarehouseDTO("Warehous","Berlin-Mitte"))
+                            .warehouse(warehouse)
                             .build())
                     .productAttributes(List.of(
                             ProductAttributeDTO.builder()
@@ -559,7 +568,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.totalElements").value(1))
                     .andExpect(jsonPath("$.content[0].name").value("SearchBy Product"))
                     .andExpect(jsonPath("$.content[0].sku").value("MBP16-M2-32GB"))
-                    .andExpect(jsonPath("$.content[0].price").value(3499.99))
+                    .andExpect(jsonPath("$.content[0].costPrice").value(3499.99))
                     .andExpect(jsonPath("$.content[0].description").value("16 Zoll Liquid Retina XDR Display, Apple M2 Max Chip, 32GB RAM, 1TB SSD, Space Grau"));
         }
     }
@@ -582,7 +591,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Samsung Galaxy S23 Ultra Updated")
                     .sku(SAMSUNG_SKU)
                     .description("Updated description")
-                    .price(BigDecimal.valueOf(1299.99))
+                    .costPrice(BigDecimal.valueOf(1299.99))
                     .categoryID(product.get().getCategory().getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())
@@ -591,7 +600,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
                     .andExpect(jsonPath("$.description", is("Updated description")))
-                    .andExpect(jsonPath("$.price", is(1299.99)));
+                    .andExpect(jsonPath("$.costPrice", is(1299.99)));
         }
 
         @Test
@@ -607,7 +616,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Samsung Galaxy S23 Ultra Updated")
                     .sku(SAMSUNG_SKU)
                     .description("Updated description")
-                    .price(BigDecimal.valueOf(1299.99))
+                    .costPrice(BigDecimal.valueOf(1299.99))
                     .categoryID(testCategory.getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())
@@ -616,7 +625,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
                     .andExpect(jsonPath("$.description", is("Updated description")))
-                    .andExpect(jsonPath("$.price", is(1299.99)))
+                    .andExpect(jsonPath("$.costPrice", is(1299.99)))
                     .andExpect(jsonPath("$.categoryName", is("OtherCategory")));
         }
 
@@ -634,7 +643,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Samsung Galaxy S23 Ultra Updated")
                     .sku(SAMSUNG_SKU)
                     .description("Updated description")
-                    .price(BigDecimal.valueOf(1299.99))
+                    .costPrice(BigDecimal.valueOf(1299.99))
                     .categoryID(testCategory.getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(testSupplier.getId())
@@ -643,7 +652,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
                     .andExpect(jsonPath("$.description", is("Updated description")))
-                    .andExpect(jsonPath("$.price", is(1299.99)))
+                    .andExpect(jsonPath("$.costPrice", is(1299.99)))
                     .andExpect(jsonPath("$.categoryName", is("OtherCategory")))
                     .andExpect(jsonPath("$.supplierName", is("TestSupplier")));
             ;
@@ -662,7 +671,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Samsung Galaxy S23 Ultra Updated")
                     .sku(SAMSUNG_SKU)
                     .description("Updated description")
-                    .price(BigDecimal.valueOf(1299.99))
+                    .costPrice(BigDecimal.valueOf(1299.99))
                     .categoryID(product.get().getCategory().getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())
@@ -672,7 +681,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name", is("Samsung Galaxy S23 Ultra Updated")))
                     .andExpect(jsonPath("$.description", is("Updated description")))
-                    .andExpect(jsonPath("$.price", is(1299.99)))
+                    .andExpect(jsonPath("$.costPrice", is(1299.99)))
                     .andExpect(jsonPath("$.images", hasSize(1)))
                     .andExpect(jsonPath("$.images[0].imageUrl", is("https://example.com/test-image-updated.png")))
                     .andExpect(jsonPath("$.images[0].altText", is("Test Image Updated")));
@@ -690,7 +699,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .name("Samsung Galaxy S23 Ultra Updated")
                     .sku(SAMSUNG_SKU)
                     .description("Updated description")
-                    .price(BigDecimal.valueOf(1299.99))
+                    .costPrice(BigDecimal.valueOf(1299.99))
                     .categoryID(product.get().getCategory().getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())

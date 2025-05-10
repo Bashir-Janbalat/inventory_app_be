@@ -10,8 +10,6 @@ import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,6 @@ public class ProductMapper {
     private final WarehouseRepository warehouseRepository;
     private final WarehouseMapper warehouseMapper;
 
-    private static final BigDecimal PROFIT_MARGIN = new BigDecimal("0.30");
 
     public ProductDTO toDto(Product product) {
         if (product == null) return null;
@@ -44,7 +41,8 @@ public class ProductMapper {
         dto.setName(product.getName());
         dto.setSku(product.getSku());
         dto.setDescription(product.getDescription());
-        dto.setPrice(product.getSellingPrice());
+        dto.setCostPrice(product.getCostPrice());
+        dto.setSellingPrice(product.getSellingPrice());
         dto.setImages(mapImagesToDTO(product));
         if (product.getCategory() != null) {
             dto.setCategoryID(product.getCategory().getId());
@@ -75,9 +73,8 @@ public class ProductMapper {
         product.setName(dto.getName());
         product.setSku(dto.getSku());
         product.setDescription(dto.getDescription());
-        product.setCostPrice(dto.getPrice());
-        BigDecimal sellingPrice = dto.getPrice().multiply(BigDecimal.ONE.add(PROFIT_MARGIN)).setScale(2, RoundingMode.HALF_UP);
-        product.setSellingPrice(sellingPrice);
+        product.setCostPrice(dto.getCostPrice());
+        product.setSellingPrice(dto.getSellingPrice());
         setReferences(product, dto);
         return product;
     }
@@ -140,7 +137,8 @@ public class ProductMapper {
         product.setName(dto.getName());
         product.setSku(dto.getSku());
         product.setDescription(dto.getDescription());
-        product.setSellingPrice(dto.getPrice());
+        product.setCostPrice(dto.getCostPrice());
+        product.setSellingPrice(dto.getSellingPrice());
         assignEntityRelations(product, dto);
         if (dto.getStock() != null) {
             updateStockFromDTO(product, dto);

@@ -38,6 +38,8 @@ public abstract class BaseControllerTest {
     @Autowired
     protected UserService userService;
     @Autowired
+    protected WarehouseService warehouseService;
+    @Autowired
     AttributeRepository attributeRepository;
     @Autowired
     ImageRepository imageRepository;
@@ -60,6 +62,8 @@ public abstract class BaseControllerTest {
     protected UserRepository userRepository;
     @Autowired
     protected RoleRepository roleRepository;
+    @Autowired
+    protected WarehouseRepository warehouseRepository;
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;

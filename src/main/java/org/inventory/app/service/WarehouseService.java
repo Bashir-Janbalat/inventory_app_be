@@ -7,5 +7,6 @@ import java.util.List;
 public interface WarehouseService {
 
     List<WarehouseDTO> getAllWarehouses();
+    WarehouseDTO createWarehouse(WarehouseDTO warehouse);
 }
 

@@ -31,8 +31,9 @@ public class ProductDTO implements Serializable {
     @Size(max = 5000, message = "Description too long")
     private String description;
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than zero")
-    private BigDecimal price;
+    private BigDecimal costPrice;
 
+    private BigDecimal sellingPrice;
     @NotNull(message = "Category-ID is required")
     private Long categoryID;
     private String categoryName;
