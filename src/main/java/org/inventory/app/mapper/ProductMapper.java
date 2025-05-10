@@ -10,6 +10,8 @@ import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,8 @@ public class ProductMapper {
     private final StockRepository stockRepository;
     private final WarehouseRepository warehouseRepository;
     private final WarehouseMapper warehouseMapper;
+
+    private static final BigDecimal PROFIT_MARGIN = new BigDecimal("0.30");
 
     public ProductDTO toDto(Product product) {
         if (product == null) return null;
@@ -71,7 +75,9 @@ public class ProductMapper {
         product.setName(dto.getName());
         product.setSku(dto.getSku());
         product.setDescription(dto.getDescription());
-        product.setSellingPrice(dto.getPrice());
+        product.setCostPrice(dto.getPrice());
+        BigDecimal sellingPrice = dto.getPrice().multiply(BigDecimal.ONE.add(PROFIT_MARGIN)).setScale(2, RoundingMode.HALF_UP);
+        product.setSellingPrice(sellingPrice);
         setReferences(product, dto);
         return product;
     }

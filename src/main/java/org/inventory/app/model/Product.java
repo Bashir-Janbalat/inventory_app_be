@@ -47,4 +47,8 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductAttribute> productAttributes = new ArrayList<>();
+
+    /* cascade = CascadeType.PERSIST StockMovements nicht gelöscht werden, wenn ein Product gelöscht wird */
+    @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST, orphanRemoval = false)
+    private List<StockMovement> stockMovements;
 }

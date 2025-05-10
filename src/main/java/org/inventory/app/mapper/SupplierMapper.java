@@ -13,6 +13,7 @@ public class SupplierMapper {
             return null;
         }
         Supplier supplier = new Supplier();
+        supplier.setId(supplierDTO.getId());
         supplier.setName(supplierDTO.getName());
         supplier.setContactEmail(supplierDTO.getContactEmail());
         supplier.setAddress(supplierDTO.getAddress());

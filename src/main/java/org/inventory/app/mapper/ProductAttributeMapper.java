@@ -19,6 +19,7 @@ public class ProductAttributeMapper {
     public ProductAttribute toEntity(ProductAttributeDTO productAttributeDTO) {
         ProductAttribute productAttributeEntity = new ProductAttribute();
         Attribute attribute = new Attribute();
+        attribute.setId(productAttributeDTO.getAttributeID());
         attribute.setName(productAttributeDTO.getAttributeName());
         productAttributeEntity.setAttribute(attribute);
         productAttributeEntity.setValue(productAttributeDTO.getAttributeValue());

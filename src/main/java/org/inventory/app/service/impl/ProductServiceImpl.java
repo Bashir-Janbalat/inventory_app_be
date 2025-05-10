@@ -3,10 +3,14 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.ProductDTO;
+import org.inventory.app.enums.MovementReason;
+import org.inventory.app.enums.MovementType;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.Product;
+import org.inventory.app.model.StockMovement;
 import org.inventory.app.repository.ProductRepository;
+import org.inventory.app.repository.StockMovementRepository;
 import org.inventory.app.service.ProductService;
 import org.inventory.app.specification.ProductSpecifications;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,6 +18,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final StockMovementRepository stockMovementRepository;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
@@ -46,16 +53,34 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"products","product","searchProducts","productCount"}, allEntries = true)
+    @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
     public ProductDTO createProduct(ProductDTO dto) {
         Product product = productMapper.toEntity(dto);
-        Product saved = productRepository.save(product);
-        log.info("Created product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", saved.getId());
-        return productMapper.toDto(saved);
+        Product savedProduct = productRepository.save(product);
+        StockMovement movement = buildStockMovementFromDTO(savedProduct, dto);
+        stockMovementRepository.save(movement);
+        log.info("Created product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", savedProduct.getId());
+        return productMapper.toDto(savedProduct);
+    }
+
+    private StockMovement buildStockMovementFromDTO(Product product, ProductDTO dto) {
+        return StockMovement.builder()
+                .product(product)
+                .warehouseId(dto.getStock().getWarehouse().getId())
+                .quantity(dto.getStock().getQuantity())
+                .movementType(MovementType.IN)
+                .reason(MovementReason.CREATED)
+                .username(getCurrentUserName())
+                .build();
+    }
+
+    private String getCurrentUserName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (auth != null) ? auth.getName() : "system";
     }
 
     @Transactional
-    @CacheEvict(value = {"products","product","searchProducts","productCount"}, allEntries = true)
+    @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
@@ -63,14 +88,14 @@ public class ProductServiceImpl implements ProductService {
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
 
-        productMapper.patchProductFromDTO(product,dto);
+        productMapper.patchProductFromDTO(product, dto);
         Product saved = productRepository.save(product);
         log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
         return productMapper.toDto(saved);
     }
 
     @Transactional
-    @CacheEvict(value = {"products","product","searchProducts","productCount"}, allEntries = true)
+    @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent product with ID {}.", id);
@@ -88,8 +113,8 @@ public class ProductServiceImpl implements ProductService {
                     "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
                     "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<ProductDTO> searchProducts(String searchBy, String categoryName,
-                                           String brandName, String supplierName,String sortDirection,
-                                           String sortBy,  Pageable pageable) {
+                                           String brandName, String supplierName, String sortDirection,
+                                           String sortBy, Pageable pageable) {
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
             log.info("Empty search parameters - fetching all products.");
             return getAllProducts(pageable);
