@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import org.inventory.app.dto.*;
 import org.inventory.app.mapper.ProductMapper;
+import org.inventory.app.mapper.StockMapper;
 import org.inventory.app.model.Product;
 import org.inventory.app.repository.StockMovementRepository;
 import org.junit.jupiter.api.*;
@@ -37,6 +38,8 @@ public class ProductControllerTest extends BaseControllerTest {
     private ProductMapper productMapper;
     @Autowired
     private StockMovementRepository stockMovementRepository;
+    @Autowired
+    private StockMapper stockMapper;
 
 
     @BeforeEach
@@ -595,6 +598,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .categoryID(product.get().getCategory().getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())
+                    .stock(stockMapper.toDto(product.get().getStock()))
                     .build();
             performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
                     .andExpect(status().isOk())
@@ -620,6 +624,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .categoryID(testCategory.getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())
+                    .stock(stockMapper.toDto(product.get().getStock()))
                     .build();
             performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
                     .andExpect(status().isOk())
@@ -647,6 +652,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .categoryID(testCategory.getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(testSupplier.getId())
+                    .stock(stockMapper.toDto(product.get().getStock()))
                     .build();
             performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
                     .andExpect(status().isOk())
@@ -675,6 +681,7 @@ public class ProductControllerTest extends BaseControllerTest {
                     .categoryID(product.get().getCategory().getId())
                     .brandID(product.get().getBrand().getId())
                     .supplierID(product.get().getSupplier().getId())
+                    .stock(stockMapper.toDto(product.get().getStock()))
                     .images(List.of(dto))
                     .build();
             performPutRequest(BASE_URL_PRODUCTS + "/%d", MAPPER.writeValueAsString(updateDto), product.get().getId())
