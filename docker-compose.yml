@@ -19,8 +19,8 @@ services:
   app:
     build:
       context: .
-    image: inventory_app
-    container_name: inventory_app
+    image: inventory_app_be:latest
+    container_name: inventory_app_be
     depends_on:
       - db
       - redis
