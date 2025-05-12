@@ -169,8 +169,8 @@ public class ProductMapper {
         Stock existingStock = product.getStock();
         Long currentWarehouseId = existingStock.getWarehouse().getId();
         Long newWarehouseId = dto.getStock().getWarehouse() != null ? dto.getStock().getWarehouse().getId() : null;
-        MovementType type = MovementType.valueOf(dto.getStock().getMovementType());
-        if (type == MovementType.TRANSFER) {
+        String type = dto.getStock().getMovementType();
+        if (type != null && MovementType.valueOf(type) == MovementType.TRANSFER) {
             Long destId = dto.getStock().getDestinationWarehouseId();
             if (destId == null || destId.equals(currentWarehouseId)) {
                 throw new IllegalArgumentException("Destination warehouse must be different and not null.");
@@ -200,24 +200,25 @@ public class ProductMapper {
     }
 
     private int adjustSourceStockQuantity(Product product, ProductDTO dto) {
-        int oldQuantity = product.getStock().getQuantity();
-        int movementQuantity = dto.getStock().getMovementQuantity();
         String movementType = dto.getStock().getMovementType();
-
-        MovementType type = MovementType.valueOf(movementType);
-
-        return switch (type) {
-            case IN, RETURN -> oldQuantity + movementQuantity;
-            case OUT, DAMAGED -> oldQuantity - movementQuantity;
-            case TRANSFER -> {
-                Long destId = dto.getStock().getDestinationWarehouseId();
-                if (destId == null || product.getStock().getWarehouse().getId().equals(destId)) {
-                    throw new IllegalArgumentException("Invalid destination warehouse");
+        if (movementType != null) {
+            int oldQuantity = product.getStock().getQuantity();
+            int movementQuantity = dto.getStock().getMovementQuantity();
+            MovementType type = MovementType.valueOf(movementType);
+            return switch (type) {
+                case IN, RETURN -> oldQuantity + movementQuantity;
+                case OUT, DAMAGED -> oldQuantity - movementQuantity;
+                case TRANSFER -> {
+                    Long destId = dto.getStock().getDestinationWarehouseId();
+                    if (destId == null || product.getStock().getWarehouse().getId().equals(destId)) {
+                        throw new IllegalArgumentException("Invalid destination warehouse");
+                    }
+                    yield oldQuantity - movementQuantity;
                 }
-                yield oldQuantity - movementQuantity;
-            }
-            default -> throw new IllegalStateException("Unexpected movement type: " + movementType);
-        };
+                default -> throw new IllegalStateException("Unexpected movement type: " + movementType);
+            };
+        }
+        return product.getStock().getQuantity();
     }
 
     private void adjustDestinationStock(Product product, ProductDTO dto) {

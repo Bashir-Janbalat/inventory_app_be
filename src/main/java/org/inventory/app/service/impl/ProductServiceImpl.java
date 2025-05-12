@@ -90,20 +90,26 @@ public class ProductServiceImpl implements ProductService {
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
 
-        int oldQuantity = product.getStock() != null ? product.getStock().getQuantity() : 0;
-        Integer inputQuantity = dto.getStock().getMovementQuantity();
-        if (inputQuantity == null || inputQuantity <= 0) {
-            throw new IllegalArgumentException("Movement quantity must be provided and greater than zero.");
-        }
-        MovementType movementType = MovementType.valueOf(dto.getStock().getMovementType());
+        if (dto.getStock() != null && dto.getStock().getMovementQuantity() != null && dto.getStock().getMovementType() != null) {
+            int oldQuantity = product.getStock() != null ? product.getStock().getQuantity() : 0;
+            int inputQuantity = dto.getStock().getMovementQuantity();
+            MovementType movementType = MovementType.valueOf(dto.getStock().getMovementType());
 
-        if (!isStockMovementValid(oldQuantity, inputQuantity, movementType)) {
-            throw new IllegalArgumentException("Invalid quantity for movement type." + movementType);
+            if (inputQuantity <= 0) {
+                throw new IllegalArgumentException("Movement quantity must be provided and greater than zero.");
+            }
+
+            if (!isStockMovementValid(oldQuantity, inputQuantity, movementType)) {
+                throw new IllegalArgumentException("Invalid quantity for movement type: " + movementType);
+            }
+
+            createStockUpdateMovement(product, inputQuantity, movementType)
+                    .ifPresent(stockMovementRepository::save);
         }
+
         productMapper.patchProductFromDTO(product, dto);
         Product saved = productRepository.save(product);
-        createStockUpdateMovement(saved, inputQuantity, movementType)
-                .ifPresent(stockMovementRepository::save);
+
         log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
         return productMapper.toDto(saved);
     }
