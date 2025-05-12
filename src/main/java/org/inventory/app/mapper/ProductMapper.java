@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.ImageDTO;
 import org.inventory.app.dto.ProductAttributeDTO;
 import org.inventory.app.dto.ProductDTO;
+import org.inventory.app.enums.MovementType;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
@@ -165,44 +166,83 @@ public class ProductMapper {
     }
 
     private void updateStockFromDTO(Product product, ProductDTO dto) {
-        if (product.getStock() != null) {
-            Stock existingStock = product.getStock();
-
-            if (dto.getStock().getWarehouse() != null && dto.getStock().getWarehouse().getId() != null) {
-                Long newWarehouseId = dto.getStock().getWarehouse().getId();
-                Long currentWarehouseId = existingStock.getWarehouse().getId();
-
-                if (!newWarehouseId.equals(currentWarehouseId)) {
-                    stockRepository.delete(existingStock);
-
-                    Warehouse newWarehouse = warehouseRepository.findById(newWarehouseId).orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + newWarehouseId));
-
-                    Stock newStock = new Stock();
-                    StockId newStockId = new StockId();
-                    newStockId.setProduct(product.getId());
-                    newStockId.setWarehouse(newWarehouse.getId());
-
-                    newStock.setProduct(product);
-                    newStock.setWarehouse(newWarehouse);
-                    newStock.setQuantity(dto.getStock().getQuantity());
-
-                    product.setStock(newStock);
-                } else {
-                    existingStock.setQuantity(dto.getStock().getQuantity());
-                }
-            } else {
-                Warehouse newWarehouse = warehouseMapper.toEntity(dto.getStock().getWarehouse());
-                newWarehouse = warehouseRepository.save(newWarehouse);
-                Stock newStock = new Stock();
-                StockId newStockId = new StockId();
-                newStockId.setProduct(product.getId());
-                newStockId.setWarehouse(newWarehouse.getId());
-                newStock.setProduct(product);
-                newStock.setWarehouse(newWarehouse);
-                newStock.setQuantity(dto.getStock().getQuantity());
-                product.setStock(newStock);
+        Stock existingStock = product.getStock();
+        Long currentWarehouseId = existingStock.getWarehouse().getId();
+        Long newWarehouseId = dto.getStock().getWarehouse() != null ? dto.getStock().getWarehouse().getId() : null;
+        MovementType type = MovementType.valueOf(dto.getStock().getMovementType());
+        if (type == MovementType.TRANSFER) {
+            Long destId = dto.getStock().getDestinationWarehouseId();
+            if (destId == null || destId.equals(currentWarehouseId)) {
+                throw new IllegalArgumentException("Destination warehouse must be different and not null.");
             }
+            adjustDestinationStock(product, dto);
+            existingStock.setQuantity(adjustSourceStockQuantity(product, dto));
+            stockRepository.save(existingStock);
+            return;
         }
+        if (newWarehouseId != null && !newWarehouseId.equals(currentWarehouseId)) {
+            stockRepository.delete(existingStock);
+
+            Warehouse newWarehouse = warehouseRepository.findById(newWarehouseId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + newWarehouseId));
+            Stock newStock = new Stock();
+            StockId newStockId = new StockId();
+            newStockId.setProduct(product.getId());
+            newStockId.setWarehouse(newWarehouse.getId());
+            newStock.setProduct(product);
+            newStock.setWarehouse(newWarehouse);
+            newStock.setQuantity(adjustSourceStockQuantity(product, dto));
+            product.setStock(newStock);
+        } else {
+            existingStock.setQuantity(adjustSourceStockQuantity(product, dto));
+            stockRepository.save(existingStock);
+        }
+    }
+
+    private int adjustSourceStockQuantity(Product product, ProductDTO dto) {
+        int oldQuantity = product.getStock().getQuantity();
+        int movementQuantity = dto.getStock().getMovementQuantity();
+        String movementType = dto.getStock().getMovementType();
+
+        MovementType type = MovementType.valueOf(movementType);
+
+        return switch (type) {
+            case IN, RETURN -> oldQuantity + movementQuantity;
+            case OUT, DAMAGED -> oldQuantity - movementQuantity;
+            case TRANSFER -> {
+                Long destId = dto.getStock().getDestinationWarehouseId();
+                if (destId == null || product.getStock().getWarehouse().getId().equals(destId)) {
+                    throw new IllegalArgumentException("Invalid destination warehouse");
+                }
+                yield oldQuantity - movementQuantity;
+            }
+            default -> throw new IllegalStateException("Unexpected movement type: " + movementType);
+        };
+    }
+
+    private void adjustDestinationStock(Product product, ProductDTO dto) {
+        if (!MovementType.valueOf(dto.getStock().getMovementType()).equals(MovementType.TRANSFER)) {
+            return;
+        }
+        Long newWarehouseId = dto.getStock().getDestinationWarehouseId();
+        if (newWarehouseId == null) {
+            throw new IllegalArgumentException("Destination warehouse ID must not be null");
+        }
+
+        Warehouse destWarehouse = warehouseRepository.findById(newWarehouseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + newWarehouseId));
+
+        Stock destinationStock = stockRepository.findByProductAndWarehouse(product, destWarehouse)
+                .orElseGet(() -> {
+                    Stock newStock = new Stock();
+                    newStock.setProduct(product);
+                    newStock.setWarehouse(destWarehouse);
+                    newStock.setQuantity(0); // initialer Wert
+                    return newStock;
+                });
+
+        destinationStock.setQuantity(destinationStock.getQuantity() + dto.getStock().getMovementQuantity());
+        stockRepository.save(destinationStock);
     }
 
     private void updateImagesFromDTO(Product product, ProductDTO dto) {

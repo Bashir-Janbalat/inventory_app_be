@@ -4,6 +4,6 @@ public enum MovementType {
     IN,
     OUT,
     TRANSFER,
-    ADJUST,
-    RETURN
+    RETURN,
+    DAMAGED
 }

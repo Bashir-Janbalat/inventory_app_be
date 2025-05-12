@@ -24,6 +24,9 @@ public class StockMapper {
     public Stock toEntity(StockDTO stockDTO) {
         Stock stockEntity = new Stock();
         stockEntity.setQuantity(stockDTO.getQuantity());
+        if (stockDTO.getWarehouse() == null || stockDTO.getWarehouse().getId() == null) {
+            throw new IllegalArgumentException("Warehouse ID must not be null when creating stock");
+        }
         Long warehouseId = stockDTO.getWarehouse().getId();
         stockEntity.setWarehouse(
                 warehouseRepository.findById(warehouseId)

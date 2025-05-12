@@ -89,31 +89,56 @@ public class ProductServiceImpl implements ProductService {
                     log.warn("Attempted to update non-existent product with ID {}.", id);
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
+
         int oldQuantity = product.getStock() != null ? product.getStock().getQuantity() : 0;
+        Integer inputQuantity = dto.getStock().getMovementQuantity();
+        if (inputQuantity == null || inputQuantity <= 0) {
+            throw new IllegalArgumentException("Movement quantity must be provided and greater than zero.");
+        }
+        MovementType movementType = MovementType.valueOf(dto.getStock().getMovementType());
+
+        if (!isStockMovementValid(oldQuantity, inputQuantity, movementType)) {
+            throw new IllegalArgumentException("Invalid quantity for movement type." + movementType);
+        }
         productMapper.patchProductFromDTO(product, dto);
         Product saved = productRepository.save(product);
-        createStockUpdateMovement(saved, dto, oldQuantity)
+        createStockUpdateMovement(saved, inputQuantity, movementType)
                 .ifPresent(stockMovementRepository::save);
         log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
         return productMapper.toDto(saved);
     }
 
-    private Optional<StockMovement> createStockUpdateMovement(Product product, ProductDTO dto, int oldQuantity) {
-        int newQuantity = dto.getStock().getQuantity();
-        int quantityDifference = newQuantity - oldQuantity;
-        if (quantityDifference == 0) {
-            return Optional.empty();
-        }
-        StockMovement movement = StockMovement.builder()
-                .product(product)
-                .warehouseId(dto.getStock().getWarehouse().getId())
-                .quantity(Math.abs(quantityDifference))
-                .movementType(quantityDifference > 0 ? MovementType.IN : MovementType.OUT)
-                .reason(MovementReason.UPDATED)
-                .username(getCurrentUserName())
-                .build();
-        return Optional.of(movement);
+    private Optional<StockMovement> createStockUpdateMovement(Product product, int quantity, MovementType type) {
+        if (quantity == 0) return Optional.empty();
+
+        return Optional.of(
+                StockMovement.builder()
+                        .product(product)
+                        .warehouseId(product.getStock().getWarehouse().getId())
+                        .quantity(quantity)
+                        .movementType(type)
+                        .reason(mapDefaultReason(type))
+                        .username(getCurrentUserName())
+                        .build()
+        );
     }
+
+    private boolean isStockMovementValid(int oldQuantity, int inputQuantity, MovementType type) {
+        return switch (type) {
+            case IN, RETURN -> (oldQuantity + inputQuantity) > oldQuantity;
+            case OUT, TRANSFER, DAMAGED -> (oldQuantity - inputQuantity) >= 0;
+        };
+    }
+
+    private MovementReason mapDefaultReason(MovementType type) {
+        return switch (type) {
+            case TRANSFER -> MovementReason.TRANSFERRED;
+            case RETURN -> MovementReason.RETURNED;
+            case DAMAGED -> MovementReason.DAMAGED;
+            default -> MovementReason.UPDATED;
+        };
+    }
+
 
     @Transactional
     @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)

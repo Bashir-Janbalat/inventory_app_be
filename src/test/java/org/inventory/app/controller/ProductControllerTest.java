@@ -1,6 +1,7 @@
 package org.inventory.app.controller;
 
 import org.inventory.app.dto.*;
+import org.inventory.app.enums.MovementType;
 import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.mapper.StockMapper;
 import org.inventory.app.model.Product;
@@ -30,7 +31,7 @@ public class ProductControllerTest extends BaseControllerTest {
     private BrandDTO samsungBrand;
     private CategoryDTO smartphoneCategory;
     private SupplierDTO samsungSupplier;
-    private  WarehouseDTO warehouse;
+    private WarehouseDTO warehouse;
 
     private ProductDTO savedSamsungPhone;
     private ProductDTO savedBoschWasher;
@@ -461,7 +462,7 @@ public class ProductControllerTest extends BaseControllerTest {
         @Test
         @WithMockUser(roles = {"ADMIN"})
         @DisplayName("should return products sorted descending")
-        public void  shouldReturnProductsSortedDescending() throws Exception {
+        public void shouldReturnProductsSortedDescending() throws Exception {
 
             ResultActions result = performGetRequest(BASE_URL_PRODUCTS + "?page=%d&size=%d&sortDirection=%s", 0, 10, "desc")
                     .andExpect(status().isOk())
