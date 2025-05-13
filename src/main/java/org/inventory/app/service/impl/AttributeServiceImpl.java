@@ -24,22 +24,23 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     @Transactional(readOnly = true)
-    @CacheEvict(value = {"attribute","attributes"}, allEntries = true)
-    public Attribute saveOrGetAttribute(String name) {
+    @CacheEvict(value = {"attribute", "attributes"}, allEntries = true)
+    public AttributeDTO saveOrGetAttribute(String name) {
         Optional<Attribute> attribute = attributeRepository.findFirstByName(name);
         if (attribute.isPresent()) {
-            return attribute.get();
+            return attributeMapper.toDto(attribute.get());
         }
         Attribute newAttribute = new Attribute(name);
-        return attributeRepository.save(newAttribute);
+        return attributeMapper.toDto(attributeRepository.save(newAttribute));
     }
 
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "attribute", key = "#attributeID")
-    public Attribute getAttributeById(Long attributeID) {
-        return attributeRepository.findById(attributeID)
+    public AttributeDTO getAttributeById(Long attributeID) {
+        Attribute attribute = attributeRepository.findById(attributeID)
                 .orElseThrow(() -> new ResourceNotFoundException("not Attribute found with id : " + attributeID));
+        return attributeMapper.toDto(attribute);
     }
 
     @Override

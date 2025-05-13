@@ -1,8 +1,8 @@
 package org.inventory.app.mapper;
 
 import lombok.AllArgsConstructor;
+import org.inventory.app.dto.AttributeDTO;
 import org.inventory.app.dto.ProductAttributeDTO;
-import org.inventory.app.model.Attribute;
 import org.inventory.app.model.ProductAttribute;
 import org.inventory.app.service.AttributeService;
 import org.springframework.stereotype.Component;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class ProductAttributeMapper {
 
     private final AttributeService attributeService;
+    private final AttributeMapper attributeMapper;
 
     public ProductAttributeDTO toDto(ProductAttribute productAttribute) {
         ProductAttributeDTO dto = new ProductAttributeDTO();
@@ -23,13 +24,13 @@ public class ProductAttributeMapper {
 
     public ProductAttribute toEntity(ProductAttributeDTO productAttributeDTO) {
         ProductAttribute productAttributeEntity = new ProductAttribute();
-        Attribute attribute;
+        AttributeDTO attribute;
         if (productAttributeDTO.getAttributeID() != null) {
             attribute = attributeService.getAttributeById(productAttributeDTO.getAttributeID());
         } else {
             attribute = attributeService.saveOrGetAttribute(productAttributeDTO.getAttributeName().trim());
         }
-        productAttributeEntity.setAttribute(attribute);
+        productAttributeEntity.setAttribute(attributeMapper.toEntity(attribute));
         productAttributeEntity.setValue(productAttributeDTO.getAttributeValue());
         return productAttributeEntity;
     }
