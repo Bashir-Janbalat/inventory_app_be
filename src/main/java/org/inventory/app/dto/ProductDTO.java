@@ -1,5 +1,6 @@
 package org.inventory.app.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,7 +47,9 @@ public class ProductDTO implements Serializable {
     private String supplierContactEmail;
     @Builder.Default
     private List<ImageDTO> images = new ArrayList<>();
-    private StockDTO stock;
+    @Builder.Default
+    @Valid
+    private List<StockDTO> stocks = new ArrayList<>();
     @Builder.Default
     private List<ProductAttributeDTO> productAttributes = new ArrayList<>();
 

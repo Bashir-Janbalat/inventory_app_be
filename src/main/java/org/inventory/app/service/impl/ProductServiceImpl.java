@@ -2,16 +2,18 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.dto.ImageDTO;
+import org.inventory.app.dto.ProductAttributeDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.MovementReason;
 import org.inventory.app.enums.MovementType;
 import org.inventory.app.exception.ResourceNotFoundException;
+import org.inventory.app.mapper.ImageMapper;
 import org.inventory.app.mapper.ProductMapper;
-import org.inventory.app.model.Product;
-import org.inventory.app.model.StockMovement;
-import org.inventory.app.repository.ProductRepository;
-import org.inventory.app.repository.StockMovementRepository;
+import org.inventory.app.model.*;
+import org.inventory.app.repository.*;
 import org.inventory.app.service.ProductService;
+import org.inventory.app.service.StockService;
 import org.inventory.app.specification.ProductSpecifications;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,7 +25,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,7 +38,13 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ImageMapper imageMapper;
     private final StockMovementRepository stockMovementRepository;
+    private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
+    private final SupplierRepository supplierRepository;
+    private final AttributeRepository attributeRepository;
+    private final StockService stockService;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
@@ -57,28 +69,20 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
     public ProductDTO createProduct(ProductDTO dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("ProductDTO must not be null");
+        }
         Product product = productMapper.toEntity(dto);
         Product savedProduct = productRepository.save(product);
-        StockMovement movement = buildStockMovementFromDTO(savedProduct, dto);
-        stockMovementRepository.save(movement);
+        savedProduct.getStocks().forEach(stock -> {
+            StockMovement movement = buildStockMovementForCreate(stock);
+            stockMovementRepository.save(movement);
+            log.info("'{}' movement saved: '{} {}' units ,warehouse '{}', product '{}', username '{}'", MovementType.IN,
+                    MovementReason.CREATED, stock.getQuantity(),
+                    stock.getWarehouse().getName(), stock.getProduct().getName(), getCurrentUserName());
+        });
         log.info("Created product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", savedProduct.getId());
         return productMapper.toDto(savedProduct);
-    }
-
-    private StockMovement buildStockMovementFromDTO(Product product, ProductDTO dto) {
-        return StockMovement.builder()
-                .product(product)
-                .warehouseId(dto.getStock().getWarehouse().getId())
-                .quantity(dto.getStock().getQuantity())
-                .movementType(MovementType.IN)
-                .reason(MovementReason.CREATED)
-                .username(getCurrentUserName())
-                .build();
-    }
-
-    private String getCurrentUserName() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (auth != null) ? auth.getName() : "system";
     }
 
     @Transactional
@@ -89,62 +93,114 @@ public class ProductServiceImpl implements ProductService {
                     log.warn("Attempted to update non-existent product with ID {}.", id);
                     return new ResourceNotFoundException("Product with ID '" + id + "' not found.");
                 });
-
-        if (dto.getStock() != null && dto.getStock().getMovementQuantity() != null && dto.getStock().getMovementType() != null) {
-            int oldQuantity = product.getStock() != null ? product.getStock().getQuantity() : 0;
-            int inputQuantity = dto.getStock().getMovementQuantity();
-            MovementType movementType = MovementType.valueOf(dto.getStock().getMovementType());
-
-            if (inputQuantity <= 0) {
-                throw new IllegalArgumentException("Movement quantity must be provided and greater than zero.");
-            }
-
-            if (!isStockMovementValid(oldQuantity, inputQuantity, movementType)) {
-                throw new IllegalArgumentException("Invalid quantity for movement type: " + movementType);
-            }
-
-            createStockUpdateMovement(product, inputQuantity, movementType)
-                    .ifPresent(stockMovementRepository::save);
-        }
-
-        productMapper.patchProductFromDTO(product, dto);
+        patchProductFromDTO(product, dto);
         Product saved = productRepository.save(product);
 
         log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
         return productMapper.toDto(saved);
     }
 
-    private Optional<StockMovement> createStockUpdateMovement(Product product, int quantity, MovementType type) {
-        if (quantity == 0) return Optional.empty();
+    public void patchProductFromDTO(Product product, ProductDTO dto) {
+        if (dto == null || product == null) return;
 
-        return Optional.of(
-                StockMovement.builder()
-                        .product(product)
-                        .warehouseId(product.getStock().getWarehouse().getId())
-                        .quantity(quantity)
-                        .movementType(type)
-                        .reason(mapDefaultReason(type))
-                        .username(getCurrentUserName())
-                        .build()
-        );
+        product.setName(dto.getName());
+        product.setSku(dto.getSku());
+        product.setDescription(dto.getDescription());
+        product.setCostPrice(dto.getCostPrice());
+        product.setSellingPrice(dto.getSellingPrice());
+        assignEntityRelations(product, dto);
+
+        if (dto.getImages() != null) {
+            updateImagesFromDTO(product, dto);
+        }
+        if (dto.getProductAttributes() != null) {
+            updateAttributesFromDTO(product, dto);
+        }
+
+        if (dto.getStocks() != null && !dto.getStocks().isEmpty()) {
+            stockService.updateStocksFromDTO(product, dto);
+        }
     }
 
-    private boolean isStockMovementValid(int oldQuantity, int inputQuantity, MovementType type) {
-        return switch (type) {
-            case IN, RETURN -> (oldQuantity + inputQuantity) > oldQuantity;
-            case OUT, TRANSFER, DAMAGED -> (oldQuantity - inputQuantity) >= 0;
-        };
+    private void assignEntityRelations(Product product, ProductDTO dto) {
+        Optional.ofNullable(dto.getCategoryID()).ifPresent(id -> product.setCategory(findCategoryById(id)));
+        Optional.ofNullable(dto.getBrandID()).ifPresent(id -> product.setBrand(findBrandById(id)));
+        Optional.ofNullable(dto.getSupplierID()).ifPresent(id -> product.setSupplier(findSupplierById(id)));
     }
 
-    private MovementReason mapDefaultReason(MovementType type) {
-        return switch (type) {
-            case TRANSFER -> MovementReason.TRANSFERRED;
-            case RETURN -> MovementReason.RETURNED;
-            case DAMAGED -> MovementReason.DAMAGED;
-            default -> MovementReason.UPDATED;
-        };
+    private Category findCategoryById(Long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category with id: " + id + " not found"));
     }
 
+    private Brand findBrandById(Long id) {
+        return brandRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Brand with ID '" + id + "' not found."));
+    }
+
+    private Supplier findSupplierById(Long id) {
+        return supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found."));
+    }
+
+    private void updateImagesFromDTO(Product product, ProductDTO dto) {
+        Map<Long, Image> existingImages = product.getImages().stream().filter(image -> image.getId() != null).collect(Collectors.toMap(Image::getId, image -> image));
+        List<Image> imagesToKeep = new ArrayList<>();
+
+        for (ImageDTO imageDTO : dto.getImages()) {
+            if (imageDTO.getId() != null && existingImages.containsKey(imageDTO.getId())) {
+                Image existingImage = existingImages.get(imageDTO.getId());
+                existingImage.setImageUrl(imageDTO.getImageUrl());
+                existingImage.setAltText(imageDTO.getAltText());
+                imagesToKeep.add(existingImage);
+            } else {
+                Image newImage = imageMapper.toEntity(imageDTO);
+                newImage.setProduct(product);
+                imagesToKeep.add(newImage);
+            }
+        }
+        product.getImages().clear();
+        product.getImages().addAll(imagesToKeep);
+    }
+
+    private void updateAttributesFromDTO(Product product, ProductDTO dto) {
+        Map<ProductAttributeId, ProductAttribute> existingAttributes = product.getProductAttributes().stream()
+                .collect(Collectors.toMap(
+                        attr -> new ProductAttributeId(attr.getProduct().getId(), attr.getAttribute().getId()),
+                        attr -> attr
+                ));
+        List<ProductAttribute> attributesToKeep = new ArrayList<>();
+        for (ProductAttributeDTO attributeDTO : dto.getProductAttributes()) {
+            ProductAttributeId id = new ProductAttributeId(product.getId(), attributeDTO.getAttributeID());
+            if (attributeDTO.getAttributeID() != null && existingAttributes.containsKey(id)) {
+                ProductAttribute existingAttr = existingAttributes.get(id);
+                existingAttr.setValue(attributeDTO.getAttributeValue());
+                attributesToKeep.add(existingAttr);
+            } else {
+                Attribute attribute = attributeRepository.findFirstByName(attributeDTO.getAttributeName()).orElseGet(
+                        () -> attributeRepository.save(new Attribute(attributeDTO.getAttributeName()))
+                );
+                ProductAttribute newProductAttribute = new ProductAttribute(product, attribute, attributeDTO.getAttributeValue());
+                product.getProductAttributes().add(newProductAttribute);
+                attributesToKeep.add(newProductAttribute);
+            }
+        }
+        product.getProductAttributes().clear();
+        product.getProductAttributes().addAll(attributesToKeep);
+    }
+
+    private StockMovement buildStockMovementForCreate(Stock stock) {
+        return StockMovement.builder()
+                .product(stock.getProduct())
+                .warehouseId(stock.getWarehouse().getId())
+                .quantity(stock.getQuantity())
+                .movementType(MovementType.IN)
+                .reason(MovementReason.CREATED)
+                .username(getCurrentUserName())
+                .build();
+    }
+
+    private String getCurrentUserName() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (auth != null) ? auth.getName() : "system";
+    }
 
     @Transactional
     @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class Stock {
 
     @Id
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 

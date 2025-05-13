@@ -1,6 +1,7 @@
 package org.inventory.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.inventory.app.dto.*;
 import org.inventory.app.repository.*;
 import org.inventory.app.security.jwt.JwtTokenProvider;
 import org.inventory.app.service.*;
@@ -11,6 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -64,6 +68,8 @@ public abstract class BaseControllerTest {
     protected RoleRepository roleRepository;
     @Autowired
     protected WarehouseRepository warehouseRepository;
+    @Autowired
+    protected StockMovementRepository stockMovementRepository;
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
@@ -89,6 +95,49 @@ public abstract class BaseControllerTest {
     protected ResultActions performDeleteRequest(String url, Object... params) throws Exception {
         return mockMvc.perform(delete(String.format(url, params))
                 .contentType(MediaType.APPLICATION_JSON));
+    }
+
+    protected WarehouseDTO createWarehouse(String name, String address) {
+        return warehouseService.createWarehouse(new WarehouseDTO(name, address));
+    }
+
+    protected CategoryDTO createCategory(String name) {
+        return categoryService.createCategory(new CategoryDTO(name));
+    }
+
+    protected BrandDTO createBrand(String name) {
+        return brandService.createBrand(new BrandDTO(name));
+    }
+
+    protected SupplierDTO createSupplier(String name, String email) {
+        return supplierService.createSupplier(new SupplierDTO(name, email));
+    }
+
+    protected ProductDTO buildProduct(String name, String sku, String description, BigDecimal costPrice,
+                                      CategoryDTO category, BrandDTO brand, SupplierDTO supplier,
+                                      List<ImageDTO> images, List<StockDTO> stocks,
+                                      List<ProductAttributeDTO> attributes) {
+
+        ProductDTO dto = new ProductDTO();
+        dto.setName(name);
+        dto.setSku(sku);
+        dto.setDescription(description);
+        dto.setCostPrice(costPrice);
+        dto.setCategoryID(category.getId());
+        dto.setBrandID(brand.getId());
+        dto.setSupplierID(supplier.getId());
+        dto.setImages(images);
+        dto.setStocks(stocks);
+        dto.setProductAttributes(attributes);
+        return dto;
+    }
+
+    protected ProductDTO createProduct(String name, String sku, String description, BigDecimal costPrice,
+                                       CategoryDTO category, BrandDTO brand, SupplierDTO supplier,
+                                       List<ImageDTO> images, List<StockDTO> stocks,
+                                       List<ProductAttributeDTO> attributes) {
+        ProductDTO dto = buildProduct(name, sku, description, costPrice, category, brand, supplier, images, stocks, attributes);
+        return productService.createProduct(dto);
     }
 
 }

@@ -42,8 +42,8 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Stock stock;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Stock> stocks = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductAttribute> productAttributes = new ArrayList<>();

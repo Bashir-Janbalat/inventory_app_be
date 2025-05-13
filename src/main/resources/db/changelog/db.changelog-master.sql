@@ -88,10 +88,10 @@ CREATE TABLE stock_movements
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_at    DATETIME(6) NULL,
     updated_at    DATETIME(6) NULL,
-    movement_type ENUM('ADJUST', 'IN', 'OUT', 'RETURN', 'TRANSFER','DAMAGED') NOT NULL,
+    movement_type ENUM('IN', 'OUT', 'RETURN', 'TRANSFER','DAMAGED') NOT NULL,
     product_id    BIGINT NULL,
     quantity      INT    NOT NULL,
-    reason        ENUM('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'UPDATED') NOT NULL,
+    reason        ENUM('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'RECEIVED_TRANSFER' ,'UPDATED') NOT NULL,
     warehouse_id  BIGINT NOT NULL,
     username      VARCHAR(255) NULL,
     CONSTRAINT FKjcaag8ogfjxpwmqypi1wfdaog
