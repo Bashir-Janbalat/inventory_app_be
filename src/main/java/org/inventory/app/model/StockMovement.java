@@ -1,6 +1,7 @@
 package org.inventory.app.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.inventory.app.enums.MovementReason;
 import org.inventory.app.enums.MovementType;
@@ -17,6 +18,7 @@ public class StockMovement extends BaseEntity {
     private Long warehouseId;
 
     @Column(nullable = false)
+    @Min(value = 0, message = "Quantity must be greater than or equal to 0")
     private Integer quantity;
 
     @Enumerated(EnumType.STRING)

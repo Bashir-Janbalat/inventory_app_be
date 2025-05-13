@@ -90,7 +90,7 @@ CREATE TABLE stock_movements
     updated_at    DATETIME(6) NULL,
     movement_type ENUM('IN', 'OUT', 'RETURN', 'TRANSFER','DAMAGED') NOT NULL,
     product_id    BIGINT NULL,
-    quantity      INT    NOT NULL,
+    quantity      INT    NOT NULL CHECK (quantity >= 0),
     reason        ENUM('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'RECEIVED_TRANSFER' ,'UPDATED') NOT NULL,
     warehouse_id  BIGINT NOT NULL,
     username      VARCHAR(255) NULL,
@@ -133,7 +133,7 @@ CREATE TABLE stock
 (
     product_id   BIGINT NOT NULL,
     warehouse_id BIGINT NOT NULL,
-    quantity     INT    NOT NULL,
+    quantity     INT    NOT NULL CHECK (quantity >= 0),
     PRIMARY KEY (product_id, warehouse_id),
     CONSTRAINT FKeuiihog7wq4cu7nvqu7jx57d2 FOREIGN KEY (product_id) REFERENCES products (id),
     CONSTRAINT FKpx2sjs5k0wdolrps3puo2skaw FOREIGN KEY (warehouse_id) REFERENCES warehouses (id)
