@@ -8,5 +8,7 @@ public interface WarehouseService {
 
     List<WarehouseDTO> getAllWarehouses();
     WarehouseDTO createWarehouse(WarehouseDTO warehouse);
+
+    WarehouseDTO updateWarehouse(Long id, WarehouseDTO warehouseDTO);
 }
 
