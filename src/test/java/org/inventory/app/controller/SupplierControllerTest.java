@@ -25,12 +25,9 @@ public class SupplierControllerTest extends BaseControllerTest {
     void setUp() {
         supplierRepository.deleteAll();
         testSuppliers = new ArrayList<>();
-        testSuppliers.add(supplierService.createSupplier(SupplierDTO.builder().name("Test Supplier 1").
-                contactEmail("TestSupplier1@gmail.com").build()));
-        testSuppliers.add(supplierService.createSupplier(SupplierDTO.builder().name("Test Supplier 2").
-                contactEmail("TestSupplier2@gmail.com").build()));
-        testSuppliers.add(supplierService.createSupplier(SupplierDTO.builder().name("Test Supplier 3").
-                contactEmail("TestSupplier3@gmail.com").build()));
+        testSuppliers.add(createSupplier("Test Supplier 1", "TestSupplier1@gmail.com"));
+        testSuppliers.add(createSupplier("Test Supplier 2", "TestSupplier2@gmail.com"));
+        testSuppliers.add(createSupplier("Test Supplier 3", "TestSupplier3@gmail.com"));
     }
 
     @AfterEach
@@ -59,7 +56,7 @@ public class SupplierControllerTest extends BaseControllerTest {
         performGetRequest(BASE_URL_SUPPLIERS)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.totalElements").value(testSuppliers.size()+ 1));
+                .andExpect(jsonPath("$.totalElements").value(testSuppliers.size() + 1));
     }
 
     @Test

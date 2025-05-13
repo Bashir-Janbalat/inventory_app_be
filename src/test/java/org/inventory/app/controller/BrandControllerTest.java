@@ -25,9 +25,9 @@ public class BrandControllerTest extends BaseControllerTest {
     void setUp() {
         brandRepository.deleteAll();
         testBrands = new ArrayList<>();
-        testBrands.add(brandService.createBrand(BrandDTO.builder().name("Test Brand 1").build()));
-        testBrands.add(brandService.createBrand(BrandDTO.builder().name("Test Brand 2").build()));
-        testBrands.add(brandService.createBrand(BrandDTO.builder().name("Test Brand 3").build()));
+        testBrands.add(createBrand("Test Brand 1"));
+        testBrands.add(createBrand("Test Brand 2"));
+        testBrands.add(createBrand("Test Brand 3"));
     }
 
     @AfterEach

@@ -25,9 +25,9 @@ public class CategoryControllerTest extends BaseControllerTest {
     void setUp() {
         categoryRepository.deleteAll();
         categoryDTOS = new ArrayList<>();
-        categoryDTOS.add(categoryService.createCategory(CategoryDTO.builder().name("Test Category 1").build()));
-        categoryDTOS.add(categoryService.createCategory(CategoryDTO.builder().name("Test Category 2").build()));
-        categoryDTOS.add(categoryService.createCategory(CategoryDTO.builder().name("Test Category 3").build()));
+        categoryDTOS.add(createCategory("Test Category 1"));
+        categoryDTOS.add(createCategory("Test Category 2"));
+        categoryDTOS.add(createCategory("Test Category 3"));
     }
 
     @AfterEach
