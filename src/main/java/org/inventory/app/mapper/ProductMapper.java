@@ -3,10 +3,7 @@ package org.inventory.app.mapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.ImageDTO;
-import org.inventory.app.dto.ProductAttributeDTO;
 import org.inventory.app.dto.ProductDTO;
-import org.inventory.app.dto.StockDTO;
-import org.inventory.app.enums.MovementType;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
@@ -14,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -104,15 +100,20 @@ public class ProductMapper {
     }
 
     private void setAttributesFromDTO(Product product, ProductDTO dto) {
-        product.setProductAttributes(dto.getProductAttributes().stream().map(productAttributeDTO -> {
-            Attribute attribute = new Attribute();
-            attribute.setName(productAttributeDTO.getAttributeName());
-            Attribute saved = attributeRepository.save(attribute);
-            ProductAttribute productAttribute = new ProductAttribute(product, saved, productAttributeDTO.getAttributeValue());
-            productAttribute.setProduct(product);
-            return productAttribute;
-        }).toList());
+        product.setProductAttributes(dto.getProductAttributes().stream().map(productAttributeMapper::toEntity)
+                .peek(att -> att.setProduct(product)).toList());
     }
+
+//    private void setAttributesFromDTO(Product product, ProductDTO dto) {
+//        product.setProductAttributes(dto.getProductAttributes().stream().map(productAttributeDTO -> {
+//            Attribute attribute = new Attribute();
+//            attribute.setName(productAttributeDTO.getAttributeName());
+//            Attribute saved = attributeRepository.save(attribute);
+//            ProductAttribute productAttribute = new ProductAttribute(product, saved, productAttributeDTO.getAttributeValue());
+//            productAttribute.setProduct(product);
+//            return productAttribute;
+//        }).toList());
+//    }
 
     private void setStocksFromDTO(Product product, ProductDTO dto) {
         List<Stock> stocks = dto.getStocks().stream()
@@ -139,6 +140,7 @@ public class ProductMapper {
     private Supplier findSupplierById(Long id) {
         return supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier with ID '" + id + "' not found."));
     }
+
     private List<ImageDTO> mapImagesToDTO(Product product) {
         return product.getImages().stream().map(imageMapper::toDto).collect(Collectors.toList());
     }

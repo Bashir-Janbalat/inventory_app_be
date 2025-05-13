@@ -2,6 +2,7 @@ package org.inventory.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +20,11 @@ public class StockDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private int quantity;
-    @NotNull(message = "Warehouse is required")
     @Valid
+    @Min(value = 0, message = "Quantity must be a non-negative number")
+    private int quantity;
+    @Valid
+    @NotNull(message = "Warehouse is required")
     private WarehouseDTO warehouse;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String movementType;

@@ -9,6 +9,7 @@ import org.inventory.app.enums.MovementReason;
 import org.inventory.app.enums.MovementType;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.ImageMapper;
+import org.inventory.app.mapper.ProductAttributeMapper;
 import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
@@ -43,8 +44,8 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final SupplierRepository supplierRepository;
-    private final AttributeRepository attributeRepository;
     private final StockService stockService;
+    private final ProductAttributeMapper productAttributeMapper;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
@@ -174,12 +175,10 @@ public class ProductServiceImpl implements ProductService {
                 existingAttr.setValue(attributeDTO.getAttributeValue());
                 attributesToKeep.add(existingAttr);
             } else {
-                Attribute attribute = attributeRepository.findFirstByName(attributeDTO.getAttributeName()).orElseGet(
-                        () -> attributeRepository.save(new Attribute(attributeDTO.getAttributeName()))
-                );
-                ProductAttribute newProductAttribute = new ProductAttribute(product, attribute, attributeDTO.getAttributeValue());
-                product.getProductAttributes().add(newProductAttribute);
-                attributesToKeep.add(newProductAttribute);
+                ProductAttribute attribute = productAttributeMapper.toEntity(attributeDTO);
+                attribute.setProduct(product);
+                product.getProductAttributes().add(attribute);
+                attributesToKeep.add(attribute);
             }
         }
         product.getProductAttributes().clear();
