@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface StockRepository extends JpaRepository<Stock, StockId> {
 
     Optional<Stock> findByProductAndWarehouse(Product product, Warehouse warehouse);
+
+    boolean existsByWarehouseId(Long id);
 }

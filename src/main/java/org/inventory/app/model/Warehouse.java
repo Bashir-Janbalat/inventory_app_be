@@ -1,11 +1,10 @@
 package org.inventory.app.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity(name = "warehouses")
 @Data
@@ -18,5 +17,8 @@ public class Warehouse {
 
     private String name;
     private String address;
+
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Stock> stocks;
 
 }
