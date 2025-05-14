@@ -209,6 +209,12 @@ public class ProductServiceImpl implements ProductService {
             log.warn("Attempted to delete non-existent product with ID {}.", id);
             throw new ResourceNotFoundException("Product with ID '" + id + "' not found.");
         }
+        List<StockMovement> movements = stockMovementRepository.findByProductId(id);
+        for (StockMovement movement : movements) {
+            movement.setProductNameSnapshot(product.get().getName());
+            movement.setProductDeleted(true);
+        }
+        stockMovementRepository.saveAll(movements);
         productRepository.deleteById(id);
         log.info("Deleted product with ID {}. Cache 'products','product','searchProducts','productCount' evicted.", id);
     }

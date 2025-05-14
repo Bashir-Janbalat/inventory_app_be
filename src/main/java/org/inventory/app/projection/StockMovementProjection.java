@@ -25,4 +25,8 @@ public interface StockMovementProjection {
     LocalDateTime getCreatedAt();
 
     String getUsername();
+
+    Boolean getProductDeleted();
+
+    String getProductNameSnapshot();
 }

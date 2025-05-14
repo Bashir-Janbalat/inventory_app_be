@@ -138,3 +138,7 @@ CREATE TABLE stock
     CONSTRAINT FKeuiihog7wq4cu7nvqu7jx57d2 FOREIGN KEY (product_id) REFERENCES products (id),
     CONSTRAINT FKpx2sjs5k0wdolrps3puo2skaw FOREIGN KEY (warehouse_id) REFERENCES warehouses (id)
 );
+
+-- changeset Bashir:14
+ALTER TABLE stock_movements ADD COLUMN product_name_snapshot VARCHAR(255);
+ALTER TABLE stock_movements ADD COLUMN product_deleted BOOLEAN DEFAULT FALSE;

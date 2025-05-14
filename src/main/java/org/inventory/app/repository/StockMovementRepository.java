@@ -32,7 +32,9 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
                     sm.movementType AS movementType,
                     sm.reason AS reason,
                     sm.createdAt AS createdAt,
-                    sm.username AS username
+                    sm.username AS username,
+                    sm.productDeleted AS productDeleted,
+                    sm.productNameSnapshot AS productNameSnapshot
                 FROM stock_movements sm
                 LEFT JOIN sm.product p
                 LEFT JOIN sm.warehouse w

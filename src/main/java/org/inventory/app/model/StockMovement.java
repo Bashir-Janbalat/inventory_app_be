@@ -35,4 +35,10 @@ public class StockMovement extends BaseEntity {
     private Warehouse warehouse;
 
     private String username;
+
+    @Column(name = "product_name_snapshot")
+    private String productNameSnapshot;
+
+    @Column(name = "product_deleted")
+    private Boolean productDeleted = false;
 }
