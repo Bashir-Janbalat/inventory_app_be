@@ -188,7 +188,7 @@ public class ProductServiceImpl implements ProductService {
     private StockMovement buildStockMovementForCreate(Stock stock) {
         return StockMovement.builder()
                 .product(stock.getProduct())
-                .warehouseId(stock.getWarehouse().getId())
+                .warehouse(stock.getWarehouse())
                 .quantity(stock.getQuantity())
                 .movementType(MovementType.IN)
                 .reason(MovementReason.CREATED)

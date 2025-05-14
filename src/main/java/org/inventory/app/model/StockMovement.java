@@ -15,9 +15,6 @@ import org.inventory.app.enums.MovementType;
 public class StockMovement extends BaseEntity {
 
     @Column(nullable = false)
-    private Long warehouseId;
-
-    @Column(nullable = false)
     @Min(value = 0, message = "Quantity must be greater than or equal to 0")
     private Integer quantity;
 
@@ -32,6 +29,10 @@ public class StockMovement extends BaseEntity {
     @ManyToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
 
     private String username;
 }

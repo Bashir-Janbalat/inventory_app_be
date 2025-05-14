@@ -138,7 +138,7 @@ public class StockUpdater {
                                                       MovementReason reason, String username) {
         return StockMovement.builder()
                 .product(stock.getProduct())
-                .warehouseId(stock.getWarehouse().getId())
+                .warehouse(stock.getWarehouse())
                 .quantity(quantity)
                 .movementType(movementType)
                 .reason(reason)

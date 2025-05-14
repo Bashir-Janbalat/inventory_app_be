@@ -1,13 +1,16 @@
 package org.inventory.app.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.StockMovementDTO;
 import org.inventory.app.model.StockMovement;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class StockMovementMapper {
 
-    private ProductMapper productMapper;
+    private final ProductMapper productMapper;
+    private final WarehouseMapper warehouseMapper;
 
     public StockMovementDTO toDto(StockMovement entity) {
         if (entity == null) return null;
@@ -15,7 +18,7 @@ public class StockMovementMapper {
         return StockMovementDTO.builder()
                 .id(entity.getId())
                 .productDTO(productMapper.toDto(entity.getProduct()))
-                .warehouseId(entity.getWarehouseId())
+                .warehouseDTO(warehouseMapper.toDto(entity.getWarehouse()))
                 .quantity(entity.getQuantity())
                 .movementType(entity.getMovementType())
                 .reason(entity.getReason())
@@ -28,7 +31,7 @@ public class StockMovementMapper {
         if (dto == null) return null;
         return StockMovement.builder()
                 .product(productMapper.toEntity(dto.getProductDTO()))
-                .warehouseId(dto.getWarehouseId())
+                .warehouse(warehouseMapper.toEntity(dto.getWarehouseDTO()))
                 .quantity(dto.getQuantity())
                 .movementType(dto.getMovementType())
                 .reason(dto.getReason())

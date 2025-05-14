@@ -18,7 +18,7 @@ public class StockMovementDTO implements Serializable {
 
     private Long id;
     private ProductDTO productDTO;
-    private Long warehouseId;
+    private WarehouseDTO warehouseDTO;
     private Integer quantity;
     private MovementType movementType;
     private MovementReason reason;
