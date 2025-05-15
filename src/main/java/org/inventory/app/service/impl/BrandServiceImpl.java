@@ -69,7 +69,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount,brandProductCounts"}, allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount","brandProductCounts"}, allEntries = true)
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> {
@@ -99,7 +99,7 @@ public class BrandServiceImpl implements BrandService {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
             throw new ResourceNotFoundException("Brand with ID '" + id + "' not found.");
         }
-        if (productRepository.existsByCategoryId(id)) {
+        if (productRepository.existsByBrandId(id)) {
             log.warn("Attempted to delete Brand with ID {} that has associated products.", id);
             throw new EntityHasAssociatedItemsException("Brand", id);
         }

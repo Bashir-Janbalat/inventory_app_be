@@ -18,4 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Page<Product> findByNameContainingIgnoreCase(String searchBy, Pageable pageable);
 
     Boolean existsByCategoryId(Long id);
+
+    Boolean existsByBrandId(Long id);
+
+    Boolean existsBySupplierId(Long id);
 }

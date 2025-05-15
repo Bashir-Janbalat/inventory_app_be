@@ -104,7 +104,7 @@ public class SupplierServiceImpl implements SupplierService {
             log.warn("Attempted to delete non-existent supplier with ID {}", id);
             throw new ResourceNotFoundException("Supplier with ID '" + id + "' not found.");
         }
-        if (productRepository.existsByCategoryId(id)) {
+        if (productRepository.existsBySupplierId(id)) {
             log.warn("Attempted to delete Supplier with ID {} that has associated products.", id);
             throw new EntityHasAssociatedItemsException("Supplier", id);
         }
