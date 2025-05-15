@@ -213,6 +213,7 @@ public class ProductServiceImpl implements ProductService {
         for (StockMovement movement : movements) {
             movement.setProductNameSnapshot(product.get().getName());
             movement.setProductDeleted(true);
+            movement.setProduct(null);
         }
         stockMovementRepository.saveAll(movements);
         productRepository.deleteById(id);

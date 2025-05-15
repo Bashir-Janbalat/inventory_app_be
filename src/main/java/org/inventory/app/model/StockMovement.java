@@ -26,7 +26,7 @@ public class StockMovement extends BaseEntity {
     @Column(nullable = false)
     private MovementReason reason;
 
-    @ManyToOne(optional = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(optional = true)
     @JoinColumn(name = "product_id")
     private Product product;
 
