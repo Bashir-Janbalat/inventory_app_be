@@ -1,6 +1,7 @@
 package org.inventory.app.service;
 
 import org.inventory.app.dto.WarehouseDTO;
+import org.inventory.app.projection.WarehouseStatsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,5 +20,7 @@ public interface WarehouseService {
     void deleteWarehous(Long id);
 
     WarehouseDTO getWarehousById(Long id);
+
+    Page<WarehouseStatsDTO> getWarehousesWithStats(Pageable pageable);
 }
 

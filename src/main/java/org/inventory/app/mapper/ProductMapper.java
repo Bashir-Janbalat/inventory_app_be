@@ -104,17 +104,6 @@ public class ProductMapper {
                 .peek(att -> att.setProduct(product)).toList());
     }
 
-//    private void setAttributesFromDTO(Product product, ProductDTO dto) {
-//        product.setProductAttributes(dto.getProductAttributes().stream().map(productAttributeDTO -> {
-//            Attribute attribute = new Attribute();
-//            attribute.setName(productAttributeDTO.getAttributeName());
-//            Attribute saved = attributeRepository.save(attribute);
-//            ProductAttribute productAttribute = new ProductAttribute(product, saved, productAttributeDTO.getAttributeValue());
-//            productAttribute.setProduct(product);
-//            return productAttribute;
-//        }).toList());
-//    }
-
     private void setStocksFromDTO(Product product, ProductDTO dto) {
         List<Stock> stocks = dto.getStocks().stream()
                 .map(stockMapper::toEntity)

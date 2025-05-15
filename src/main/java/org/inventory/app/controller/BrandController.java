@@ -63,7 +63,7 @@ public class BrandController {
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/stats")
-    public ResponseEntity<PagedResponseDTO<BrandStatsDTO>> getAllBrandsWitchProductCount(
+    public ResponseEntity<PagedResponseDTO<BrandStatsDTO>> getAllBrandsWithProductCount(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?

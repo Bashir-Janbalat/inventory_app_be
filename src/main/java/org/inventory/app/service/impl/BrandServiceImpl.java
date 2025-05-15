@@ -3,13 +3,13 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.BrandDTO;
-import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
+import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.BrandService;
@@ -31,7 +31,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount","brandStats"}, allEntries = true)
+    @CacheEvict(value = {"brands", "brand", "brandCount", "brandStats"}, allEntries = true)
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
         brandRepository.findByName(name).ifPresent(value -> {
@@ -69,7 +69,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount","brandStats"}, allEntries = true)
+    @CacheEvict(value = {"brands", "brand", "brandCount", "brandStats"}, allEntries = true)
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> {
@@ -93,7 +93,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount","brandStats"}, allEntries = true)
+    @CacheEvict(value = {"brands", "brand", "brandCount", "brandStats"}, allEntries = true)
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
@@ -117,9 +117,12 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @Cacheable(value = "brandStats",key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    @Cacheable(value = "brandStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     @Transactional(readOnly = true)
     public Page<BrandStatsDTO> findBrandsWithStats(Pageable pageable) {
-        return brandRepository.findBrandsWithStats(pageable);
+        Page<BrandStatsDTO> brands = brandRepository.findBrandsWithStats(pageable);
+        log.info("Fetched {} brands with stats from DB (page {} size {}) (and cached in brandStats)",
+                brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        return brands;
     }
 }

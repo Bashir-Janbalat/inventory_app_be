@@ -3,13 +3,13 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.CategoryDTO;
-import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.CategoryMapper;
 import org.inventory.app.model.Category;
+import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.repository.CategoryRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.CategoryService;
@@ -120,6 +120,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     @Cacheable(value = "categoryStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable) {
-        return categoryRepository.findCategoryStats(pageable);
+        Page<CategoryStatsDTO> categories = categoryRepository.findCategoryStats(pageable);
+        log.info("Fetched {} categories with stats (page {} size {}) from DB (and cached in 'categoryStats')",
+                categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        return categories;
     }
 }

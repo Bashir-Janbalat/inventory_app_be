@@ -11,9 +11,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class BrandStatsDTO implements Serializable {
 
-    private Long id;
+    private long id;
     private String name;
-    private Long productCount;
-    private Long totalStock;
+    private long productCount;
+    private long totalStock;
 
 }
