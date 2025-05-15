@@ -3,6 +3,7 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.CategoryDTO;
+import org.inventory.app.dto.CategoryStatsDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;
@@ -30,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category","categoryCount"}, allEntries = true)
+    @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         String name = categoryDTO.getName().trim();
         categoryRepository.findByName(name).ifPresent(value -> {
@@ -69,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category","categoryCount"}, allEntries = true)
+    @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         Category existing = categoryRepository.findById(id)
                 .orElseThrow(() -> {
@@ -93,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category","categoryCount"}, allEntries = true)
+    @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent category with ID {}", id);
@@ -113,5 +114,12 @@ public class CategoryServiceImpl implements CategoryService {
         long count = categoryRepository.count();
         log.info("Fetched category size from DB (and cached in 'categoryCount'): {}", count);
         return count;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "categoryStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public Page<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable) {
+        return categoryRepository.findCategoryStats(pageable);
     }
 }

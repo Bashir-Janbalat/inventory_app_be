@@ -1,6 +1,7 @@
 package org.inventory.app.service;
 
 import org.inventory.app.dto.CategoryDTO;
+import org.inventory.app.dto.CategoryStatsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,4 +13,6 @@ public interface CategoryService {
     CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
     void deleteCategory(Long id);
     Long getTotalCategoryCount();
+
+    Page<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable);
 }

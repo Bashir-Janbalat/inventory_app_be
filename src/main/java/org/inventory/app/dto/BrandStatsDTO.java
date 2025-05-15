@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BrandProductCountDTO implements Serializable {
+public class BrandStatsDTO implements Serializable {
 
     private Long id;
     private String name;

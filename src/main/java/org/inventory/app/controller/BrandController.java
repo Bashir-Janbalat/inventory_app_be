@@ -3,7 +3,7 @@ package org.inventory.app.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
-import org.inventory.app.dto.BrandProductCountDTO;
+import org.inventory.app.dto.BrandStatsDTO;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.service.BrandService;
 import org.springframework.data.domain.Page;
@@ -62,15 +62,15 @@ public class BrandController {
         brandService.deleteBrand(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/product-counts")
-    public ResponseEntity<PagedResponseDTO<BrandProductCountDTO>> getAllBrandsWitchProductCount(
+    @GetMapping("/stats")
+    public ResponseEntity<PagedResponseDTO<BrandStatsDTO>> getAllBrandsWitchProductCount(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<BrandProductCountDTO> brands = brandService.findBrandProductCounts(pageable);
+        Page<BrandStatsDTO> brands = brandService.findBrandsWithStats(pageable);
         return ResponseEntity.ok(new PagedResponseDTO<>(brands));
     }
 

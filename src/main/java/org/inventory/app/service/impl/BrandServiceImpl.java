@@ -3,7 +3,7 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.BrandDTO;
-import org.inventory.app.dto.BrandProductCountDTO;
+import org.inventory.app.dto.BrandStatsDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;
@@ -31,7 +31,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount"}, allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount","brandStats"}, allEntries = true)
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
         brandRepository.findByName(name).ifPresent(value -> {
@@ -69,7 +69,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount","brandProductCounts"}, allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount","brandStats"}, allEntries = true)
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> {
@@ -93,7 +93,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount","brandProductCounts"}, allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount","brandStats"}, allEntries = true)
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
@@ -117,9 +117,9 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    @Cacheable(value = "brandProductCounts",key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    @Transactional
-    public Page<BrandProductCountDTO> findBrandProductCounts(Pageable pageable) {
-        return brandRepository.findBrandProductCounts(pageable);
+    @Cacheable(value = "brandStats",key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    @Transactional(readOnly = true)
+    public Page<BrandStatsDTO> findBrandsWithStats(Pageable pageable) {
+        return brandRepository.findBrandsWithStats(pageable);
     }
 }

@@ -2,6 +2,7 @@ package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.CategoryDTO;
+import org.inventory.app.dto.CategoryStatsDTO;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.service.CategoryService;
 import org.springframework.data.domain.Page;
@@ -59,5 +60,20 @@ public class CategoryController {
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<PagedResponseDTO<CategoryStatsDTO>> getCategoriesStats(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+
+        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
+                Sort.by("name").descending() :
+                Sort.by("name").ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<CategoryStatsDTO> statsPage = categoryService.findCategoriesWithStats(pageable);
+        return ResponseEntity.ok(new PagedResponseDTO<>(statsPage));
     }
 }
