@@ -1,7 +1,7 @@
 package org.inventory.app.service;
 
 import org.inventory.app.dto.BrandDTO;
-import org.inventory.app.dto.BrandStatsDTO;
+import org.inventory.app.projection.BrandStatsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

@@ -1,7 +1,7 @@
 package org.inventory.app.repository;
 
 import jakarta.validation.constraints.NotBlank;
-import org.inventory.app.dto.BrandStatsDTO;
+import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.model.Brand;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +17,7 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     long count();
 
-    @Query(value = "SELECT new org.inventory.app.dto.BrandStatsDTO(b.id, b.name, COUNT(DISTINCT p.id), COALESCE(SUM(s.quantity), 0)) " +
+    @Query(value = "SELECT new org.inventory.app.projection.BrandStatsDTO(b.id, b.name, COUNT(DISTINCT p.id), COALESCE(SUM(s.quantity), 0)) " +
                     "FROM brands b " +
                     "LEFT JOIN products p ON b.id = p.brand.id " +
                     "LEFT JOIN stock s ON p.id = s.product.id " +

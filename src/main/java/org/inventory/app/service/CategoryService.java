@@ -1,7 +1,7 @@
 package org.inventory.app.service;
 
 import org.inventory.app.dto.CategoryDTO;
-import org.inventory.app.dto.CategoryStatsDTO;
+import org.inventory.app.projection.CategoryStatsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

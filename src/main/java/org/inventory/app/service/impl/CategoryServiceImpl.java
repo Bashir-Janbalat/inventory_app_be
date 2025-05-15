@@ -3,7 +3,7 @@ package org.inventory.app.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.CategoryDTO;
-import org.inventory.app.dto.CategoryStatsDTO;
+import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;

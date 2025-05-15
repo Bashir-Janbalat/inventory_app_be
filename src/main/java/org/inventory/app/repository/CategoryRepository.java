@@ -1,6 +1,6 @@
 package org.inventory.app.repository;
 
-import org.inventory.app.dto.CategoryStatsDTO;
+import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.model.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     long count();
 
-    @Query(value = "SELECT new org.inventory.app.dto.CategoryStatsDTO(" +
+    @Query(value = "SELECT new org.inventory.app.projection.CategoryStatsDTO(" +
             "c.id, c.name,COUNT(DISTINCT p.brand.id), " +
             "COUNT(p.id),COALESCE(SUM(s.quantity), 0)) " +
             "FROM categories c " +

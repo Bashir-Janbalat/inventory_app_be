@@ -2,7 +2,7 @@ package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.CategoryDTO;
-import org.inventory.app.dto.CategoryStatsDTO;
+import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.service.CategoryService;
 import org.springframework.data.domain.Page;

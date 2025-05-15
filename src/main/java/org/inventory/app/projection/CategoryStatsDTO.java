@@ -1,4 +1,4 @@
-package org.inventory.app.dto;
+package org.inventory.app.projection;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

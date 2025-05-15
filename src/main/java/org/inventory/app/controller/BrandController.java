@@ -3,7 +3,7 @@ package org.inventory.app.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.BrandDTO;
-import org.inventory.app.dto.BrandStatsDTO;
+import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.service.BrandService;
 import org.springframework.data.domain.Page;
