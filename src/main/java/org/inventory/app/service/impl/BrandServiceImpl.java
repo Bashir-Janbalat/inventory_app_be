@@ -93,7 +93,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands","brand","brandCount,brandProductCounts"}, allEntries = true)
+    @CacheEvict(value = {"brands","brand","brandCount","brandProductCounts"}, allEntries = true)
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
