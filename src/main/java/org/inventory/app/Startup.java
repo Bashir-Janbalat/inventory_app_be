@@ -6,14 +6,15 @@ import org.inventory.app.model.User;
 import org.inventory.app.repository.RoleRepository;
 import org.inventory.app.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!test")
 public class Startup implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -26,10 +27,14 @@ public class Startup implements CommandLineRunner {
     }
 
     public void initUser() {
-        if (userRepository.findAll().isEmpty() && roleRepository.findAll().isEmpty()) {
-            Set<Role> roles = new HashSet<>();
-            roles.add(new Role("ROLE_ADMIN"));
-            roles.add(new Role("ROLE_USER"));
+        if (userRepository.findAll().isEmpty()) {
+            Role adminRole = roleRepository.findRoleByName("ROLE_ADMIN")
+                    .orElseGet(() -> new Role("ROLE_ADMIN"));
+
+            Role userRole = roleRepository.findRoleByName("ROLE_USER")
+                    .orElseGet(() -> new Role("ROLE_USER"));
+
+            Set<Role> roles = Set.of(adminRole, userRole);
             String password = passwordEncoder.encode("Ba%123456789");
             userRepository.save(new User("Bob Bob", "Bob", "Bob@gmail.com", password, roles));
         }
