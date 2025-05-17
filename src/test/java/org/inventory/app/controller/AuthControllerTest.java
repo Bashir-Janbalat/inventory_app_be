@@ -3,7 +3,6 @@ package org.inventory.app.controller;
 import org.inventory.app.dto.LoginDTO;
 import org.inventory.app.dto.UserDTO;
 import org.inventory.app.model.Role;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,6 @@ public class AuthControllerTest extends BaseControllerTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
         roleRepository.save(new Role("ROLE_ADMIN"));
         roleRepository.save(new Role("ROLE_USER"));
         UserDTO userDTO = UserDTO.builder()
@@ -35,13 +32,6 @@ public class AuthControllerTest extends BaseControllerTest {
         when(jwtTokenProvider.generateToken(any(Authentication.class)))
                 .thenReturn("dummy-jwt-token");
 
-    }
-
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-        userRepository.flush();
     }
 
     @Test
@@ -91,6 +81,7 @@ public class AuthControllerTest extends BaseControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Username already taken"));
     }
+
     @Test
     @DisplayName("signup - duplicate email")
     void signupDuplicateEmail() throws Exception {
@@ -105,6 +96,7 @@ public class AuthControllerTest extends BaseControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("user with email 'test@example.com' already exists."));
     }
+
     @Test
     @DisplayName("signup - invalid email format")
     void signupInvalidEmail() throws Exception {
@@ -119,6 +111,7 @@ public class AuthControllerTest extends BaseControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").exists());
     }
+
     @Test
     @DisplayName("signup - empty username")
     void signupEmptyUsername() throws Exception {

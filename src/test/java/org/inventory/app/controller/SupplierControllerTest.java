@@ -2,7 +2,6 @@ package org.inventory.app.controller;
 
 import org.inventory.app.dto.SupplierDTO;
 import org.inventory.app.model.Supplier;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,17 +22,10 @@ public class SupplierControllerTest extends BaseControllerTest {
 
     @BeforeEach
     void setUp() {
-        supplierRepository.deleteAll();
         testSuppliers = new ArrayList<>();
         testSuppliers.add(createSupplier("Test Supplier 1", "TestSupplier1@gmail.com"));
         testSuppliers.add(createSupplier("Test Supplier 2", "TestSupplier2@gmail.com"));
         testSuppliers.add(createSupplier("Test Supplier 3", "TestSupplier3@gmail.com"));
-    }
-
-    @AfterEach
-    void tearDown() {
-        supplierRepository.deleteAll();
-        testSuppliers.clear();
     }
 
 

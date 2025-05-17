@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.assertj.core.util.Sets;
 import org.inventory.app.model.Role;
 import org.inventory.app.model.User;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,21 +28,10 @@ class SimpleControllerForTestingAuthTest extends BaseControllerTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-
         mockJwt("invalid_token", false, "inValidUser");
 
         createUserWithRole(TEST_ADMIN, "ROLE_ADMIN");
         createUserWithRole(TEST_USER, "ROLE_USER");
-    }
-
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-        roleRepository.deleteAll();
-        userRepository.flush();
-        roleRepository.flush();
     }
 
     @Test

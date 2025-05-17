@@ -3,7 +3,6 @@ package org.inventory.app.controller;
 
 import org.inventory.app.dto.CategoryDTO;
 import org.inventory.app.model.Category;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,18 +22,12 @@ public class CategoryControllerTest extends BaseControllerTest {
 
     @BeforeEach
     void setUp() {
-        categoryRepository.deleteAll();
         categoryDTOS = new ArrayList<>();
         categoryDTOS.add(createCategory("Test Category 1"));
         categoryDTOS.add(createCategory("Test Category 2"));
         categoryDTOS.add(createCategory("Test Category 3"));
     }
 
-    @AfterEach
-    void tearDown() {
-        categoryRepository.deleteAll();
-        categoryDTOS.clear();
-    }
 
 
     @Test

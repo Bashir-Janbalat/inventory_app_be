@@ -8,6 +8,7 @@ import org.inventory.app.dto.WarehouseDTO;
 import org.inventory.app.repository.*;
 import org.inventory.app.security.jwt.JwtTokenProvider;
 import org.inventory.app.service.*;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc
 public abstract class BaseControllerTest {
 
+    @AfterEach
+    public void baseTeardown() {
+        databaseCleaner.clean();
+    }
     protected static final String BASE_URL_PRODUCTS = "/api/products";
     protected static final String BASE_URL_BRANDS = "/api/brands";
     protected static final String BASE_URL_SUPPLIERS = "/api/suppliers";
@@ -31,7 +36,8 @@ public abstract class BaseControllerTest {
     protected static final String BASE_SIGNUP_URL = "/api/auth/signup";
     protected static final String BASE_URL_PURCHASES = "/api/purchases";
     protected static final ObjectMapper MAPPER = new ObjectMapper();
-
+    @Autowired
+    protected DatabaseCleaner databaseCleaner;
     @Autowired
     protected ProductService productService;
     @Autowired

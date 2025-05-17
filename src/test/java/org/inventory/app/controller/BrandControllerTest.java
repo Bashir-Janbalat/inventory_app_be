@@ -2,7 +2,6 @@ package org.inventory.app.controller;
 
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.model.Brand;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,18 +22,12 @@ public class BrandControllerTest extends BaseControllerTest {
 
     @BeforeEach
     void setUp() {
-        brandRepository.deleteAll();
         testBrands = new ArrayList<>();
         testBrands.add(createBrand("Test Brand 1"));
         testBrands.add(createBrand("Test Brand 2"));
         testBrands.add(createBrand("Test Brand 3"));
     }
 
-    @AfterEach
-    void tearDown() {
-        brandRepository.deleteAll();
-        testBrands.clear();
-    }
 
 
     @Test

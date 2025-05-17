@@ -31,7 +31,7 @@ CREATE TABLE categories
 CREATE TABLE roles
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NULL
+    name VARCHAR(255) NULL UNIQUE
 );
 
 --changeset Bashir:5

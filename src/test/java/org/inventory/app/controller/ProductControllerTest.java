@@ -26,8 +26,6 @@ public class ProductControllerTest extends BaseControllerTest {
 
     @BeforeEach
     public void setup() {
-        cleanDatabase();
-
         // Setup shared data
         CategoryDTO smartphoneCategory = createCategory("Smartphones");
         BrandDTO samsungBrand = createBrand("Samsung");
@@ -68,24 +66,6 @@ public class ProductControllerTest extends BaseControllerTest {
         productService.createProduct(boschWasherProductDTO);
     }
 
-    @AfterEach
-    public void tearDown() {
-        cleanDatabase();
-    }
-
-    private void cleanDatabase() {
-        productAttributeRepository.deleteAll();
-        attributeRepository.deleteAll();
-        imageRepository.deleteAll();
-        stockRepository.deleteAll();
-        stockMovementRepository.deleteAll();
-        productRepository.deleteAll();
-        brandRepository.deleteAll();
-        supplierRepository.deleteAll();
-        categoryRepository.deleteAll();
-        warehouseRepository.deleteAll();
-
-    }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
