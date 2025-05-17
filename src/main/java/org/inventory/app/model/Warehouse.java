@@ -2,18 +2,17 @@ package org.inventory.app.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity(name = "warehouses")
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Warehouse {
+public class Warehouse extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     private String name;
     private String address;

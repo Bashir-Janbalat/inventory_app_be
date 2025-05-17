@@ -1,21 +1,18 @@
 package org.inventory.app.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SupplierDTO implements Serializable {
+public class SupplierDTO extends BaseDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private Long id;
     private String name;
     private String contactEmail;
     private String phone;

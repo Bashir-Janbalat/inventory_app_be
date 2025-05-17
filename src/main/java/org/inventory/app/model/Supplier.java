@@ -3,6 +3,7 @@ package org.inventory.app.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity( name = "suppliers")
@@ -12,12 +13,10 @@ import lombok.NoArgsConstructor;
         }
 )
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Supplier {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
+public class Supplier extends BaseEntity {
+
     @NotBlank
     private String name;
 

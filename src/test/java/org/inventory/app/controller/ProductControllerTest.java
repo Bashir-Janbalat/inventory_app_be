@@ -36,44 +36,36 @@ public class ProductControllerTest extends BaseControllerTest {
         WarehouseDTO secondWarehouse = createWarehouse("Warehouse", "Berlin-Zentral");
 
         // Samsung Phone Setup
-        ProductDTO savedSamsungPhone = createProduct(
-                "Samsung Galaxy S23 Ultra",
-                SAMSUNG_SKU,
-                "6.8 Dynamic AMOLED 2X Display, 200MP Hauptkamera, 5000mAh Akku, 12GB RAM, 512GB Speicher",
-                BigDecimal.valueOf(1399.99),
-                smartphoneCategory,
-                samsungBrand,
-                samsungSupplier,
-                List.of(new ImageDTO(
+        ProductDTO samsungProductDTO =ProductDTO.builder().name("Samsung Galaxy S23 Ultra")
+                .description("6.8 Dynamic AMOLED 2X Display, 200MP Hauptkamera, 5000mAh Akku, 12GB RAM, 512GB Speicher")
+                .sku(SAMSUNG_SKU).costPrice(BigDecimal.valueOf(1399.99))
+                .categoryID(smartphoneCategory.getId()).brandID(samsungBrand.getId()).supplierID(samsungSupplier.getId())
+                .images(List.of(new ImageDTO(
                         "https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png",
                         "Samsung Galaxy S23 Ultra in Botanic Green"
-                )),
-                List.of(new StockDTO(50, firstWarehouse), new StockDTO(100, secondWarehouse)),
-                List.of(
+                ))).stocks(List.of(new StockDTO(50, firstWarehouse), new StockDTO(100, secondWarehouse)))
+                .productAttributes(                List.of(
                         new ProductAttributeDTO("color", "Botanic Green"),
                         new ProductAttributeDTO("storage", "512GB")
-                )
-        );
+                )).build();
+        productService.createProduct(samsungProductDTO);
+
 
         // Bosch Washer Setup
-        ProductDTO savedBoschWasher = createProduct(
-                "BOSCH Serie 6 WAU28S80",
-                BOSCH_SKU,
-                "Waschmaschine, 9 kg, 1400 U/min., EcoSilence Drive, SpeedPerfect, AllergiePlus, Nachlegefunktion",
-                BigDecimal.valueOf(799.99),
-                createCategory("Haushaltsgeraete"),
-                createBrand("BOSCH"),
-                createSupplier("ElectronicPartner Deutschland", "grosshandel@ep-deutschland.de"),
-                List.of(new ImageDTO(
+        ProductDTO boschWasherProductDTO =ProductDTO.builder().name("BOSCH Serie 6 WAU28S80")
+                .description("Waschmaschine, 9 kg, 1400 U/min., EcoSilence Drive, SpeedPerfect, AllergiePlus, Nachlegefunktion")
+                .sku(BOSCH_SKU).costPrice(BigDecimal.valueOf(799.99))
+                .categoryID(createCategory("Haushaltsgeraete").getId()).brandID(createBrand("BOSCH").getId())
+                .supplierID(createSupplier("ElectronicPartner Deutschland", "grosshandel@ep-deutschland.de").getId())
+                .images(List.of(new ImageDTO(
                         "https://media3.bosch-home.com/Product_Shots/1600x900/WAU28S80AT_def.png",
                         "BOSCH Serie 6 Waschmaschine Frontansicht"
-                )),
-                List.of(new StockDTO(25, firstWarehouse)),
-                List.of(
+                ))).stocks(List.of(new StockDTO(25, firstWarehouse)))
+                .productAttributes(                List.of(
                         new ProductAttributeDTO("energieeffizienzklasse", "A+++"),
                         new ProductAttributeDTO("fassungsvermögen", "9 KG")
-                )
-        );
+                )).build();
+        productService.createProduct(boschWasherProductDTO);
     }
 
     @AfterEach

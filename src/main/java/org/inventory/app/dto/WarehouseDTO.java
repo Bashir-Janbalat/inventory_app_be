@@ -2,15 +2,15 @@ package org.inventory.app.dto;
 
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class WarehouseDTO implements Serializable {
-
-    private Long id;
+public class WarehouseDTO extends BaseDTO implements Serializable {
 
     private String name;
     private String address;

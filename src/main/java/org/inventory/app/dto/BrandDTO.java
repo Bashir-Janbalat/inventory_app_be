@@ -1,24 +1,20 @@
 package org.inventory.app.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper=true)
 @NoArgsConstructor
 @Builder
-public class BrandDTO implements Serializable {
+public class BrandDTO extends BaseDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     @NotBlank(message = "Brand name is required")
     private String name;
 

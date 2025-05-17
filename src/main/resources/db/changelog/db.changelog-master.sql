@@ -10,9 +10,11 @@ CREATE TABLE attributes
 --changeset Bashir:2
 CREATE TABLE brands
 (
-    id   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    CONSTRAINT UKoce3937d2f4mpfqrycbr0l93m UNIQUE (name)
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT UK_brand_name UNIQUE (name)
 );
 
 --changeset Bashir:3
@@ -20,7 +22,9 @@ CREATE TABLE categories
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    CONSTRAINT UKt8o6pivur7nn124jehx7cygw5 UNIQUE (name)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT UK_category_name UNIQUE (name)
 );
 
 --changeset Bashir:4
@@ -34,31 +38,33 @@ CREATE TABLE roles
 CREATE TABLE suppliers
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     address       VARCHAR(255) NULL,
     contact_email VARCHAR(255) NOT NULL,
     name          VARCHAR(255) NOT NULL,
     phone         VARCHAR(255) NULL,
-    CONSTRAINT UKlaeargh3fvypyj1sm5rhfbewm UNIQUE (name, contact_email)
+    CONSTRAINT UK_supplier_name_email UNIQUE (name, contact_email)
 );
 
 --changeset Bashir:6
 CREATE TABLE products
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_at    DATETIME(6) NULL,
-    updated_at    DATETIME(6) NULL,
-    cost_price    DECIMAL(38, 2) NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cost_price    DECIMAL(10, 2) NULL,
     description   TEXT NULL,
     name          VARCHAR(255) NULL,
-    selling_price DECIMAL(38, 2) NULL,
+    selling_price DECIMAL(10, 2) NULL,
     sku           VARCHAR(255) NULL,
     brand_id      BIGINT NULL,
     category_id   BIGINT NULL,
     supplier_id   BIGINT NULL,
-    CONSTRAINT UKfhmd06dsmj6k0n90swsh8ie9g UNIQUE (sku),
-    CONSTRAINT FK6i174ixi9087gcvvut45em7fd FOREIGN KEY (supplier_id) REFERENCES suppliers (id),
-    CONSTRAINT FKa3a4mpsfdf4d2y6r8ra3sc8mv FOREIGN KEY (brand_id) REFERENCES brands (id),
-    CONSTRAINT FKog2rp4qthbtt2lfyhfo32lsw9 FOREIGN KEY (category_id) REFERENCES categories (id)
+    CONSTRAINT UK_product_sku UNIQUE (sku),
+    CONSTRAINT FK_product_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id),
+    CONSTRAINT FK_product_brand FOREIGN KEY (brand_id) REFERENCES brands (id),
+    CONSTRAINT FK_product_category FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
 --changeset Bashir:7
@@ -68,7 +74,7 @@ CREATE TABLE images
     alt_text   VARCHAR(255) NULL,
     image_url  VARCHAR(255) NULL,
     product_id BIGINT NULL,
-    CONSTRAINT FKghwsjbjo7mg3iufxruvq6iu3q FOREIGN KEY (product_id) REFERENCES products (id)
+    CONSTRAINT FK_image_product FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
 --changeset Bashir:8
@@ -78,24 +84,25 @@ CREATE TABLE product_attributes
     product_id      BIGINT NOT NULL,
     attribute_id    BIGINT NOT NULL,
     PRIMARY KEY (attribute_id, product_id),
-    CONSTRAINT FK6ksuorb5567jpa08ihcumumy1 FOREIGN KEY (attribute_id) REFERENCES attributes (id),
-    CONSTRAINT FKcex46yvx4g18b2pn09p79h1mc FOREIGN KEY (product_id) REFERENCES products (id)
+    CONSTRAINT FK_product_attribute FOREIGN KEY (attribute_id) REFERENCES attributes (id),
+    CONSTRAINT FK_attribute_product FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
 --changeset Bashir:9
 CREATE TABLE stock_movements
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_at    DATETIME(6) NULL,
-    updated_at    DATETIME(6) NULL,
-    movement_type ENUM('IN', 'OUT', 'RETURN', 'TRANSFER','DAMAGED') NOT NULL,
-    product_id    BIGINT NULL,
-    quantity      INT    NOT NULL CHECK (quantity >= 0),
-    reason        ENUM('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'RECEIVED_TRANSFER' ,'UPDATED') NOT NULL,
-    warehouse_id  BIGINT NOT NULL,
-    username      VARCHAR(255) NULL,
-    CONSTRAINT FKjcaag8ogfjxpwmqypi1wfdaog
-        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL
+    id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    movement_type         ENUM('IN', 'OUT', 'RETURN', 'TRANSFER', 'DAMAGED') NOT NULL,
+    product_id            BIGINT NULL,
+    quantity              INT    NOT NULL CHECK (quantity >= 0),
+    reason                ENUM('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'RECEIVED_TRANSFER', 'UPDATED') NOT NULL,
+    warehouse_id          BIGINT NOT NULL,
+    username              VARCHAR(255) NULL,
+    product_name_snapshot VARCHAR(255),
+    product_deleted       BOOLEAN   DEFAULT FALSE,
+    CONSTRAINT FK_stockmovement_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL
 );
 
 --changeset Bashir:10
@@ -106,8 +113,8 @@ CREATE TABLE users
     name     VARCHAR(255) NULL,
     password VARCHAR(255) NOT NULL,
     username VARCHAR(255) NOT NULL,
-    CONSTRAINT UK6dotkott2kjsp8vw4d0m25fb7 UNIQUE (email),
-    CONSTRAINT UKr43af9ap4edm43mmtq01oddj6 UNIQUE (username)
+    CONSTRAINT UK_user_email UNIQUE (email),
+    CONSTRAINT UK_user_username UNIQUE (username)
 );
 
 --changeset Bashir:11
@@ -116,14 +123,16 @@ CREATE TABLE user_roles
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, role_id),
-    CONSTRAINT FKh8ciramu9cc9q3qcqiv4ue8a6 FOREIGN KEY (role_id) REFERENCES roles (id),
-    CONSTRAINT FKhfh9dx7w3ubf1co1vdev94g3f FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT FK_user_roles_role FOREIGN KEY (role_id) REFERENCES roles (id),
+    CONSTRAINT FK_user_roles_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 --changeset Bashir:12
 CREATE TABLE warehouses
 (
     id      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     address VARCHAR(255) NULL,
     name    VARCHAR(255) NULL
 );
@@ -135,10 +144,33 @@ CREATE TABLE stock
     warehouse_id BIGINT NOT NULL,
     quantity     INT    NOT NULL CHECK (quantity >= 0),
     PRIMARY KEY (product_id, warehouse_id),
-    CONSTRAINT FKeuiihog7wq4cu7nvqu7jx57d2 FOREIGN KEY (product_id) REFERENCES products (id),
-    CONSTRAINT FKpx2sjs5k0wdolrps3puo2skaw FOREIGN KEY (warehouse_id) REFERENCES warehouses (id)
+    CONSTRAINT FK_stock_product FOREIGN KEY (product_id) REFERENCES products (id),
+    CONSTRAINT FK_stock_warehouse FOREIGN KEY (warehouse_id) REFERENCES warehouses (id)
 );
 
--- changeset Bashir:14
-ALTER TABLE stock_movements ADD COLUMN product_name_snapshot VARCHAR(255);
-ALTER TABLE stock_movements ADD COLUMN product_deleted BOOLEAN DEFAULT FALSE;
+--changeset Bashir:14
+CREATE TABLE purchases
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created_at  TIMESTAMP            DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP            DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    supplier_id BIGINT      NOT NULL,
+    status      VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'COMPLETED', 'CANCELLED')),
+    CONSTRAINT FK_purchase_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
+);
+
+--changeset Bashir:15
+CREATE TABLE purchase_items
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    purchase_id BIGINT         NOT NULL,
+    product_id  BIGINT         NOT NULL,
+    quantity    INT            NOT NULL CHECK (quantity >= 0),
+    unit_price  DECIMAL(10, 2) NOT NULL CHECK (unit_price >= 0),
+    CONSTRAINT FK_item_purchase FOREIGN KEY (purchase_id) REFERENCES purchases (id) ON DELETE CASCADE,
+    CONSTRAINT FK_item_product FOREIGN KEY (product_id) REFERENCES products (id)
+);
+
+--changeset Bashir:16
+CREATE INDEX idx_purchase_supplier ON purchases (supplier_id);
+CREATE INDEX idx_item_product ON purchase_items (product_id);
