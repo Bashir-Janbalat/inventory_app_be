@@ -11,7 +11,7 @@ import java.util.List;
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     @Query("""
-                SELECT new org.inventory.app.projection.PurchaseProductDTO(p.id, p.sku, p.costPrice, p.name)
+                SELECT new org.inventory.app.projection.PurchaseProductDTO(p.id, p.name, p.costPrice, p.sku)
                 FROM products p
                 WHERE p.supplier.id = :supplierId
             """)
