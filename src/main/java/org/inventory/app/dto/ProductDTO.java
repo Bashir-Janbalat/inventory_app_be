@@ -5,10 +5,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,13 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductDTO implements Serializable {
+public class ProductDTO extends BaseDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private Long id;
+
     @NotBlank(message = "Product name is required")
     private String name;
     @NotBlank(message = "SKU is required")

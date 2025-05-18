@@ -1,6 +1,8 @@
 package org.inventory.app.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.dto.CategoryDTO;
 import org.inventory.app.dto.SupplierDTO;
@@ -30,6 +32,7 @@ public abstract class BaseControllerTest {
     public void baseTeardown() {
         databaseCleaner.clean();
     }
+
     protected static final String BASE_URL_PRODUCTS = "/api/products";
     protected static final String BASE_URL_BRANDS = "/api/brands";
     protected static final String BASE_URL_SUPPLIERS = "/api/suppliers";
@@ -37,7 +40,15 @@ public abstract class BaseControllerTest {
     protected static final String BASE_LOGIN_URL = "/api/auth/login";
     protected static final String BASE_SIGNUP_URL = "/api/auth/signup";
     protected static final String BASE_URL_PURCHASES = "/api/purchases";
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = createObjectMapper();
+
+    private static ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
+    }
+
     @Autowired
     protected DatabaseCleaner databaseCleaner;
     @Autowired
@@ -52,14 +63,6 @@ public abstract class BaseControllerTest {
     protected UserService userService;
     @Autowired
     protected WarehouseService warehouseService;
-    @Autowired
-    AttributeRepository attributeRepository;
-    @Autowired
-    ImageRepository imageRepository;
-    @Autowired
-    ProductAttributeRepository productAttributeRepository;
-    @Autowired
-    StockRepository stockRepository;
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,10 +78,7 @@ public abstract class BaseControllerTest {
     protected UserRepository userRepository;
     @Autowired
     protected RoleRepository roleRepository;
-    @Autowired
-    protected WarehouseRepository warehouseRepository;
-    @Autowired
-    protected StockMovementRepository stockMovementRepository;
+
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
@@ -100,6 +100,7 @@ public abstract class BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content));
     }
+
     protected ResultActions performPutRequestWithParams(String url, Object... uriVarsAndQuery) throws Exception {
         return mockMvc.perform(put(String.format(url, uriVarsAndQuery))
                 .contentType(MediaType.APPLICATION_JSON));

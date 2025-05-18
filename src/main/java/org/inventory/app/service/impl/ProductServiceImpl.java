@@ -2,7 +2,9 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.ImageDTO;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductAttributeDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.MovementReason;
@@ -49,10 +51,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<ProductDTO> getAllProducts(Pageable pageable) {
+    public PagedResponseDTO<ProductDTO> getAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAll(pageable);
         log.info("Fetched {} products from DB (and cached in 'products')", productPage.getTotalElements());
-        return productPage.map(productMapper::toDto);
+        return  new PagedResponseDTO<>(productPage.map(productMapper::toDto));
     }
 
     @Transactional(readOnly = true)
@@ -227,7 +229,7 @@ public class ProductServiceImpl implements ProductService {
             key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' + #supplierName " +
                     "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
                     "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<ProductDTO> searchProducts(String searchBy, String categoryName,
+    public PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
                                            String brandName, String supplierName, String sortDirection,
                                            String sortBy, Pageable pageable) {
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
@@ -243,14 +245,14 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> result = productRepository.findAll(spec, pageable);
         log.info("Fetched {} products based on search filters from DB (and cached in searchProducts)", result.getTotalElements());
-        return result.map(productMapper::toDto);
+        return new PagedResponseDTO<>(result.map(productMapper::toDto));
     }
 
     @Override
     @Cacheable(value = "productCount")
-    public Long getTotalProductCount() {
+    public ValueWrapper<Long> getTotalProductCount() {
         long count = productRepository.count();
         log.info("Fetched Product size: {} from DB (and cached in productCount)", count);
-        return count;
+        return new ValueWrapper<>(count);
     }
 }

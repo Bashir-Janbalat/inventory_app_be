@@ -32,6 +32,8 @@ public class SupplierMapper {
         supplierDTO.setContactEmail(supplier.getContactEmail());
         supplierDTO.setAddress(supplier.getAddress());
         supplierDTO.setPhone(supplier.getPhone());
+        supplierDTO.setCreatedAt(supplier.getCreatedAt());
+        supplierDTO.setUpdatedAt(supplier.getUpdatedAt());
         return supplierDTO;
     }
 }

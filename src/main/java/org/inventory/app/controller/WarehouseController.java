@@ -6,7 +6,6 @@ import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.WarehouseDTO;
 import org.inventory.app.projection.WarehouseStatsDTO;
 import org.inventory.app.service.WarehouseService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,8 +26,8 @@ public class WarehouseController {
                                               @RequestParam(required = false) Integer size) {
         if (page != null && size != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-            Page<WarehouseDTO> warehouses = warehouseService.getPagedWarehouses(pageable);
-            return ResponseEntity.ok(new PagedResponseDTO<>(warehouses));
+            PagedResponseDTO<WarehouseDTO> warehouses = warehouseService.getPagedWarehouses(pageable);
+            return ResponseEntity.ok(warehouses);
         } else {
             return ResponseEntity.ok(warehouseService.getAllWarehouses());
         }
@@ -62,8 +61,8 @@ public class WarehouseController {
     getWarehousesWithStats(@RequestParam(defaultValue = "0") Integer page,
                                   @RequestParam(defaultValue = "10") Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        Page<WarehouseStatsDTO> warehouses = warehouseService.getWarehousesWithStats(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(warehouses));
+        PagedResponseDTO<WarehouseStatsDTO> warehouses = warehouseService.getWarehousesWithStats(pageable);
+        return ResponseEntity.ok(warehouses);
 
     }
 

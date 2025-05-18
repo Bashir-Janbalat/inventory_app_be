@@ -2,6 +2,8 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.SupplierDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
@@ -62,10 +64,10 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "suppliers", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<SupplierDTO> getAllSuppliers(Pageable pageable) {
+    public PagedResponseDTO<SupplierDTO> getAllSuppliers(Pageable pageable) {
         Page<Supplier> suppliers = supplierRepository.findAll(pageable);
         log.info("Fetched {} suppliers from DB (and cached in 'suppliers')", suppliers.getTotalElements());
-        return suppliers.map(supplierMapper::toDto);
+        return new PagedResponseDTO<>(suppliers.map(supplierMapper::toDto));
     }
 
     @Override
@@ -114,9 +116,9 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Cacheable(value = "supplierCount")
-    public Long getTotalSupplierCount() {
-        long count = supplierRepository.count();
+    public ValueWrapper<Long> getTotalSupplierCount() {
+        Long count = supplierRepository.count();
         log.info("Fetched Supplier size: {} from DB (and cached in supplierCount)", count);
-        return count;
+        return new ValueWrapper<>(count);
     }
 }

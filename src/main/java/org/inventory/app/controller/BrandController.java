@@ -2,11 +2,11 @@ package org.inventory.app.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.BrandDTO;
-import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.dto.PagedResponseDTO;
+import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.service.BrandService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,8 +37,8 @@ public class BrandController {
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<BrandDTO> brands = brandService.getAllBrands(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(brands));
+        PagedResponseDTO<BrandDTO> brands = brandService.getAllBrands(pageable);
+        return ResponseEntity.ok(brands);
     }
 
     @GetMapping("/{id}")
@@ -53,15 +53,17 @@ public class BrandController {
 
     @GetMapping("/brand-size")
     public ResponseEntity<Long> getTotalBrandCount() {
-        Long count = brandService.getTotalBrandCount();
-        return ResponseEntity.ok(count);
+        ValueWrapper<Long> count = brandService.getTotalBrandCount();
+        return ResponseEntity.ok(count.getValue());
     }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteBrand(@PathVariable Long id) {
         brandService.deleteBrand(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/stats")
     public ResponseEntity<PagedResponseDTO<BrandStatsDTO>> getAllBrandsWithProductCount(
             @RequestParam(defaultValue = "0") Integer page,
@@ -70,8 +72,8 @@ public class BrandController {
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<BrandStatsDTO> brands = brandService.findBrandsWithStats(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(brands));
+        PagedResponseDTO<BrandStatsDTO> brands = brandService.findBrandsWithStats(pageable);
+        return ResponseEntity.ok(brands);
     }
 
 }

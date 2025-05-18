@@ -1,11 +1,11 @@
 package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.CategoryDTO;
-import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.dto.PagedResponseDTO;
+import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.service.CategoryService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,8 +36,8 @@ public class CategoryController {
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<CategoryDTO> categories = categoryService.getAllCategories(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(categories));
+        PagedResponseDTO<CategoryDTO> categories = categoryService.getAllCategories(pageable);
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
@@ -52,9 +52,10 @@ public class CategoryController {
 
     @GetMapping("/category-size")
     public ResponseEntity<Long> getTotalCategoryCount() {
-        Long count = categoryService.getTotalCategoryCount();
-        return ResponseEntity.ok(count);
+        ValueWrapper<Long> count = categoryService.getTotalCategoryCount();
+        return ResponseEntity.ok(count.getValue());
     }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
@@ -73,7 +74,7 @@ public class CategoryController {
                 Sort.by("name").ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<CategoryStatsDTO> statsPage = categoryService.findCategoriesWithStats(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(statsPage));
+        PagedResponseDTO<CategoryStatsDTO> statsPage = categoryService.findCategoriesWithStats(pageable);
+        return ResponseEntity.ok(statsPage);
     }
 }

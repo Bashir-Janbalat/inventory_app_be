@@ -1,9 +1,9 @@
 package org.inventory.app.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.MovementType;
-import org.inventory.app.mapper.StockMovementMapper;
 import org.inventory.app.model.Product;
 import org.inventory.app.projection.StockMovementProjection;
 import org.inventory.app.repository.StockMovementRepository;
@@ -29,7 +29,8 @@ public class StockServiceImpl implements StockService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<StockMovementProjection> getStockMovements(Pageable pageable, LocalDateTime start, LocalDateTime end, MovementType type) {
-        return stockMovementRepository.findAllProjected( pageable, start, end,type);
+    public PagedResponseDTO<StockMovementProjection> getStockMovements(Pageable pageable, LocalDateTime start, LocalDateTime end, MovementType type) {
+        Page<StockMovementProjection> stockMovementProjections = stockMovementRepository.findAllProjected(pageable, start, end, type);
+        return new PagedResponseDTO<>(stockMovementProjections);
     }
 }

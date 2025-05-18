@@ -2,7 +2,9 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.BrandDTO;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;
@@ -61,10 +63,10 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "brands", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<BrandDTO> getAllBrands(Pageable pageable) {
+    public PagedResponseDTO<BrandDTO> getAllBrands(Pageable pageable) {
         Page<Brand> brands = brandRepository.findAll(pageable);
         log.info("Fetched {} brands from DB (page {} size {}) (and cached in brands)", brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return brands.map(brandMapper::toDto);
+        return new PagedResponseDTO<>(brands.map(brandMapper::toDto));
     }
 
     @Override
@@ -110,19 +112,19 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Cacheable(value = "brandCount")
-    public Long getTotalBrandCount() {
-        long count = brandRepository.count();
+    public ValueWrapper<Long> getTotalBrandCount() {
+        Long count = brandRepository.count();
         log.info("Fetched Brand size from DB (and cached in 'brandCount'): {}", count);
-        return count;
+        return new ValueWrapper<>(count);
     }
 
     @Override
     @Cacheable(value = "brandStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     @Transactional(readOnly = true)
-    public Page<BrandStatsDTO> findBrandsWithStats(Pageable pageable) {
+    public PagedResponseDTO<BrandStatsDTO> findBrandsWithStats(Pageable pageable) {
         Page<BrandStatsDTO> brands = brandRepository.findBrandsWithStats(pageable);
         log.info("Fetched {} brands with stats from DB (page {} size {}) (and cached in brandStats)",
                 brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return brands;
+        return new PagedResponseDTO<>(brands);
     }
 }

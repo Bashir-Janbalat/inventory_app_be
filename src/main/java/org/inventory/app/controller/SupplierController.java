@@ -1,10 +1,11 @@
 package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.SupplierDTO;
 import org.inventory.app.service.SupplierService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/suppliers")
 @RequiredArgsConstructor
+@Slf4j
 public class SupplierController {
 
     private final SupplierService supplierService;
@@ -35,8 +37,8 @@ public class SupplierController {
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<SupplierDTO> suppliers = supplierService.getAllSuppliers(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(suppliers));
+        PagedResponseDTO<SupplierDTO> suppliers = supplierService.getAllSuppliers(pageable);
+        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/{id}")
@@ -51,8 +53,8 @@ public class SupplierController {
 
     @GetMapping("/supplier-size")
     public ResponseEntity<Long> getTotalSupplierCount() {
-        Long count = supplierService.getTotalSupplierCount();
-        return ResponseEntity.ok(count);
+        ValueWrapper<Long> count = supplierService.getTotalSupplierCount();
+        return ResponseEntity.ok(count.getValue());
     }
 
     @DeleteMapping("/{id}")

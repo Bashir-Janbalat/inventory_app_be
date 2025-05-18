@@ -5,7 +5,6 @@ import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.enums.MovementType;
 import org.inventory.app.projection.StockMovementProjection;
 import org.inventory.app.service.StockService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -43,7 +42,7 @@ public class StockMovementController {
             start = date.atStartOfDay();
             end = date.plusDays(1).atStartOfDay().minusNanos(1);
         }
-        Page<StockMovementProjection> movementDTOS = stockService.getStockMovements(pageable, start, end, movementType);
-        return ResponseEntity.ok(new PagedResponseDTO<>(movementDTOS));
+        PagedResponseDTO<StockMovementProjection> movementDTOS = stockService.getStockMovements(pageable, start, end, movementType);
+        return ResponseEntity.ok(movementDTOS);
     }
 }

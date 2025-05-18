@@ -2,10 +2,10 @@ package org.inventory.app.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.service.ProductService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,7 +34,7 @@ public class ProductController {
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductDTO> products = productService.searchProducts(
+        PagedResponseDTO<ProductDTO> products = productService.searchProducts(
                 searchBy,
                 categoryName,
                 brandName,
@@ -43,7 +43,7 @@ public class ProductController {
                 sortBy,
                 pageable
         );
-        return ResponseEntity.ok(new PagedResponseDTO<>(products));
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
@@ -70,7 +70,7 @@ public class ProductController {
 
     @GetMapping("/product-size")
     public ResponseEntity<Long> getProductSize() {
-        Long productCount = productService.getTotalProductCount();
-        return ResponseEntity.ok(productCount);
+        ValueWrapper<Long> productCount = productService.getTotalProductCount();
+        return ResponseEntity.ok(productCount.getValue());
     }
 }

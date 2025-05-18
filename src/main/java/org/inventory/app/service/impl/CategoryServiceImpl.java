@@ -2,7 +2,9 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.CategoryDTO;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.DuplicateResourceException;
 import org.inventory.app.exception.EntityHasAssociatedItemsException;
@@ -49,11 +51,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     @Cacheable(value = "category", key = "#id")
     public CategoryDTO getCategoryById(Long id) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Category with ID {} not found.", id);
-                    return new ResourceNotFoundException("Category with ID '" + id + "' not found.");
-                });
+        Category category = categoryRepository.findById(id).orElseThrow(() -> {
+            log.warn("Category with ID {} not found.", id);
+            return new ResourceNotFoundException("Category with ID '" + id + "' not found.");
+        });
 
         log.info("Fetched category with ID {} from DB (and cached in 'category')", id);
         return categoryMapper.toDto(category);
@@ -62,21 +63,20 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "categories", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<CategoryDTO> getAllCategories(Pageable pageable) {
+    public PagedResponseDTO<CategoryDTO> getAllCategories(Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(pageable);
         log.info("Fetched {} categories (page {} size {}) from DB (and cached in 'categories')", categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return categories.map(categoryMapper::toDto);
+        return new PagedResponseDTO<>(categories.map(categoryMapper::toDto));
     }
 
     @Override
     @Transactional
     @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
-        Category existing = categoryRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Category with ID {} not found for update.", id);
-                    return new ResourceNotFoundException("Category with ID '" + id + "' not found.");
-                });
+        Category existing = categoryRepository.findById(id).orElseThrow(() -> {
+            log.warn("Category with ID {} not found for update.", id);
+            return new ResourceNotFoundException("Category with ID '" + id + "' not found.");
+        });
 
         String name = categoryDTO.getName().trim();
         categoryRepository.findByName(name).ifPresent(otherCategory -> {
@@ -110,19 +110,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Cacheable(value = "categoryCount")
-    public Long getTotalCategoryCount() {
-        long count = categoryRepository.count();
+    public ValueWrapper<Long> getTotalCategoryCount() {
+        Long count = categoryRepository.count();
         log.info("Fetched category size from DB (and cached in 'categoryCount'): {}", count);
-        return count;
+        return new ValueWrapper<>(count);
     }
 
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "categoryStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable) {
+    public PagedResponseDTO<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable) {
         Page<CategoryStatsDTO> categories = categoryRepository.findCategoryStats(pageable);
-        log.info("Fetched {} categories with stats (page {} size {}) from DB (and cached in 'categoryStats')",
-                categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return categories;
+        log.info("Fetched {} categories with stats (page {} size {}) from DB (and cached in 'categoryStats')", categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        return new PagedResponseDTO<>(categories);
     }
 }

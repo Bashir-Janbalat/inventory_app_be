@@ -34,6 +34,8 @@ public class ProductMapper {
         if (product == null) return null;
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
+        dto.setCreatedAt(product.getCreatedAt());
+        dto.setUpdatedAt(product.getUpdatedAt());
         dto.setName(product.getName());
         dto.setSku(product.getSku());
         dto.setDescription(product.getDescription());

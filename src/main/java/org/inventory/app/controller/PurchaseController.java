@@ -7,7 +7,6 @@ import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
 import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.service.PurchaseService;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +31,8 @@ public class PurchaseController {
     @GetMapping
     public ResponseEntity<PagedResponseDTO<PurchaseDTO>> getAllPurchases(Pageable pageable) {
         log.info("Request to get all purchases - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
-        Page<PurchaseDTO> purchases = purchaseService.getAllPurchases(pageable);
-        return ResponseEntity.ok(new PagedResponseDTO<>(purchases));
+        PagedResponseDTO<PurchaseDTO> purchases = purchaseService.getAllPurchases(pageable);
+        return ResponseEntity.ok(purchases);
     }
 
     @GetMapping("/{id}")

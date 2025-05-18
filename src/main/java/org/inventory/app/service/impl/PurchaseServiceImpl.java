@@ -2,6 +2,7 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
 import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.exception.ResourceNotFoundException;
@@ -56,11 +57,11 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "purchases")
-    public Page<PurchaseDTO> getAllPurchases(Pageable pageable) {
+    public PagedResponseDTO<PurchaseDTO> getAllPurchases(Pageable pageable) {
         Page<Purchase> purchases = purchaseRepository.findAll(pageable);
         log.info("Fetched {} purchases (page {} size {}) from DB (and cached in 'purchases')",
                 purchases.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return purchases.map(purchaseMapper::toDto);
+        return new PagedResponseDTO<>(purchases.map(purchaseMapper::toDto));
     }
 
     @Override

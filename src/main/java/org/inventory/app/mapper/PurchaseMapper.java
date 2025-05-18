@@ -24,6 +24,8 @@ public class PurchaseMapper {
 
         PurchaseDTO dto = new PurchaseDTO();
         dto.setId(entity.getId());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
         dto.setSupplierId(entity.getSupplier().getId());
         dto.setSupplierName(entity.getSupplier().getName());
         dto.setCreatedAt(entity.getCreatedAt());

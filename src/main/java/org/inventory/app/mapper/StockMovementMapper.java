@@ -17,6 +17,9 @@ public class StockMovementMapper {
 
         return StockMovementDTO.builder()
                 .id(entity.getId())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .createdAt(entity.getCreatedAt())
                 .productDTO(productMapper.toDto(entity.getProduct()))
                 .warehouseDTO(warehouseMapper.toDto(entity.getWarehouse()))
                 .quantity(entity.getQuantity())

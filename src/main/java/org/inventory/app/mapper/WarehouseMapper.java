@@ -16,6 +16,8 @@ public class WarehouseMapper {
         dto.setId(warehouse.getId());
         dto.setName(warehouse.getName());
         dto.setAddress(warehouse.getAddress());
+        dto.setCreatedAt(warehouse.getCreatedAt());
+        dto.setUpdatedAt(warehouse.getUpdatedAt());
         return dto;
     }
 
