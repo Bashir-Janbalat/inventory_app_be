@@ -19,6 +19,6 @@ public class AttributeController {
 
     @GetMapping
     public ResponseEntity<List<AttributeDTO>> getAttributes() {
-        return ResponseEntity.ok(attributeService.getAttributes());
+        return ResponseEntity.ok(attributeService.getAttributes().getValue());
     }
 }

@@ -1,6 +1,7 @@
 package org.inventory.app.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.AttributeDTO;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.AttributeMapper;
@@ -46,7 +47,8 @@ public class AttributeServiceImpl implements AttributeService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "attributes")
-    public List<AttributeDTO> getAttributes() {
-        return attributeRepository.findAll().stream().map(attributeMapper::toDto).toList();
+    public ValueWrapper<List<AttributeDTO>> getAttributes() {
+        List<AttributeDTO> attributeDTOS = attributeRepository.findAll().stream().map(attributeMapper::toDto).toList();
+        return new ValueWrapper<>(attributeDTOS);
     }
 }
