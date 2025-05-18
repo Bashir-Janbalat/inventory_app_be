@@ -29,7 +29,7 @@ public class WarehouseController {
             PagedResponseDTO<WarehouseDTO> warehouses = warehouseService.getPagedWarehouses(pageable);
             return ResponseEntity.ok(warehouses);
         } else {
-            return ResponseEntity.ok(warehouseService.getAllWarehouses());
+            return ResponseEntity.ok(warehouseService.getAllWarehouses().getValue());
         }
     }
 

@@ -1,5 +1,6 @@
 package org.inventory.app.service;
 
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.WarehouseDTO;
 import org.inventory.app.projection.WarehouseStatsDTO;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface WarehouseService {
 
-    List<WarehouseDTO> getAllWarehouses();
+    ValueWrapper<List<WarehouseDTO>> getAllWarehouses();
 
     PagedResponseDTO<WarehouseDTO> getPagedWarehouses(Pageable pageable);
 
