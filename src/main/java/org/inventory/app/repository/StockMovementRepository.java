@@ -2,7 +2,7 @@ package org.inventory.app.repository;
 
 import org.inventory.app.enums.MovementType;
 import org.inventory.app.model.StockMovement;
-import org.inventory.app.projection.StockMovementProjection;
+import org.inventory.app.projection.StockMovementSummaryDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,7 +44,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
                 AND (:start IS NULL OR sm.createdAt >= :start)
                 AND (:end IS NULL OR sm.createdAt <= :end)
             """)
-    Page<StockMovementProjection> findAllProjected(Pageable pageable,
+    Page<StockMovementSummaryDTO> findAllProjected(Pageable pageable,
                                                    @Param("start") LocalDateTime start,
                                                    @Param("end") LocalDateTime end, @Param("movementType") MovementType movementType);
 }

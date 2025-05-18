@@ -3,7 +3,7 @@ package org.inventory.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.enums.MovementType;
-import org.inventory.app.projection.StockMovementProjection;
+import org.inventory.app.projection.StockMovementSummaryDTO;
 import org.inventory.app.service.StockService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +26,7 @@ public class StockMovementController {
     private final StockService stockService;
 
     @GetMapping
-    public ResponseEntity<PagedResponseDTO<StockMovementProjection>> getAll(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<PagedResponseDTO<StockMovementSummaryDTO>> getAll(@RequestParam(defaultValue = "0") int page,
                                                                             @RequestParam(defaultValue = "10") int size,
                                                                             @RequestParam(defaultValue = "createdAt") String sortBy,
                                                                             @RequestParam(defaultValue = "asc") String sortDirection,
@@ -42,7 +42,7 @@ public class StockMovementController {
             start = date.atStartOfDay();
             end = date.plusDays(1).atStartOfDay().minusNanos(1);
         }
-        PagedResponseDTO<StockMovementProjection> movementDTOS = stockService.getStockMovements(pageable, start, end, movementType);
+        PagedResponseDTO<StockMovementSummaryDTO> movementDTOS = stockService.getStockMovements(pageable, start, end, movementType);
         return ResponseEntity.ok(movementDTOS);
     }
 }

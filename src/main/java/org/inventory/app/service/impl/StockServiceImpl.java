@@ -5,7 +5,7 @@ import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.MovementType;
 import org.inventory.app.model.Product;
-import org.inventory.app.projection.StockMovementProjection;
+import org.inventory.app.projection.StockMovementSummaryDTO;
 import org.inventory.app.repository.StockMovementRepository;
 import org.inventory.app.service.StockService;
 import org.springframework.data.domain.Page;
@@ -29,8 +29,8 @@ public class StockServiceImpl implements StockService {
 
     @Override
     @Transactional(readOnly = true)
-    public PagedResponseDTO<StockMovementProjection> getStockMovements(Pageable pageable, LocalDateTime start, LocalDateTime end, MovementType type) {
-        Page<StockMovementProjection> stockMovementProjections = stockMovementRepository.findAllProjected(pageable, start, end, type);
+    public PagedResponseDTO<StockMovementSummaryDTO> getStockMovements(Pageable pageable, LocalDateTime start, LocalDateTime end, MovementType type) {
+        Page<StockMovementSummaryDTO> stockMovementProjections = stockMovementRepository.findAllProjected(pageable, start, end, type);
         return new PagedResponseDTO<>(stockMovementProjections);
     }
 }

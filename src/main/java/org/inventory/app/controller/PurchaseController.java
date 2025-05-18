@@ -3,14 +3,18 @@ package org.inventory.app.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
 import org.inventory.app.enums.PurchaseStatus;
+import org.inventory.app.projection.PurchaseProductDTO;
 import org.inventory.app.service.PurchaseService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -47,5 +51,11 @@ public class PurchaseController {
         log.info("Request to update purchase status - id: {}, status: {}", id, status);
         purchaseService.updatePurchaseStatus(id, status);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<List<PurchaseProductDTO>> getProductsForSupplier(@RequestParam Long supplierId) {
+        ValueWrapper<List<PurchaseProductDTO>> productsForSupplier = purchaseService.getProductsForSupplier(supplierId);
+        return ResponseEntity.ok(productsForSupplier.getValue());
     }
 }

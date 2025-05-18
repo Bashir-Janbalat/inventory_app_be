@@ -227,11 +227,11 @@ public class ProductServiceImpl implements ProductService {
     @Cacheable(
             value = "searchProducts",
             key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' + #supplierName " +
-                    "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
-                    "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+                  "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
+                  "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
-                                           String brandName, String supplierName, String sortDirection,
-                                           String sortBy, Pageable pageable) {
+                                                       String brandName, String supplierName, String sortDirection,
+                                                       String sortBy, Pageable pageable) {
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
             log.info("Empty search parameters - fetching all products.");
             return getAllProducts(pageable);
@@ -249,6 +249,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "productCount")
     public ValueWrapper<Long> getTotalProductCount() {
         long count = productRepository.count();

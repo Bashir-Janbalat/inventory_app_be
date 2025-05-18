@@ -2,6 +2,7 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
 import org.inventory.app.enums.PurchaseStatus;
@@ -10,6 +11,7 @@ import org.inventory.app.mapper.PurchaseMapper;
 import org.inventory.app.model.Purchase;
 import org.inventory.app.model.PurchaseItem;
 import org.inventory.app.model.Supplier;
+import org.inventory.app.projection.PurchaseProductDTO;
 import org.inventory.app.repository.PurchaseRepository;
 import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.PurchaseItemService;
@@ -37,7 +39,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"purchases", "purchase"}, allEntries = true)
+    @CacheEvict(value = {"purchases", "purchase","purchaseProducts"}, allEntries = true)
     public PurchaseDTO createPurchase(PurchaseDTO purchaseDTO) {
         Supplier supplier = supplierRepository.findById(purchaseDTO.getSupplierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
@@ -84,5 +86,13 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase updated = purchaseRepository.save(purchase);
         log.info("Updated purchase status successfully for id: {} (and cached in 'purchase')", id);
         return purchaseMapper.toDto(updated);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "purchaseProducts")
+    public ValueWrapper<List<PurchaseProductDTO>> getProductsForSupplier(Long supplierId) {
+        List<PurchaseProductDTO> purchaseProductDTOS = purchaseRepository.getProductsForSupplier(supplierId);
+        return new ValueWrapper<>(purchaseProductDTOS);
     }
 }
