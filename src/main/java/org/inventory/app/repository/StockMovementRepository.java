@@ -22,7 +22,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
 
 
     @Query("""
-                SELECT
+                 SELECT new org.inventory.app.projection.StockMovementSummaryDTO(
                     sm.id AS id,
                     p.id AS productId,
                     p.name AS productName,
@@ -34,7 +34,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
                     sm.createdAt AS createdAt,
                     sm.username AS username,
                     sm.productDeleted AS productDeleted,
-                    sm.productNameSnapshot AS productNameSnapshot
+                    sm.productNameSnapshot AS productNameSnapshot)
                 FROM stock_movements sm
                 LEFT JOIN sm.product p
                 LEFT JOIN sm.warehouse w
