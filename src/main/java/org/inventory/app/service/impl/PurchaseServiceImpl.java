@@ -17,7 +17,6 @@ import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.PurchaseItemService;
 import org.inventory.app.service.PurchaseService;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +38,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"purchases", "purchase","purchaseProducts"}, allEntries = true)
+    @CacheEvict(value = {"purchases", "purchase", "purchaseProducts"}, allEntries = true)
     public PurchaseDTO createPurchase(PurchaseDTO purchaseDTO) {
         Supplier supplier = supplierRepository.findById(purchaseDTO.getSupplierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
@@ -78,7 +77,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     @Transactional
-    @CachePut(value = "purchase", key = "#id")
+    @CacheEvict(value = {"purchases", "purchase", "purchaseProducts"}, allEntries = true)
     public PurchaseDTO updatePurchaseStatus(Long id, PurchaseStatus status) {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found with id: " + id));
