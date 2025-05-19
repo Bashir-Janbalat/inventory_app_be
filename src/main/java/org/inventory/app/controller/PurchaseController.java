@@ -9,7 +9,9 @@ import org.inventory.app.dto.PurchaseDTO;
 import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.projection.PurchaseProductDTO;
 import org.inventory.app.service.PurchaseService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +35,16 @@ public class PurchaseController {
     }
 
     @GetMapping
-    public ResponseEntity<PagedResponseDTO<PurchaseDTO>> getAllPurchases(Pageable pageable) {
-        log.info("Request to get all purchases - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+    public ResponseEntity<PagedResponseDTO<PurchaseDTO>>
+    getAllPurchases(@RequestParam(defaultValue = "0") int page,
+                    @RequestParam(defaultValue = "10") int size,
+                    @RequestParam(defaultValue = "createdAt") String sortBy,
+                    @RequestParam(defaultValue = "asc") String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
+                Sort.by(sortBy).descending() :
+                Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        log.info("Request to get all purchases - page: {}, size: {}", page, size);
         PagedResponseDTO<PurchaseDTO> purchases = purchaseService.getAllPurchases(pageable);
         return ResponseEntity.ok(purchases);
     }
