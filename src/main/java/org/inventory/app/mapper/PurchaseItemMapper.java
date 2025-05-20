@@ -22,6 +22,7 @@ public class PurchaseItemMapper {
         dto.setId(entity.getId());
         dto.setProductId(entity.getProduct().getId());
         dto.setProductName(entity.getProduct().getName());
+        dto.setSku(entity.getProduct().getSku());
         dto.setQuantity(entity.getQuantity());
         dto.setUnitPrice(entity.getUnitPrice());
         return dto;

@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -39,13 +40,14 @@ public class PurchaseController {
     getAllPurchases(@RequestParam(defaultValue = "0") int page,
                     @RequestParam(defaultValue = "10") int size,
                     @RequestParam(defaultValue = "createdAt") String sortBy,
-                    @RequestParam(defaultValue = "asc") String sortDirection) {
+                    @RequestParam(defaultValue = "asc") String sortDirection,
+                    @RequestParam(required = false) LocalDate date) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
         log.info("Request to get all purchases - page: {}, size: {}", page, size);
-        PagedResponseDTO<PurchaseDTO> purchases = purchaseService.getAllPurchases(pageable);
+        PagedResponseDTO<PurchaseDTO> purchases = purchaseService.getAllPurchases(pageable, date);
         return ResponseEntity.ok(purchases);
     }
 

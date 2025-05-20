@@ -15,6 +15,7 @@ public class PurchaseItemDTO {
     @NotNull(message = "ProductID must not be null")
     private Long productId;
     private String productName;
+    private String Sku;
     private int quantity;
     private double unitPrice;
 }

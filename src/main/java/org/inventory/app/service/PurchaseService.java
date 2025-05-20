@@ -7,13 +7,14 @@ import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.projection.PurchaseProductDTO;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface PurchaseService {
 
     PurchaseDTO createPurchase(PurchaseDTO dto);
 
-    PagedResponseDTO<PurchaseDTO> getAllPurchases(Pageable pageable);
+    PagedResponseDTO<PurchaseDTO> getAllPurchases(Pageable pageable, LocalDate date);
 
     PurchaseDTO getPurchaseById(Long id);
 

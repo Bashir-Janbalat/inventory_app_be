@@ -23,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -51,15 +53,23 @@ public class PurchaseServiceImpl implements PurchaseService {
         saved.setItems(items);
 
         PurchaseDTO dto = purchaseMapper.toDto(purchaseRepository.save(saved));
-        log.info("Created a new purchase with ID {} Cache 'purchases','purchase' evicted", dto.getId());
+        log.info("Created a new purchase with ID {} Cache 'purchases','purchase','purchaseProducts' evicted", dto.getId());
         return dto;
     }
 
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "purchases")
-    public PagedResponseDTO<PurchaseDTO> getAllPurchases(Pageable pageable) {
-        Page<Purchase> purchases = purchaseRepository.findAll(pageable);
+    public PagedResponseDTO<PurchaseDTO> getAllPurchases(Pageable pageable, LocalDate date) {
+        Page<Purchase> purchases;
+        if (date != null) {
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime startOfNextDay = date.plusDays(1).atStartOfDay();
+            purchases = purchaseRepository.findByCreatedAtBetween(startOfDay, startOfNextDay, pageable);
+        } else {
+            purchases = purchaseRepository.findAll(pageable);
+        }
+
         log.info("Fetched {} purchases (page {} size {}) from DB (and cached in 'purchases')",
                 purchases.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(purchases.map(purchaseMapper::toDto));
@@ -83,7 +93,7 @@ public class PurchaseServiceImpl implements PurchaseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found with id: " + id));
         purchase.setStatus(status);
         Purchase updated = purchaseRepository.save(purchase);
-        log.info("Updated purchase status successfully for id: {} (and cached in 'purchase')", id);
+        log.info("Updated purchase status successfully for id: {} Cache 'purchases','purchase','purchaseProducts' evicted", id);
         return purchaseMapper.toDto(updated);
     }
 
