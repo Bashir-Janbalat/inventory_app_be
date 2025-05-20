@@ -54,5 +54,5 @@ public class Product extends BaseEntity {
     private List<StockMovement> stockMovements;
 
     @Enumerated(EnumType.STRING)
-    private ProductStatus status;
+    private ProductStatus product_status = ProductStatus.INACTIVE;
 }
