@@ -18,4 +18,7 @@ public class PurchaseItemDTO {
     private String Sku;
     private int quantity;
     private double unitPrice;
+    @NotNull(message = "WarehouseID must not be null")
+    private Long warehouseId;
+    private String warehouseName;
 }

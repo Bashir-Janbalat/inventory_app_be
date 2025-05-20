@@ -20,8 +20,8 @@ CREATE TABLE brands
 --changeset Bashir:3
 CREATE TABLE categories
 (
-    id   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name       VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT UK_category_name UNIQUE (name)
@@ -38,8 +38,8 @@ CREATE TABLE roles
 CREATE TABLE suppliers
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     address       VARCHAR(255) NULL,
     contact_email VARCHAR(255) NOT NULL,
     name          VARCHAR(255) NOT NULL,
@@ -54,13 +54,14 @@ CREATE TABLE products
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     cost_price    DECIMAL(10, 2) NULL,
-    description   TEXT NULL,
-    name          VARCHAR(255) NULL,
+    description   TEXT           NULL,
+    name          VARCHAR(255)   NULL,
     selling_price DECIMAL(10, 2) NULL,
-    sku           VARCHAR(255) NULL,
-    brand_id      BIGINT NULL,
-    category_id   BIGINT NULL,
-    supplier_id   BIGINT NULL,
+    sku           VARCHAR(255)   NULL,
+    brand_id      BIGINT         NOT NULL,
+    category_id   BIGINT         NOT NULL,
+    supplier_id   BIGINT         NULL,
+    product_status  ENUM('ACTIVE', 'INACTIVE', 'DELETED','DISCONNECTED') NOT NULL DEFAULT 'INACTIVE',
     CONSTRAINT UK_product_sku UNIQUE (sku),
     CONSTRAINT FK_product_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id),
     CONSTRAINT FK_product_brand FOREIGN KEY (brand_id) REFERENCES brands (id),
@@ -73,7 +74,7 @@ CREATE TABLE images
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     alt_text   VARCHAR(255) NULL,
     image_url  VARCHAR(255) NULL,
-    product_id BIGINT NULL,
+    product_id BIGINT       NULL,
     CONSTRAINT FK_image_product FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
@@ -81,8 +82,8 @@ CREATE TABLE images
 CREATE TABLE product_attributes
 (
     attribute_value VARCHAR(255) NULL,
-    product_id      BIGINT NOT NULL,
-    attribute_id    BIGINT NOT NULL,
+    product_id      BIGINT       NOT NULL,
+    attribute_id    BIGINT       NOT NULL,
     PRIMARY KEY (attribute_id, product_id),
     CONSTRAINT FK_product_attribute FOREIGN KEY (attribute_id) REFERENCES attributes (id),
     CONSTRAINT FK_attribute_product FOREIGN KEY (product_id) REFERENCES products (id)
@@ -94,12 +95,12 @@ CREATE TABLE stock_movements
     id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    movement_type         ENUM('IN', 'OUT', 'RETURN', 'TRANSFER', 'DAMAGED') NOT NULL,
-    product_id            BIGINT NULL,
-    quantity              INT    NOT NULL CHECK (quantity >= 0),
-    reason                ENUM('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'RECEIVED_TRANSFER', 'UPDATED') NOT NULL,
-    warehouse_id          BIGINT NOT NULL,
-    username              VARCHAR(255) NULL,
+    movement_type         ENUM ('IN', 'OUT', 'RETURN', 'TRANSFER', 'DAMAGED')                                    NOT NULL,
+    product_id            BIGINT                                                                                 NULL,
+    quantity              INT                                                                                    NOT NULL CHECK (quantity >= 0),
+    reason                ENUM ('CREATED', 'DAMAGED', 'RETURNED', 'TRANSFERRED', 'RECEIVED_TRANSFER', 'UPDATED') NOT NULL,
+    warehouse_id          BIGINT                                                                                 NOT NULL,
+    username              VARCHAR(255)                                                                           NULL,
     product_name_snapshot VARCHAR(255),
     product_deleted       BOOLEAN   DEFAULT FALSE,
     CONSTRAINT FK_stockmovement_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL
@@ -130,11 +131,11 @@ CREATE TABLE user_roles
 --changeset Bashir:12
 CREATE TABLE warehouses
 (
-    id      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    address VARCHAR(255) NULL,
-    name    VARCHAR(255) NULL
+    address    VARCHAR(255) NULL,
+    name       VARCHAR(255) NULL
 );
 
 --changeset Bashir:13
@@ -162,13 +163,15 @@ CREATE TABLE purchases
 --changeset Bashir:15
 CREATE TABLE purchase_items
 (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    purchase_id BIGINT         NOT NULL,
-    product_id  BIGINT         NOT NULL,
-    quantity    INT            NOT NULL CHECK (quantity >= 0),
-    unit_price  DECIMAL(10, 2) NOT NULL CHECK (unit_price >= 0),
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    purchase_id  BIGINT         NOT NULL,
+    product_id   BIGINT         NOT NULL,
+    warehouse_id BIGINT         NOT NULL,
+    quantity     INT            NOT NULL CHECK (quantity >= 0),
+    unit_price   DECIMAL(10, 2) NOT NULL CHECK (unit_price >= 0),
     CONSTRAINT FK_item_purchase FOREIGN KEY (purchase_id) REFERENCES purchases (id) ON DELETE CASCADE,
-    CONSTRAINT FK_item_product FOREIGN KEY (product_id) REFERENCES products (id)
+    CONSTRAINT FK_item_product FOREIGN KEY (product_id) REFERENCES products (id),
+    CONSTRAINT FK_item_warehouse FOREIGN KEY (warehouse_id) REFERENCES warehouses (id)
 );
 
 --changeset Bashir:16

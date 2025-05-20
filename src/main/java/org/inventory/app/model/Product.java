@@ -3,12 +3,13 @@ package org.inventory.app.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.inventory.app.enums.ProductStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity( name = "products")
+@Entity(name = "products")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Product extends BaseEntity {
@@ -26,11 +27,12 @@ public class Product extends BaseEntity {
 
     private BigDecimal sellingPrice;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "brand_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "brand_id", nullable = false)
     private Brand brand;
 
     @ManyToOne
@@ -50,4 +52,7 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product")
     private List<StockMovement> stockMovements;
+
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status;
 }

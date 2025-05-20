@@ -25,5 +25,9 @@ public class PurchaseItem {
     private int quantity;
 
     private double unitPrice;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
 }
 

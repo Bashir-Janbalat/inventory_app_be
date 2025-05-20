@@ -3,6 +3,7 @@ package org.inventory.app.controller;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.dto.PurchaseDTO;
 import org.inventory.app.dto.PurchaseItemDTO;
+import org.inventory.app.dto.WarehouseDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,9 +27,11 @@ public class PurchaseControllerTest extends BaseControllerTest {
                 .categoryID(createCategory("category").getId()).brandID(createBrand("brand").getId())
                 .supplierID(createSupplier("supplier", "supplier@gmail.com").getId()).build();
         ProductDTO product = productService.createProduct(productDTO);
+        WarehouseDTO warehouse = createWarehouse("Lager B", "Lager Str.100");
 
         PurchaseDTO purchaseDTO = PurchaseDTO.builder().supplierId(createSupplier("Supplier name", "Supplier@gmail.com").getId())
-                .items(List.of(PurchaseItemDTO.builder().quantity(100).productId(product.getId()).unitPrice(10).build()))
+                .items(List.of(PurchaseItemDTO.builder().quantity(100).productId(product.getId())
+                        .warehouseId(warehouse.getId()).unitPrice(10).build()))
                 .build();
         performPostRequest(BASE_URL_PURCHASES, MAPPER.writeValueAsString(purchaseDTO))
                 .andExpect(status().isCreated())
@@ -76,10 +79,12 @@ public class PurchaseControllerTest extends BaseControllerTest {
                 .brandID(createBrand("MSI").getId())
                 .supplierID(createSupplier("Cool Supplier", "sup@gmail.com").getId())
                 .build());
+        WarehouseDTO warehouse = createWarehouse("Lager A", "Lager Str.100");
 
         PurchaseDTO createdPurchase = PurchaseDTO.builder()
                 .supplierId(product.getSupplierID())
-                .items(List.of(PurchaseItemDTO.builder().productId(product.getId()).quantity(5).unitPrice(999).build()))
+                .items(List.of(PurchaseItemDTO.builder().productId(product.getId())
+                        .quantity(5).unitPrice(999).warehouseId(warehouse.getId()).build()))
                 .build();
 
         String response = performPostRequest(BASE_URL_PURCHASES, MAPPER.writeValueAsString(createdPurchase))
@@ -108,9 +113,12 @@ public class PurchaseControllerTest extends BaseControllerTest {
                 .supplierID(createSupplier("Apple Supplier", "apple@sup.com").getId())
                 .build());
 
+        WarehouseDTO warehouse = createWarehouse("Lager", "Lager Str.100");
+
         PurchaseDTO purchaseDTO = PurchaseDTO.builder()
                 .supplierId(product.getSupplierID())
-                .items(List.of(PurchaseItemDTO.builder().productId(product.getId()).quantity(2).unitPrice(499).build()))
+                .items(List.of(PurchaseItemDTO.builder().productId(product.getId())
+                        .quantity(2).unitPrice(499).warehouseId(warehouse.getId()).build()))
                 .build();
 
         String response = performPostRequest(BASE_URL_PURCHASES, MAPPER.writeValueAsString(purchaseDTO))

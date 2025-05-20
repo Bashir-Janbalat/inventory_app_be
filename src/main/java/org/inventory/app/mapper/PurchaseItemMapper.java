@@ -6,7 +6,9 @@ import org.inventory.app.dto.PurchaseItemDTO;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.model.Product;
 import org.inventory.app.model.PurchaseItem;
+import org.inventory.app.model.Warehouse;
 import org.inventory.app.repository.ProductRepository;
+import org.inventory.app.repository.WarehouseRepository;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class PurchaseItemMapper {
 
     private final ProductRepository productRepository;
+    private final WarehouseRepository warehouseRepository;
 
     public PurchaseItemDTO toDto(PurchaseItem entity) {
         if (entity == null) return null;
@@ -25,6 +28,8 @@ public class PurchaseItemMapper {
         dto.setSku(entity.getProduct().getSku());
         dto.setQuantity(entity.getQuantity());
         dto.setUnitPrice(entity.getUnitPrice());
+        dto.setWarehouseId(entity.getWarehouse().getId());
+        dto.setWarehouseName(entity.getWarehouse().getName());
         return dto;
     }
 
@@ -39,6 +44,10 @@ public class PurchaseItemMapper {
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + dto.getProductId()));
         item.setProduct(product);
+
+        Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse not found with id: " + dto.getWarehouseId()));
+        item.setWarehouse(warehouse);
 
         return item;
     }

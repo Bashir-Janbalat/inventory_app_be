@@ -4,19 +4,6 @@ Ein einfaches Backend Inventarverwaltungssystem basierend auf **Spring Boot**, *
 
 🔗 [Projekt auf GitHub ansehen](https://github.com/Bashir-Janbalat/inventory_app)
 
----
-
-## 🚀 Funktionen
-
-- ✅ Benutzer-Authentifizierung mit JWT (Login, Logout, Registrierung)
-- ✅ Rollenbasierter Zugriff (Admin & Benutzer)
-- ✅ CRUD für Produkte und Categories und Brands und Suppliers
-- ✅ Dockerisierte Anwendung
-- ✅ Umgebungsbasierte Konfiguration über `.env`-Dateien
-- ✅ CI/CD mit GitHub Actions
-
----
-
 ## 🛠️ Technologien
 
 - Java 17 & Spring Boot
@@ -105,6 +92,11 @@ Die Tests wurden mit einer In-Memory H2-Datenbank durchgeführt, um die Funktion
 
 mvn test
 ````
+
+# 📚 Workflow Dokumentation
+
+Für Details zu Produkt-, Lager- und Purchase-Workflows siehe [WORKFLOW.md](docs/WORKFLOW.md).
+
 
 🧠 Autor
 
