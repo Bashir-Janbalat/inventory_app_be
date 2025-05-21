@@ -16,6 +16,7 @@ import org.inventory.app.mapper.ProductMapper;
 import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
 import org.inventory.app.service.ProductService;
+import org.inventory.app.service.StockMovementService;
 import org.inventory.app.service.StockService;
 import org.inventory.app.specification.ProductSpecifications;
 import org.springframework.cache.annotation.CacheEvict;
@@ -48,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
     private final SupplierRepository supplierRepository;
     private final StockService stockService;
+    private final StockMovementService stockMovementService;
     private final ProductAttributeMapper productAttributeMapper;
 
     @Transactional(readOnly = true)
@@ -82,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.toEntity(dto);
         Product savedProduct = productRepository.save(product);
         savedProduct.getStocks().forEach(stock -> {
-            stockService.createStockMovementFor(stock, stock.getQuantity(), MovementType.IN, MovementReason.CREATED);
+            stockMovementService.createStockMovementFor(stock, stock.getQuantity(), MovementType.IN, MovementReason.CREATED);
             log.info("'{}' movement saved: '{} {}' units ,warehouse '{}', product '{}', username '{}'", MovementType.IN,
                     MovementReason.CREATED, stock.getQuantity(),
                     stock.getWarehouse().getName(), stock.getProduct().getName(), getCurrentUserName());
