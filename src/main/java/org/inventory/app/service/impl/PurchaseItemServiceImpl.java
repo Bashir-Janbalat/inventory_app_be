@@ -27,6 +27,9 @@ public class PurchaseItemServiceImpl implements PurchaseItemService {
     public List<PurchaseItem> savePurchaseItems(List<PurchaseItemDTO> itemDTOs, Purchase purchase) {
         List<PurchaseItem> items = new ArrayList<>();
         for (PurchaseItemDTO itemDTO : itemDTOs) {
+            if (itemDTO.getProductId() == null || itemDTO.getWarehouseId() == null) {
+                throw new IllegalArgumentException("Product or warehouse id is null");
+            }
             Product product = productRepository.findById(itemDTO.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with id " + itemDTO.getProductId()));
             Warehouse warehouse = warehouseRepository.findById(itemDTO.getWarehouseId())

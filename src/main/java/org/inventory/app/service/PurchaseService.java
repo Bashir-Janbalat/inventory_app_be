@@ -3,6 +3,7 @@ package org.inventory.app.service;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.projection.PurchaseProductDTO;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,5 @@ public interface PurchaseService {
 
     ValueWrapper<List<PurchaseProductDTO>> getProductsForSupplier(Long supplierId);
 
+    ValueWrapper<List<PurchaseProductDTO>> getProductsByStatus(ProductStatus productStatus);
 }

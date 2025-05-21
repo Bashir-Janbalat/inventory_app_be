@@ -36,9 +36,9 @@ jobs:
         - name: Build Docker image
           run: |
             docker build -t inventory_app .
-            docker tag inventory_app:latest ${{ secrets.DOCKER_USERNAME }}/inventory_app:latest
+            docker tag inventory_app:latest ${{ secrets.DOCKER_USERNAME }}/inventory_app_be:latest
 
 
         - name: Push Docker image to Docker Hub
           run: |
-            docker push ${{ secrets.DOCKER_USERNAME }}/inventory_app:latest
+            docker push ${{ secrets.DOCKER_USERNAME }}/inventory_app_be:latest

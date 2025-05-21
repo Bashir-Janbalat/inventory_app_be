@@ -1,5 +1,6 @@
 package org.inventory.app.repository;
 
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.model.Purchase;
 import org.inventory.app.projection.PurchaseProductDTO;
 import org.springframework.data.domain.Page;
@@ -21,4 +22,11 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     List<PurchaseProductDTO> getProductsForSupplier(@Param("supplierId") Long supplierId);
 
     Page<Purchase> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
+
+    @Query("""
+                SELECT new org.inventory.app.projection.PurchaseProductDTO(p.id, p.name, p.costPrice, p.sku)
+                FROM products p
+                WHERE p.productStatus = :productStatus
+            """)
+    List<PurchaseProductDTO> getProductsByStatus(@Param("productStatus") ProductStatus productStatus);
 }

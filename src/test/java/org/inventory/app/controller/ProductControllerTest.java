@@ -71,7 +71,7 @@ public class ProductControllerTest extends BaseControllerTest {
     @WithMockUser(roles = {"ADMIN"})
     @DisplayName("should handle invalid Product Data")
     void shouldHandleInvalidProductData() throws Exception {
-        String message = "Validation Failed: {supplierID=Supplier-ID is required, brandID=Brand-ID is required, name=Product name is required, sku=SKU is required, categoryID=Category-ID is required}";
+        String message = "Validation Failed: {brandID=Brand-ID is required, name=Product name is required, sku=SKU is required, categoryID=Category-ID is required}";
         performPostRequest(BASE_URL_PRODUCTS, "{}")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(message));

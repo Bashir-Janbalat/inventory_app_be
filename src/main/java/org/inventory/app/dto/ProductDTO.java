@@ -38,7 +38,6 @@ public class ProductDTO extends BaseDTO implements Serializable {
     @NotNull(message = "Brand-ID is required")
     private Long brandID;
     private String brandName;
-    @NotNull(message = "Supplier-ID is required")
     private Long supplierID;
     private String supplierName;
     private String supplierContactEmail;

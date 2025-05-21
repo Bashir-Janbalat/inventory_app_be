@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.projection.PurchaseProductDTO;
 import org.inventory.app.service.PurchaseService;
@@ -65,9 +66,14 @@ public class PurchaseController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/products")
+    @GetMapping("/supplierProducts")
     public ResponseEntity<List<PurchaseProductDTO>> getProductsForSupplier(@RequestParam Long supplierId) {
         ValueWrapper<List<PurchaseProductDTO>> productsForSupplier = purchaseService.getProductsForSupplier(supplierId);
+        return ResponseEntity.ok(productsForSupplier.getValue());
+    }
+    @GetMapping("/statusProducts")
+    public ResponseEntity<List<PurchaseProductDTO>> getProductsByStatus(@RequestParam ProductStatus productStatus) {
+        ValueWrapper<List<PurchaseProductDTO>> productsForSupplier = purchaseService.getProductsByStatus(productStatus);
         return ResponseEntity.ok(productsForSupplier.getValue());
     }
 }
