@@ -18,6 +18,7 @@ import org.inventory.app.service.PurchaseItemService;
 import org.inventory.app.service.PurchaseService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -89,7 +90,13 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"purchases", "purchase", "supplierProducts", "statusProducts"}, allEntries = true)
+
+    @Caching(evict = {
+            @CacheEvict(value = {"products", "product", "searchProducts"}, allEntries = true),
+            @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehous", "warehousesStats"}, allEntries = true),
+            @CacheEvict(value = "purchase", key = "#id"),
+            @CacheEvict(value = {"purchases", "supplierProducts", "statusProducts",}, allEntries = true)
+    })
     public PurchaseDTO updatePurchaseStatus(Long id, PurchaseStatus status) {
         if (status != PurchaseStatus.COMPLETED && status != PurchaseStatus.CANCELLED) {
             throw new IllegalArgumentException("Invalid status value");
@@ -104,8 +111,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             product.setSupplier(purchase.getSupplier());
             Warehouse warehouse = item.getWarehouse();
             int quantity = item.getQuantity();
-            updateStocks(product, warehouse, quantity);
             product.setProductStatus(ProductStatus.ACTIVE);
+            updateStocks(product, warehouse, quantity);
+
         }
         purchase.setStatus(PurchaseStatus.COMPLETED);
         Purchase updated = purchaseRepository.save(purchase);

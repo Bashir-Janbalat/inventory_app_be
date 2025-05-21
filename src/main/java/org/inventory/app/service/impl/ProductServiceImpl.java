@@ -20,6 +20,7 @@ import org.inventory.app.service.StockService;
 import org.inventory.app.specification.ProductSpecifications;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
     public PagedResponseDTO<ProductDTO> getAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAll(pageable);
         log.info("Fetched {} products from DB (and cached in 'products')", productPage.getTotalElements());
-        return  new PagedResponseDTO<>(productPage.map(productMapper::toDto));
+        return new PagedResponseDTO<>(productPage.map(productMapper::toDto));
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +71,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
+            @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true)
+    })
     public ProductDTO createProduct(ProductDTO dto) {
         if (dto == null) {
             throw new IllegalArgumentException("ProductDTO must not be null");
@@ -89,7 +93,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
+            @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true)
+    })
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
@@ -204,7 +211,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional
-    @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
+            @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true)
+    })
     public void deleteProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
         if (product.isEmpty()) {

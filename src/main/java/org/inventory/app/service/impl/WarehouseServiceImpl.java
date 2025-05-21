@@ -34,7 +34,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "warehouses", key = "'warehouses'")
+    @Cacheable(value = "warehouses")
     public ValueWrapper<List<WarehouseDTO>> getAllWarehouses() {
         List<WarehouseDTO> warehouseDTOS = warehouseRepository.findAll().stream().map(warehouseMapper::toDto).toList();
         log.info("Fetched {} Warehouses from DB (and cached in warehouses)", warehouseDTOS.size());
