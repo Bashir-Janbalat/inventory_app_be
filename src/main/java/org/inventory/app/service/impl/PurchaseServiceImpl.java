@@ -97,7 +97,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts"}, allEntries = true),
-            @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehous", "warehousesStats"}, allEntries = true),
+            @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehouse", "warehousesStats"}, allEntries = true),
             @CacheEvict(value = "purchase", key = "#id"),
             @CacheEvict(value = {"purchases", "supplierProducts", "statusProducts",}, allEntries = true)
     })
