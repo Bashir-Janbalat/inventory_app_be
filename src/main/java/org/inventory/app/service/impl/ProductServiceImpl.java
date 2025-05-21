@@ -82,8 +82,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productMapper.toEntity(dto);
         Product savedProduct = productRepository.save(product);
         savedProduct.getStocks().forEach(stock -> {
-            StockMovement movement = buildStockMovementForCreate(stock);
-            stockMovementRepository.save(movement);
+            stockService.createStockMovementFor(stock, stock.getQuantity(), MovementType.IN, MovementReason.CREATED);
             log.info("'{}' movement saved: '{} {}' units ,warehouse '{}', product '{}', username '{}'", MovementType.IN,
                     MovementReason.CREATED, stock.getQuantity(),
                     stock.getWarehouse().getName(), stock.getProduct().getName(), getCurrentUserName());
@@ -192,17 +191,6 @@ public class ProductServiceImpl implements ProductService {
         }
         product.getProductAttributes().clear();
         product.getProductAttributes().addAll(attributesToKeep);
-    }
-
-    private StockMovement buildStockMovementForCreate(Stock stock) {
-        return StockMovement.builder()
-                .product(stock.getProduct())
-                .warehouse(stock.getWarehouse())
-                .quantity(stock.getQuantity())
-                .movementType(MovementType.IN)
-                .reason(MovementReason.CREATED)
-                .username(getCurrentUserName())
-                .build();
     }
 
     private String getCurrentUserName() {

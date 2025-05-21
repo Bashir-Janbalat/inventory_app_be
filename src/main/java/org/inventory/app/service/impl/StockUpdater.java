@@ -78,7 +78,7 @@ public class StockUpdater {
         }
     }
 
-    private void createStockMovementFor(Stock stock, Integer movementQuantity, MovementType type, MovementReason reason) {
+    public void createStockMovementFor(Stock stock, Integer movementQuantity, MovementType type, MovementReason reason) {
         String username = getCurrentUserName();
         StockMovement movementDestinationStock = buildStockMovementFromStock(
                 stock,

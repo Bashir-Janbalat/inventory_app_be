@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.PurchaseDTO;
+import org.inventory.app.enums.MovementReason;
+import org.inventory.app.enums.MovementType;
 import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.enums.PurchaseStatus;
 import org.inventory.app.exception.ResourceNotFoundException;
@@ -16,6 +18,7 @@ import org.inventory.app.repository.StockRepository;
 import org.inventory.app.repository.SupplierRepository;
 import org.inventory.app.service.PurchaseItemService;
 import org.inventory.app.service.PurchaseService;
+import org.inventory.app.service.StockService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -39,6 +42,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PurchaseMapper purchaseMapper;
     private final PurchaseItemService purchaseItemService;
     private final StockRepository stockRepository;
+    private final StockService stockService;
 
 
     @Override
@@ -127,12 +131,14 @@ public class PurchaseServiceImpl implements PurchaseService {
             Stock stock = existingStock.get();
             stock.setQuantity(stock.getQuantity() + quantity);
             stockRepository.save(stock);
+            stockService.createStockMovementFor(stock, stock.getQuantity(), MovementType.IN, MovementReason.UPDATED);
         } else {
             Stock newStock = new Stock();
             newStock.setProduct(product);
             newStock.setWarehouse(warehouse);
             newStock.setQuantity(quantity);
             stockRepository.save(newStock);
+            stockService.createStockMovementFor(newStock, newStock.getQuantity(), MovementType.IN, MovementReason.CREATED);
         }
     }
 
