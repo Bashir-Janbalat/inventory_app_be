@@ -2,6 +2,7 @@ package org.inventory.app.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,29 +61,21 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
-        String message = "The provided data conflicts with existing records.";
-        String dbMessage = ex.getMessage();
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request
+    ) {
+        String path = request.getRequestURI();
+        String message = "The operation could not be completed because it would violate data integrity rules.";
 
-        if (dbMessage != null) {
-            dbMessage = dbMessage.toLowerCase();
-            if (dbMessage.contains("suppliers")) {
-                message = "A supplier with this name and email already exists.";
-            } else if (dbMessage.contains("brands")) {
-                message = "A brand with this name already exists.";
-            } else if (dbMessage.contains("categories")) {
-                message = "A category with this name already exists.";
-            } else if (dbMessage.contains("products")) {
-                message = "A product with this SKU already exists.";
-            }
-        }
-        log.warn("DataIntegrityViolationException at [{}]: {}", request.getRequestURI(), message);
+        log.warn("Data integrity violation at [{}]: {}", path, ex.getMostSpecificCause().getMessage());
+
         return new ResponseEntity<>(
                 buildErrorResponse(
                         HttpStatus.CONFLICT,
-                        "Duplicate Resource",
+                        "Data Integrity Violation",
                         message,
-                        request.getRequestURI()
+                        path
                 ),
                 HttpStatus.CONFLICT
         );
