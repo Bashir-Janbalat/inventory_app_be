@@ -53,7 +53,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehousesStats"}, allEntries = true)
+    @CacheEvict(value = {"warehouses","warehouse", "pagedWarehouses", "warehousesStats"}, allEntries = true)
     public WarehouseDTO createWarehouse(WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.save(warehouseMapper.toEntity(warehouseDTO));
         log.info("Created new warehouses with ID: {}. Cache 'warehouses' evicted.", warehouse.getId());
@@ -62,7 +62,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehousesStats"}, allEntries = true)
+    @CacheEvict(value = {"warehouses","warehouse", "pagedWarehouses", "warehousesStats"}, allEntries = true)
     public WarehouseDTO updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> {
@@ -80,7 +80,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehousesStats"}, allEntries = true)
+    @CacheEvict(value = {"warehouses","warehouse", "pagedWarehouses", "warehousesStats"}, allEntries = true)
     public void deleteWarehous(Long id) {
         if (!warehouseRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent Warehous with ID {}", id);
@@ -97,7 +97,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "warehous", key = "#id")
+    @Cacheable(value = "warehouse", key = "#id")
     public WarehouseDTO getWarehousById(Long id) {
         WarehouseDTO warehouseDTO = warehouseRepository.findById(id).map(warehouseMapper::toDto)
                 .orElseThrow(() -> {
