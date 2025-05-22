@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.service.ProductService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,8 @@ public class ProductController {
             @RequestParam(defaultValue = "") String searchBy,
             @RequestParam(defaultValue = "") String categoryName,
             @RequestParam(defaultValue = "") String brandName,
-            @RequestParam(defaultValue = "") String supplierName) {
+            @RequestParam(defaultValue = "") String supplierName,
+            @RequestParam(required = false) ProductStatus productStatus) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
                 Sort.by(sortBy).ascending();
@@ -41,6 +43,7 @@ public class ProductController {
                 supplierName,
                 sortDirection,
                 sortBy,
+                productStatus,
                 pageable
         );
         return ResponseEntity.ok(products);

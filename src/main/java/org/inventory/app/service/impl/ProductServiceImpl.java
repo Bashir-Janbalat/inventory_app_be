@@ -9,6 +9,7 @@ import org.inventory.app.dto.ProductAttributeDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.MovementReason;
 import org.inventory.app.enums.MovementType;
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.ImageMapper;
 import org.inventory.app.mapper.ProductAttributeMapper;
@@ -226,13 +227,15 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     @Cacheable(
             value = "searchProducts",
-            key = "'search:' + #searchBy + ':' + #categoryName + ':' + #brandName + ':' + #supplierName " +
+            key = "'search:' + #searchBy + ':categoryName:' + #categoryName + ':brandName:' + #brandName +" +
+                  "':supplierName:' + #supplierName " +
                   "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
+                  "+ ':productStatus:' + #productStatus" +
                   "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
                                                        String brandName, String supplierName, String sortDirection,
-                                                       String sortBy, Pageable pageable) {
-        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()) {
+                                                       String sortBy, ProductStatus productStatus, Pageable pageable) {
+        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty() && productStatus == null) {
             log.info("Empty search parameters - fetching all products.");
             return getAllProducts(pageable);
         }
@@ -241,7 +244,8 @@ public class ProductServiceImpl implements ProductService {
                 .where(ProductSpecifications.hasNameLike(searchBy))
                 .and(ProductSpecifications.hasCategory(categoryName))
                 .and(ProductSpecifications.hasBrand(brandName))
-                .and(ProductSpecifications.hasSupplier(supplierName));
+                .and(ProductSpecifications.hasSupplier(supplierName))
+                .and(ProductSpecifications.hasStatus(productStatus));
 
         Page<Product> result = productRepository.findAll(spec, pageable);
         log.info("Fetched {} products based on search filters from DB (and cached in searchProducts)", result.getTotalElements());

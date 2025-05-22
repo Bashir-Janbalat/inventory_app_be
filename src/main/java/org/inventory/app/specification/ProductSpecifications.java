@@ -1,6 +1,7 @@
 package org.inventory.app.specification;
 
 import jakarta.persistence.criteria.JoinType;
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.model.Product;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -49,5 +50,15 @@ public class ProductSpecifications {
                     supplierName
             );
         };
+    }
+
+    public static Specification<Product> hasStatus(ProductStatus productStatus) {
+        return (root, query, cb) -> {
+            if (productStatus == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("productStatus"), productStatus);
+        };
+
     }
 }
