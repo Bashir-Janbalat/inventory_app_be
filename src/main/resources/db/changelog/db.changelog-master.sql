@@ -50,18 +50,18 @@ CREATE TABLE suppliers
 --changeset Bashir:6
 CREATE TABLE products
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    cost_price    DECIMAL(10, 2) NULL,
-    description   TEXT           NULL,
-    name          VARCHAR(255)   NULL,
-    selling_price DECIMAL(10, 2) NULL,
-    sku           VARCHAR(255)   NULL,
-    brand_id      BIGINT         NOT NULL,
-    category_id   BIGINT         NOT NULL,
-    supplier_id   BIGINT         NULL,
-    product_status  ENUM('ACTIVE', 'INACTIVE', 'DELETED','DISCONNECTED') NOT NULL DEFAULT 'INACTIVE',
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    created_at     TIMESTAMP                                                      DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP                                                      DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cost_price     DECIMAL(10, 2)                                        NULL,
+    description    TEXT                                                  NULL,
+    name           VARCHAR(255)                                          NULL,
+    selling_price  DECIMAL(10, 2)                                        NULL,
+    sku            VARCHAR(255)                                          NULL,
+    brand_id       BIGINT                                                NOT NULL,
+    category_id    BIGINT                                                NOT NULL,
+    supplier_id    BIGINT                                                NULL,
+    product_status ENUM ('ACTIVE', 'INACTIVE', 'DELETED','DISCONNECTED') NOT NULL DEFAULT 'INACTIVE',
     CONSTRAINT UK_product_sku UNIQUE (sku),
     CONSTRAINT FK_product_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id),
     CONSTRAINT FK_product_brand FOREIGN KEY (brand_id) REFERENCES brands (id),
@@ -177,3 +177,17 @@ CREATE TABLE purchase_items
 --changeset Bashir:16
 CREATE INDEX idx_purchase_supplier ON purchases (supplier_id);
 CREATE INDEX idx_item_product ON purchase_items (product_id);
+
+-- changeset Bashir:17
+ALTER TABLE users
+    ADD active BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- changeset Bashir:18
+CREATE TABLE password_reset_tokens
+(
+    id      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token   VARCHAR(512) NOT NULL,
+    user_id BIGINT       NOT NULL,
+    used    BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_user_password_reset FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);

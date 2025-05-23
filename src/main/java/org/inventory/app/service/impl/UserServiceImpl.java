@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.UserDTO;
 import org.inventory.app.exception.AlreadyExistsException;
+import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.UserMapper;
 import org.inventory.app.model.Role;
 import org.inventory.app.model.User;
@@ -54,5 +55,28 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
         log.info("User with username '{}' and email '{}' successfully created", userDTO.getUsername(), userDTO.getEmail());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User with id " + userId + " not found"));
+    }
+
+    @Override
+    @Transactional
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(String email, String newPassword) {
+        log.info("Attempting to update password for user with email '{}'", email);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        log.info("Password updated successfully for user '{}'", email);
     }
 }

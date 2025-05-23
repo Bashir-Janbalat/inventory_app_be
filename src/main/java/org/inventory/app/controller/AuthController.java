@@ -1,28 +1,33 @@
 package org.inventory.app.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
-import org.inventory.app.dto.AuthResponseDto;
-import org.inventory.app.dto.LoginDTO;
-import org.inventory.app.dto.UserDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.dto.*;
 import org.inventory.app.model.Role;
 import org.inventory.app.security.jwt.JwtTokenProvider;
 import org.inventory.app.service.AuthService;
-import org.springframework.cache.annotation.CacheEvict;
+import org.inventory.app.service.PasswordResetTokenService;
+import org.inventory.app.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.Set;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDTO loginDto) {
@@ -49,18 +54,32 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/request-reset")
+    public ResponseEntity<String> requestReset(@RequestParam @Email String email) {
+        passwordResetTokenService.createTokenForUser(email);
+        return ResponseEntity.ok("Password reset link sent to your email.");
+    }
 
-    @PostMapping("/update-password")
-    @CacheEvict(value = "userDetails", key = "#username")
-    // TODO:: implement this method
-    public void updateUserPassword(@RequestParam String username, @RequestParam String newPassword) {
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
+        Optional<PasswordResetTokenDTO> resetTokenDTO = passwordResetTokenService.validateToken(request.getToken());
+        if (resetTokenDTO.isPresent()) {
+            userService.updatePassword(resetTokenDTO.get().getEmail(), request.getNewPassword());
+            passwordResetTokenService.markTokenAsUsedByToken(request.getToken());
+            return ResponseEntity.ok("Password successfully reset.");
+        }
+        return ResponseEntity.badRequest().body("Invalid or expired token.");
+    }
 
+    @GetMapping("/activate/{userId}")
+    @PreAuthorize("hasRole('ROLE_USER_MANAGEMENT')")
+    public ResponseEntity<String> activateUser(@PathVariable Long userId) {
+        authService.activateUser(userId);
+        return ResponseEntity.ok("User activated successfully");
     }
 
     @PostMapping("/update-roles")
-    @CacheEvict(value = "userDetails", key = "#username")
     @PreAuthorize("hasRole('ROLE_USER_MANAGEMENT')")
-    // TODO:: implement this method
     public void updateUserRoles(@RequestParam String username, @RequestBody Set<Role> newRoles) {
 
     }

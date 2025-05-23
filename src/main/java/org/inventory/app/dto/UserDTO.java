@@ -31,4 +31,5 @@ public class UserDTO implements Serializable {
     @Pattern(regexp = ".*\\d.*", message = "Password must contain at least one number")
     @Pattern(regexp = ".*[@#$%^&+=].*", message = "Password must contain at least one special character")
     private String password;
+    private boolean active;
 }

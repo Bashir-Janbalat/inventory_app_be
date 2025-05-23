@@ -36,7 +36,9 @@ public class Startup implements CommandLineRunner {
 
             Set<Role> roles = Set.of(adminRole, userRole);
             String password = passwordEncoder.encode("Ba%123456789");
-            userRepository.save(new User("Bob Bob", "Bob", "Bob@gmail.com", password, roles));
+            User user = new User("Bob Bob", "Bob", "Bob@gmail.com", password, roles);
+            user.setActive(true);
+            userRepository.save(user);
         }
     }
 

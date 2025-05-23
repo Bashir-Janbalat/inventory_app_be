@@ -36,10 +36,14 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toSet());
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                authorities
-        );
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .authorities(authorities)
+                .accountLocked(false)
+                .accountExpired(false)
+                .credentialsExpired(false)
+                .disabled(!user.isActive())
+                .build();
     }
 }

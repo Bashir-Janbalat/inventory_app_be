@@ -25,6 +25,13 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration.time}")
     private long jwtExpirationTime;
 
+
+    @Value("${jwt.reset.expiration.time}")
+    private long jwtResetExpirationTime;
+
+    @Value("${jwt.reset.secret.key}")
+    private String jwtResetSecret;
+
     private final RedisTemplate<String, String> redisTemplate;
 
 
@@ -34,13 +41,7 @@ public class JwtTokenProvider {
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationTime);
 
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", authentication.getAuthorities())
-                .issuedAt(new Date())
-                .expiration(expireDate)
-                .signWith(key())
-                .compact();
+        return Jwts.builder().subject(username).claim("roles", authentication.getAuthorities()).issuedAt(new Date()).expiration(expireDate).signWith(key()).compact();
     }
 
     private Key key() {
@@ -49,28 +50,16 @@ public class JwtTokenProvider {
 
     public String getUsername(String token) {
 
-        return Jwts.parser()
-                .verifyWith((SecretKey) key())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+        return Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token).getPayload().getSubject();
     }
+
     public long getExpirationFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith((SecretKey) key())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration().getTime();
+        return Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token).getPayload().getExpiration().getTime();
 
     }
 
     public boolean validateToken(String token) {
-        Jwts.parser()
-                .verifyWith((SecretKey) key())
-                .build()
-                .parse(token);
+        Jwts.parser().verifyWith((SecretKey) key()).build().parse(token);
         return true;
     }
 
@@ -90,5 +79,29 @@ public class JwtTokenProvider {
 
     public boolean isTokenBlacklisted(String token) {
         return redisTemplate.hasKey(token);
+    }
+
+    public String generatePasswordResetToken(String email) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + jwtResetExpirationTime);
+
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtResetSecret)))
+                .compact();
+    }
+
+    public boolean validatePasswordResetToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtResetSecret)))
+                    .build()
+                    .parse(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
