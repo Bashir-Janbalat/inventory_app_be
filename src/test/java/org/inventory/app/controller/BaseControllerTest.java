@@ -78,10 +78,16 @@ public abstract class BaseControllerTest {
     protected UserRepository userRepository;
     @Autowired
     protected RoleRepository roleRepository;
+    @Autowired
+    AuthService authService;
 
 
     @MockitoBean
     protected JwtTokenProvider jwtTokenProvider;
+    @MockitoBean
+    protected EmailService emailService;
+    @MockitoBean
+    protected PasswordResetTokenService passwordResetTokenService;
 
 
     protected ResultActions performGetRequest(String url, Object... params) throws Exception {

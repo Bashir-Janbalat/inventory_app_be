@@ -27,7 +27,9 @@ public class AuthControllerTest extends BaseControllerTest {
                 .email("test@example.com")
                 .password("P@assword123")
                 .build();
-        userService.createUser(userDTO);
+        UserDTO saved = userService.createUser(userDTO);
+        authService.activateUser(saved.getId());
+
 
         when(jwtTokenProvider.generateToken(any(Authentication.class)))
                 .thenReturn("dummy-jwt-token");

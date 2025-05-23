@@ -5,7 +5,7 @@ import org.inventory.app.model.User;
 
 public interface UserService {
 
-    void createUser(UserDTO userDTO);
+    UserDTO createUser(UserDTO userDTO);
 
     User getUserById(Long userId);
 

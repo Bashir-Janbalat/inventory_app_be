@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void createUser(UserDTO userDTO) {
+    public UserDTO createUser(UserDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
             log.warn("Attempt to create user with an existing username: {}", userDTO.getUsername());
             throw new AlreadyExistsException("Username already taken");
@@ -53,8 +53,9 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("Role 'ROLE_USER' not found");
         }
 
-        userRepository.save(user);
+        User saved = userRepository.save(user);
         log.info("User with username '{}' and email '{}' successfully created", userDTO.getUsername(), userDTO.getEmail());
+        return userMapper.toDto(saved);
     }
 
     @Override
