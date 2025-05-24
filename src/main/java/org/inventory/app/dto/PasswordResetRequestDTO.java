@@ -5,8 +5,10 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class PasswordResetRequest {
+public class PasswordResetRequestDTO implements Serializable {
     @NotBlank
     private String token;
 

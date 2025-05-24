@@ -40,6 +40,7 @@ public abstract class BaseControllerTest {
     protected static final String BASE_LOGIN_URL = "/api/auth/login";
     protected static final String BASE_SIGNUP_URL = "/api/auth/signup";
     protected static final String BASE_URL_PURCHASES = "/api/purchases";
+    protected static final String BASE_URL_USERS = "/api/users";
     protected static final ObjectMapper MAPPER = createObjectMapper();
 
     private static ObjectMapper createObjectMapper() {
@@ -78,8 +79,6 @@ public abstract class BaseControllerTest {
     protected UserRepository userRepository;
     @Autowired
     protected RoleRepository roleRepository;
-    @Autowired
-    AuthService authService;
 
 
     @MockitoBean
@@ -132,6 +131,5 @@ public abstract class BaseControllerTest {
     protected SupplierDTO createSupplier(String name, String email) {
         return supplierService.createSupplier(new SupplierDTO(name, email));
     }
-
 }
 

@@ -1,5 +1,6 @@
 package org.inventory.app.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -30,6 +33,10 @@ public class UserDTO implements Serializable {
     @Pattern(regexp = ".*[a-z].*", message = "Password must contain at least one lowercase letter")
     @Pattern(regexp = ".*\\d.*", message = "Password must contain at least one number")
     @Pattern(regexp = ".*[@#$%^&+=].*", message = "Password must contain at least one special character")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private boolean active;
+    @Builder.Default
+    private Set<RoleDTO> rolesDTO = new HashSet<>();
+
 }

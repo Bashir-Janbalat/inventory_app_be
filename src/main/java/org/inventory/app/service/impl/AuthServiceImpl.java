@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.LoginDTO;
 import org.inventory.app.dto.UserDTO;
-import org.inventory.app.model.User;
 import org.inventory.app.security.jwt.JwtTokenProvider;
 import org.inventory.app.service.AuthService;
 import org.inventory.app.service.UserService;
@@ -50,13 +49,5 @@ public class AuthServiceImpl implements AuthService {
         log.info("User '{}' attempting to sign up", userDto.getUsername());
         userService.createUser(userDto);
         log.info("User '{}' successfully signed up", userDto.getUsername());
-    }
-
-    @Override
-    public void activateUser(Long userId) {
-        User user = userService.getUserById(userId);
-        user.setActive(true);
-        userService.save(user);
-        log.info("User with ID {} activated successfully", userId);
     }
 }

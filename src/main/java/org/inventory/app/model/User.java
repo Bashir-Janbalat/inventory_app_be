@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-@Entity( name = "users")
+@Entity(name = "users")
 @Data
 @NoArgsConstructor
 public class User {
@@ -30,7 +30,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")

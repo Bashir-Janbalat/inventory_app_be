@@ -28,7 +28,7 @@ public class AuthControllerTest extends BaseControllerTest {
                 .password("P@assword123")
                 .build();
         UserDTO saved = userService.createUser(userDTO);
-        authService.activateUser(saved.getId());
+        userService.activateUser(saved.getId());
 
 
         when(jwtTokenProvider.generateToken(any(Authentication.class)))
@@ -58,13 +58,15 @@ public class AuthControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("signup - success")
     void signup() throws Exception {
-        UserDTO userDTO = UserDTO.builder()
-                .name("New User")
-                .username("newuser")
-                .email("newuser@example.com")
-                .password("P@assword123")
-                .build();
-        String content = MAPPER.writeValueAsString(userDTO);
+        String content = """
+                {
+                    "name": "New User",
+                    "username": "newuser",
+                    "email": "newuser@example.com",
+                    "password": "P@assword123"
+                }
+                """;
+
         performPostRequest(BASE_SIGNUP_URL, content)
                 .andExpect(status().isCreated());
     }
@@ -72,13 +74,15 @@ public class AuthControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("signup - duplicate username")
     void signupDuplicateUsername() throws Exception {
-        UserDTO userDTO = UserDTO.builder()
-                .name("Duplicate User")
-                .username("testuser")
-                .email("duplicate@example.com")
-                .password("P@assword123")
-                .build();
-        String content = MAPPER.writeValueAsString(userDTO);
+        String content = """
+                {
+                    "name": "Duplicate User",
+                    "username": "testuser",
+                    "email": "duplicate@example.com",
+                    "password": "P@assword123"
+                }
+                """;
+
         performPostRequest(BASE_SIGNUP_URL, content)
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Username already taken"));
@@ -87,13 +91,15 @@ public class AuthControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("signup - duplicate email")
     void signupDuplicateEmail() throws Exception {
-        UserDTO userDTO = UserDTO.builder()
-                .name("Another User")
-                .username("anotheruser")
-                .email("test@example.com")  // Same email as in setUp()
-                .password("P@assword123")
-                .build();
-        String content = MAPPER.writeValueAsString(userDTO);
+        String content = """
+                {
+                    "name": "Another User",
+                    "username": "anotheruser",
+                    "email": "test@example.com",
+                    "password": "P@assword123"
+                }
+                """;
+
         performPostRequest(BASE_SIGNUP_URL, content)
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("user with email 'test@example.com' already exists."));

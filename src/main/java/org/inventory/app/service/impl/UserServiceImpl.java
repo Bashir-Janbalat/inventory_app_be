@@ -2,6 +2,8 @@ package org.inventory.app.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.dto.PagedResponseDTO;
+import org.inventory.app.dto.RoleDTO;
 import org.inventory.app.dto.UserDTO;
 import org.inventory.app.exception.AlreadyExistsException;
 import org.inventory.app.exception.ResourceNotFoundException;
@@ -11,6 +13,10 @@ import org.inventory.app.model.User;
 import org.inventory.app.repository.RoleRepository;
 import org.inventory.app.repository.UserRepository;
 import org.inventory.app.service.UserService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"users", "user"}, allEntries = true)
     public UserDTO createUser(UserDTO userDTO) {
         if (userRepository.existsByUsername(userDTO.getUsername())) {
             log.warn("Attempt to create user with an existing username: {}", userDTO.getUsername());
@@ -41,7 +48,7 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistsException("user", "email", userDTO.getEmail());
         }
 
-        User user = userMapper.toEntity(userDTO);
+        User user = userMapper.toEntityNewUser(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         Optional<Role> role = roleRepository.findRoleByName("ROLE_USER");
@@ -60,24 +67,53 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException("User with id " + userId + " not found"));
+    @Cacheable(value = "user", key = "#userId")
+    public UserDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+        log.info("Retrieved user with ID: {}", user.getId());
+        return userMapper.toDto(user);
     }
+
 
     @Override
     @Transactional
-    public void save(User user) {
-        userRepository.save(user);
-    }
-
-    @Override
-    @Transactional
+    @CacheEvict(value = {"users", "user"}, allEntries = true)
     public void updatePassword(String email, String newPassword) {
         log.info("Attempting to update password for user with email '{}'", email);
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         log.info("Password updated successfully for user '{}'", email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "users", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public PagedResponseDTO<UserDTO> getAllUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        log.info("Retrieved {} users", users.getTotalElements());
+        return new PagedResponseDTO<>(users.map(userMapper::toDto));
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"users", "user"}, allEntries = true)
+    public void activateUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+        user.setActive(true);
+        userRepository.save(user);
+        log.info("User with ID {} activated successfully", userId);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"users", "user"}, allEntries = true)
+    public void assignRoleFor(Long userId, RoleDTO roleDTO) {
+        String roleName = roleDTO.getName();
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+        Role role = roleRepository.findRoleByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role with name" + roleName + "not found"));
+        user.getRoles().add(role);
+        userRepository.save(user);
+        log.info("Role {} successfully assigned to user {}", role, user.getUsername());
     }
 }

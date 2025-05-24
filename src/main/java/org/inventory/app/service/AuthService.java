@@ -7,5 +7,4 @@ public interface AuthService {
     String login(LoginDTO loginDto);
     void signup(UserDTO userDto);
 
-    void activateUser(Long userId);
 }

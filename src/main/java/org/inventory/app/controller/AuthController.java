@@ -5,18 +5,15 @@ import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.*;
-import org.inventory.app.model.Role;
 import org.inventory.app.security.jwt.JwtTokenProvider;
 import org.inventory.app.service.AuthService;
 import org.inventory.app.service.PasswordResetTokenService;
 import org.inventory.app.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.Set;
 
 @AllArgsConstructor
 @RestController
@@ -54,33 +51,20 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/request-reset")
+    @PostMapping("/send-reset-link")
     public ResponseEntity<String> requestReset(@RequestParam @Email String email) {
         passwordResetTokenService.createTokenForUser(email);
         return ResponseEntity.ok("Password reset link sent to your email.");
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid PasswordResetRequestDTO request) {
         Optional<PasswordResetTokenDTO> resetTokenDTO = passwordResetTokenService.validateToken(request.getToken());
         if (resetTokenDTO.isPresent()) {
             userService.updatePassword(resetTokenDTO.get().getEmail(), request.getNewPassword());
             passwordResetTokenService.markTokenAsUsedByToken(request.getToken());
             return ResponseEntity.ok("Password successfully reset.");
         }
-        return ResponseEntity.badRequest().body("Invalid or expired token.");
-    }
-
-    @GetMapping("/activate/{userId}")
-    @PreAuthorize("hasRole('ROLE_USER_MANAGEMENT')")
-    public ResponseEntity<String> activateUser(@PathVariable Long userId) {
-        authService.activateUser(userId);
-        return ResponseEntity.ok("User activated successfully");
-    }
-
-    @PostMapping("/update-roles")
-    @PreAuthorize("hasRole('ROLE_USER_MANAGEMENT')")
-    public void updateUserRoles(@RequestParam String username, @RequestBody Set<Role> newRoles) {
-
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token.");
     }
 }
