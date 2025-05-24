@@ -9,6 +9,6 @@ public interface RoleService {
 
     ValueWrapper<List<RoleDTO>> getAllRoles();
 
-    ValueWrapper<RoleDTO> createRole(RoleDTO role);
+    ValueWrapper<RoleDTO> createRole(String roleName);
 
 }

@@ -80,7 +80,7 @@ public class UserControllerTest extends BaseControllerTest {
 
         String roleName = "ROLE_TEST";
         String content = MAPPER.writeValueAsString(RoleDTO.builder().name(roleName).build());
-        performPostRequest(BASE_URL_USERS + "/create-role", content)
+        performPostRequest(BASE_URL_USERS + "/create-role",content)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is(roleName)));
     }

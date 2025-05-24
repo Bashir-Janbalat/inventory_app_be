@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
     public void assignRoleFor(Long userId, RoleDTO roleDTO) {
         String roleName = roleDTO.getName();
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
-        Role role = roleRepository.findRoleByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role with name" + roleName + "not found"));
+        Role role = roleRepository.findRoleByName(roleName).orElseThrow(() -> new ResourceNotFoundException("Role with name " + roleName + " not found"));
         user.getRoles().add(role);
         userRepository.save(user);
         log.info("Role {} successfully assigned to user {}", role, user.getUsername());

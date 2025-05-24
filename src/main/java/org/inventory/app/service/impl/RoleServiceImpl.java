@@ -34,8 +34,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     @CacheEvict(value = {"roles"}, allEntries = true)
-    public ValueWrapper<RoleDTO> createRole(RoleDTO roleDto) {
-        String roleName = roleDto.getName();
+    public ValueWrapper<RoleDTO> createRole(String roleName) {
         if (roleRepository.existsByName(roleName)) {
             log.warn("Attempt to create role with an existing name: {}", roleName);
             throw new IllegalArgumentException("Role with name '" + roleName + "' already exists");
