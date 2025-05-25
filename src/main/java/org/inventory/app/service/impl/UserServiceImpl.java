@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "user", key = "#userId")
     public UserDTO getUserById(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
-        log.info("Retrieved user with ID: {}", user.getId());
+        log.info("Fetched user with ID: {}", user.getId());
         return userMapper.toDto(user);
     }
 
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "users", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<UserDTO> getAllUsers(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
-        log.info("Retrieved {} users", users.getTotalElements());
+        log.info("Fetched {} users", users.getTotalElements());
         return new PagedResponseDTO<>(users.map(userMapper::toDto));
     }
 
@@ -115,5 +115,20 @@ public class UserServiceImpl implements UserService {
         user.getRoles().add(role);
         userRepository.save(user);
         log.info("Role {} successfully assigned to user {}", role, user.getUsername());
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"users", "user"}, allEntries = true)
+    public void removeRoleFromUser(Long userId, Long roleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role with id " + roleId + " not found"));
+
+        user.getRoles().remove(role);
+        log.info("Role {} successfully removed from user {}", role, user.getUsername());
+        userRepository.save(user);
     }
 }

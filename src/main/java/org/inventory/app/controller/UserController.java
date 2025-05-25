@@ -53,7 +53,7 @@ public class UserController {
 
     @PostMapping("/assign-role")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
-    public ResponseEntity<Void> assignRole(@RequestParam Long userId, @RequestBody @Valid  RoleDTO role) {
+    public ResponseEntity<Void> assignRole(@RequestParam Long userId, @RequestBody @Valid RoleDTO role) {
         userService.assignRoleFor(userId, role);
         return ResponseEntity.noContent().build();
     }
@@ -63,6 +63,12 @@ public class UserController {
     public ResponseEntity<RoleDTO> createRole(@RequestBody @Valid RoleDTO role) {
         ValueWrapper<RoleDTO> roleDTO = roleService.createRole(role.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(roleDTO.getValue());
+    }
+
+    @DeleteMapping("/{userId}/roles/{roleId}")
+    public ResponseEntity<Void> removeRole(@PathVariable Long userId, @PathVariable Long roleId) {
+        userService.removeRoleFromUser(userId, roleId);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -19,4 +19,6 @@ public interface UserService {
     void activateUser(Long userId);
 
     void assignRoleFor(Long userId, RoleDTO role);
+
+    void removeRoleFromUser(Long userId, Long roleId);
 }
