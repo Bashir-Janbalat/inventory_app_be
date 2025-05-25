@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -130,5 +131,24 @@ public class UserServiceImpl implements UserService {
         user.getRoles().remove(role);
         log.info("Role {} successfully removed from user {}", role, user.getUsername());
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"users", "user"}, allEntries = true)
+    public void removeRoleFromAllUsers(Long roleId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role with id " + roleId + " not found"));
+        List<User> usersWithRole = userRepository.findAll().stream()
+                .filter(user -> user.getRoles().contains(role))
+                .toList();
+
+        usersWithRole.forEach(user -> {
+            user.getRoles().remove(role);
+            userRepository.save(user);
+            log.info("Role {} removed from user {}", role.getName(), user.getUsername());
+        });
+
+        log.info("Role {} removed from {} users", role.getName(), usersWithRole.size());
     }
 }

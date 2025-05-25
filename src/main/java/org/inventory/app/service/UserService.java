@@ -21,4 +21,6 @@ public interface UserService {
     void assignRoleFor(Long userId, RoleDTO role);
 
     void removeRoleFromUser(Long userId, Long roleId);
+
+    void removeRoleFromAllUsers(Long roleId);
 }

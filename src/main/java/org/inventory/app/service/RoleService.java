@@ -11,4 +11,6 @@ public interface RoleService {
 
     ValueWrapper<RoleDTO> createRole(String roleName);
 
+    void deleteRole(Long roleId);
+
 }

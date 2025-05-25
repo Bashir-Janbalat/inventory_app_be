@@ -58,7 +58,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/create-role")
+    @PostMapping("/roles/create-role")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
     public ResponseEntity<RoleDTO> createRole(@RequestBody @Valid RoleDTO role) {
         ValueWrapper<RoleDTO> roleDTO = roleService.createRole(role.getName());
@@ -66,8 +66,16 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/roles/{roleId}")
-    public ResponseEntity<Void> removeRole(@PathVariable Long userId, @PathVariable Long roleId) {
+    @PreAuthorize("hasRole('USER_MANAGEMENT')")
+    public ResponseEntity<Void> removeRoleFromUser(@PathVariable Long userId, @PathVariable Long roleId) {
         userService.removeRoleFromUser(userId, roleId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/roles/remove-role-from-all/{roleId}")
+    @PreAuthorize("hasRole('USER_MANAGEMENT')")
+    public ResponseEntity<Void> removeRoleFromAllUsers(@PathVariable Long roleId) {
+        roleService.deleteRole(roleId);
         return ResponseEntity.noContent().build();
     }
 
