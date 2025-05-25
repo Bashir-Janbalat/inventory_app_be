@@ -31,7 +31,14 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "stockMovements", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    @Cacheable(
+            value = "stockMovements",
+            key = "'page:' + #pageable.pageNumber + " +
+                  "':size:' + #pageable.pageSize + " +
+                  "':start:' + #start + " +
+                  "':end:' + #end + " +
+                  "':type:' + #type"
+    )
     public PagedResponseDTO<StockMovementSummaryDTO> getStockMovements(Pageable pageable, LocalDateTime start, LocalDateTime end, MovementType type) {
         Page<StockMovementSummaryDTO> stockMovementProjections = stockMovementRepository.findAllProjected(pageable, start, end, type);
         return new PagedResponseDTO<>(stockMovementProjections);
