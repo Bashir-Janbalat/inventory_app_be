@@ -191,3 +191,16 @@ CREATE TABLE password_reset_tokens
     used    BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_user_password_reset FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
+-- changeset Bashir:19
+CREATE TABLE error_logs
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    timestamp   VARCHAR(25) NOT NULL,
+    status      INT,
+    error       VARCHAR(255),
+    message     TEXT,
+    path        VARCHAR(512),
+    stack_trace TEXT,
+    resolved  BOOLEAN DEFAULT FALSE,
+    resolved_at TIMESTAMP NULL
+);

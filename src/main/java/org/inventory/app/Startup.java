@@ -31,9 +31,10 @@ public class Startup implements CommandLineRunner {
         if (roleRepository.findAll().isEmpty()) {
             Role adminRole = new Role("ROLE_ADMIN");
             Role userRole = new Role("ROLE_USER");
-            Role userManagement = new Role("ROLE_USER_MANAGEMENT");
-            Role userView = new Role("ROLE_USER_VIEW");
-            roleRepository.saveAll(Set.of(adminRole, userRole, userManagement, userView));
+            Role userManagementRole = new Role("ROLE_USER_MANAGEMENT");
+            Role userViewRole = new Role("ROLE_USER_VIEW");
+            Role developerRole = new Role("ROLE_DEVELOPER");
+            roleRepository.saveAll(Set.of(adminRole, userRole, userManagementRole, userViewRole,developerRole));
             log.info("Initial roles created");
         }
 

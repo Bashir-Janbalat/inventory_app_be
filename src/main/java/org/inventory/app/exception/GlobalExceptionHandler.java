@@ -1,8 +1,10 @@
 package org.inventory.app.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
+import org.inventory.app.model.ErrorLog;
+import org.inventory.app.service.ErrorLogService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,14 +14,19 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    private final ErrorLogService errorLogService;
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -115,18 +122,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
-        log.error("Unhandled exception at [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
-        ErrorResponse errorResponse = buildErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal Server Error",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(EntityHasAssociatedItemsException.class)
     public ResponseEntity<ErrorResponse> handleEntityHasAssociatedItemsException(EntityHasAssociatedItemsException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = buildErrorResponse(
@@ -148,5 +143,36 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception at [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
+        ErrorResponse errorResponse = buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal Server Error",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        saveErrorLog(errorResponse, ex);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    private void saveErrorLog(ErrorResponse errorResponse, Exception ex) {
+        ErrorLog log = ErrorLog.builder()
+                .timestamp(errorResponse.getTimestamp())
+                .status(errorResponse.getStatus())
+                .error(errorResponse.getError())
+                .message(errorResponse.getMessage())
+                .path(errorResponse.getPath())
+                .stackTrace(getStackTraceString(ex))
+                .build();
+
+        errorLogService.save(log);
+    }
+
+    private String getStackTraceString(Exception ex) {
+        StringWriter sw = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 }
