@@ -3,7 +3,6 @@ package org.inventory.app.service;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.dto.PagedResponseDTO;
-import org.inventory.app.projection.BrandStatsDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface BrandService {
@@ -20,5 +19,5 @@ public interface BrandService {
 
     ValueWrapper<Long> getTotalBrandCount();
 
-    PagedResponseDTO<BrandStatsDTO> findBrandsWithStats(Pageable pageable);
+
 }

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.CategoryDTO;
 import org.inventory.app.dto.PagedResponseDTO;
-import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.service.CategoryService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,18 +62,4 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/stats")
-    public ResponseEntity<PagedResponseDTO<CategoryStatsDTO>> getCategoriesStats(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
-
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by("name").descending() :
-                Sort.by("name").ascending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-        PagedResponseDTO<CategoryStatsDTO> statsPage = categoryService.findCategoriesWithStats(pageable);
-        return ResponseEntity.ok(statsPage);
-    }
 }

@@ -9,12 +9,12 @@ import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.WarehouseMapper;
 import org.inventory.app.model.Warehouse;
-import org.inventory.app.projection.WarehouseStatsDTO;
 import org.inventory.app.repository.StockRepository;
 import org.inventory.app.repository.WarehouseRepository;
 import org.inventory.app.service.WarehouseService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,16 +53,22 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"warehouses","warehouse", "pagedWarehouses", "warehousesStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"warehouses", "warehouse", "pagedWarehouses"}, allEntries = true),
+            @CacheEvict(value = {"warehouseStats"}, allEntries = true) // on Dashboard
+    })
     public WarehouseDTO createWarehouse(WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.save(warehouseMapper.toEntity(warehouseDTO));
-        log.info("Created new warehouses with ID: {}. Cache 'warehouses' evicted.", warehouse.getId());
+        log.info("Created new warehouses with ID: {}. Cache 'warehouses','warehouse','pagedWarehouses', 'warehouseStats' evicted.", warehouse.getId());
         return warehouseMapper.toDto(warehouse);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"warehouses","warehouse", "pagedWarehouses", "warehousesStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"warehouses", "warehouse", "pagedWarehouses"}, allEntries = true),
+            @CacheEvict(value = {"warehouseStats"}, allEntries = true) // on Dashboard
+    })
     public WarehouseDTO updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> {
@@ -74,13 +80,16 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouse.setName(warehouseDTO.getName().trim());
         warehouse.setAddress(warehouseDTO.getAddress().trim());
         Warehouse saved = warehouseRepository.save(warehouse);
-        log.info("Updated warehouse with ID: {}. Cache 'warehouses' evicted.", id);
+        log.info("Updated warehouse with ID: {}. Cache 'warehouses','warehouse','pagedWarehouses','warehouseStats' evicted.", id);
         return warehouseMapper.toDto(saved);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"warehouses","warehouse", "pagedWarehouses", "warehousesStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"warehouses", "warehouse", "pagedWarehouses"}, allEntries = true),
+            @CacheEvict(value = {"warehouseStats"}, allEntries = true) // on Dashboard
+    })
     public void deleteWarehous(Long id) {
         if (!warehouseRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent Warehous with ID {}", id);
@@ -92,7 +101,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
 
         warehouseRepository.deleteById(id);
-        log.info("Deleted Warehous with ID: {}. Cache 'warehouses', 'pagedWarehouses' evicted.", id);
+        log.info("Deleted Warehous with ID: {}. Cache 'warehouses','warehouse' ,'pagedWarehouses','warehouseStats' evicted.", id);
     }
 
     @Override
@@ -108,14 +117,5 @@ public class WarehouseServiceImpl implements WarehouseService {
         return warehouseDTO;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    @Cacheable(value = "warehousesStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public PagedResponseDTO<WarehouseStatsDTO> getWarehousesWithStats(Pageable pageable) {
-        Page<WarehouseStatsDTO> warehouses = warehouseRepository.fetchWarehouseStatsWithTotalQuantity(pageable);
-        log.info("Fetched {} warehouses with stats from DB (page {} size {}) (and cached in warehousesStats)",
-                warehouses.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return new PagedResponseDTO<>(warehouses);
-    }
 }
 

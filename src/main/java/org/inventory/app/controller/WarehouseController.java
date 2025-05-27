@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.WarehouseDTO;
-import org.inventory.app.projection.WarehouseStatsDTO;
 import org.inventory.app.service.WarehouseService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,15 +54,4 @@ public class WarehouseController {
     public ResponseEntity<WarehouseDTO> getWarehouseById(@PathVariable Long id) {
         return ResponseEntity.ok(warehouseService.getWarehousById(id));
     }
-
-    @GetMapping("/stats")
-    public ResponseEntity<PagedResponseDTO<WarehouseStatsDTO>>
-    getWarehousesWithStats(@RequestParam(defaultValue = "0") Integer page,
-                                  @RequestParam(defaultValue = "10") Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        PagedResponseDTO<WarehouseStatsDTO> warehouses = warehouseService.getWarehousesWithStats(pageable);
-        return ResponseEntity.ok(warehouses);
-
-    }
-
 }

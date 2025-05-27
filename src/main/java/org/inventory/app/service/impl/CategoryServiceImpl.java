@@ -11,12 +11,12 @@ import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.CategoryMapper;
 import org.inventory.app.model.Category;
-import org.inventory.app.projection.CategoryStatsDTO;
 import org.inventory.app.repository.CategoryRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.CategoryService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"categories", "category", "categoryCount"}, allEntries = true),
+            @CacheEvict(value = {"categoryStats"}, allEntries = true) // on Dashboard
+    })
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         String name = categoryDTO.getName().trim();
         categoryRepository.findByName(name).ifPresent(value -> {
@@ -43,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryMapper.toEntity(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
-        log.info("Created new category with ID {} Cache 'categories','category','categoryCount' evicted", savedCategory.getId());
+        log.info("Created new category with ID {} Cache 'categories','category','categoryCount', 'categoryStats' evicted", savedCategory.getId());
         return categoryMapper.toDto(savedCategory);
     }
 
@@ -71,7 +74,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"categories", "category", "categoryCount"}, allEntries = true),
+            @CacheEvict(value = {"categoryStats"}, allEntries = true) // on Dashboard
+    })
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         Category existing = categoryRepository.findById(id).orElseThrow(() -> {
             log.warn("Category with ID {} not found for update.", id);
@@ -88,13 +94,16 @@ public class CategoryServiceImpl implements CategoryService {
 
         existing.setName(name);
         Category saved = categoryRepository.save(existing);
-        log.info("Updated category with ID {} Cache 'categories','category','categoryCount' evicted", id);
+        log.info("Updated category with ID {} Cache 'categories','category','categoryCount', 'categoryStats' evicted", id);
         return categoryMapper.toDto(saved);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"categories", "category", "categoryCount", "categoryStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"categories", "category", "categoryCount"}, allEntries = true),
+            @CacheEvict(value = {"categoryStats"}, allEntries = true) // on Dashboard
+    })
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent category with ID {}", id);
@@ -105,7 +114,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new EntityHasAssociatedItemsException("Category", id);
         }
         categoryRepository.deleteById(id);
-        log.info("Deleted category with ID {} Cache 'categories','category','categoryCount' evicted", id);
+        log.info("Deleted category with ID {} Cache 'categories','category','categoryCount', 'categoryStats' evicted", id);
     }
 
     @Override
@@ -114,14 +123,5 @@ public class CategoryServiceImpl implements CategoryService {
         Long count = categoryRepository.count();
         log.info("Fetched category size from DB (and cached in 'categoryCount'): {}", count);
         return new ValueWrapper<>(count);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    @Cacheable(value = "categoryStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public PagedResponseDTO<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable) {
-        Page<CategoryStatsDTO> categories = categoryRepository.findCategoryStats(pageable);
-        log.info("Fetched {} categories with stats (page {} size {}) from DB (and cached in 'categoryStats')", categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return new PagedResponseDTO<>(categories);
     }
 }

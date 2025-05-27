@@ -11,12 +11,12 @@ import org.inventory.app.exception.EntityHasAssociatedItemsException;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.BrandMapper;
 import org.inventory.app.model.Brand;
-import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.repository.BrandRepository;
 import org.inventory.app.repository.ProductRepository;
 import org.inventory.app.service.BrandService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,11 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands", "brand", "brandCount", "brandStats"}, allEntries = true)
+
+    @Caching(evict = {
+            @CacheEvict(value = {"brands", "brand", "brandCount"}, allEntries = true),
+            @CacheEvict(value = {"brandStats"}, allEntries = true) // on Dashboard
+    })
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
         brandRepository.findByName(name).ifPresent(value -> {
@@ -42,7 +46,7 @@ public class BrandServiceImpl implements BrandService {
         });
 
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));
-        log.info("Created new brand with ID: {}. Cache 'brands', 'brand', 'brandCount' evicted.", savedBrand.getId());
+        log.info("Created new brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats' evicted.", savedBrand.getId());
         return brandMapper.toDto(savedBrand);
     }
 
@@ -71,7 +75,10 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands", "brand", "brandCount", "brandStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"brands", "brand", "brandCount"}, allEntries = true),
+            @CacheEvict(value = {"brandStats"}, allEntries = true) // on Dashboard
+    })
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> {
@@ -89,13 +96,16 @@ public class BrandServiceImpl implements BrandService {
 
         brand.setName(name);
         Brand saved = brandRepository.save(brand);
-        log.info("Updated brand with ID: {}. Cache 'brands', 'brand', 'brandCount' evicted.", id);
+        log.info("Updated brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats' evicted.", id);
         return brandMapper.toDto(saved);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"brands", "brand", "brandCount", "brandStats"}, allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = {"brands", "brand", "brandCount"}, allEntries = true),
+            @CacheEvict(value = {"brandStats"}, allEntries = true) // on Dashboard
+    })
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent brand with ID {}", id);
@@ -107,7 +117,7 @@ public class BrandServiceImpl implements BrandService {
         }
 
         brandRepository.deleteById(id);
-        log.info("Deleted brand with ID: {}. Cache 'brands', 'brand', 'brandCount' evicted.", id);
+        log.info("Deleted brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats' evicted.", id);
     }
 
     @Override
@@ -118,13 +128,4 @@ public class BrandServiceImpl implements BrandService {
         return new ValueWrapper<>(count);
     }
 
-    @Override
-    @Cacheable(value = "brandStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    @Transactional(readOnly = true)
-    public PagedResponseDTO<BrandStatsDTO> findBrandsWithStats(Pageable pageable) {
-        Page<BrandStatsDTO> brands = brandRepository.findBrandsWithStats(pageable);
-        log.info("Fetched {} brands with stats from DB (page {} size {}) (and cached in brandStats)",
-                brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
-        return new PagedResponseDTO<>(brands);
-    }
 }

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.BrandDTO;
 import org.inventory.app.dto.PagedResponseDTO;
-import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.service.BrandService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -62,18 +61,6 @@ public class BrandController {
     public ResponseEntity<Void> deleteBrand(@PathVariable Long id) {
         brandService.deleteBrand(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/stats")
-    public ResponseEntity<PagedResponseDTO<BrandStatsDTO>> getAllBrandsWithProductCount(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by("name").descending() :
-                Sort.by("name").ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-        PagedResponseDTO<BrandStatsDTO> brands = brandService.findBrandsWithStats(pageable);
-        return ResponseEntity.ok(brands);
     }
 
 }

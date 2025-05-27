@@ -3,7 +3,6 @@ package org.inventory.app.service;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.CategoryDTO;
 import org.inventory.app.dto.PagedResponseDTO;
-import org.inventory.app.projection.CategoryStatsDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface CategoryService {
@@ -14,6 +13,4 @@ public interface CategoryService {
     CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
     void deleteCategory(Long id);
     ValueWrapper<Long> getTotalCategoryCount();
-
-    PagedResponseDTO<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable);
 }
