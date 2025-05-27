@@ -35,7 +35,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"categories", "category", "categoryCount"}, allEntries = true),
-            @CacheEvict(value = {"categoryStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"categoryStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         String name = categoryDTO.getName().trim();
@@ -46,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryMapper.toEntity(categoryDTO);
         Category savedCategory = categoryRepository.save(category);
-        log.info("Created new category with ID {} Cache 'categories','category','categoryCount', 'categoryStats' evicted", savedCategory.getId());
+        log.info("Created new category with ID {} Cache 'categories','category','categoryCount', 'categoryStats','dashboardSummary' evicted", savedCategory.getId());
         return categoryMapper.toDto(savedCategory);
     }
 
@@ -102,7 +103,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"categories", "category", "categoryCount"}, allEntries = true),
-            @CacheEvict(value = {"categoryStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"categoryStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
@@ -114,7 +116,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new EntityHasAssociatedItemsException("Category", id);
         }
         categoryRepository.deleteById(id);
-        log.info("Deleted category with ID {} Cache 'categories','category','categoryCount', 'categoryStats' evicted", id);
+        log.info("Deleted category with ID {} Cache 'categories','category','categoryCount', 'categoryStats','dashboardSummary' evicted", id);
     }
 
     @Override

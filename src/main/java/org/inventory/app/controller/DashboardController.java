@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.projection.CategoryStatsDTO;
+import org.inventory.app.projection.DashboardSummaryStatsDTO;
 import org.inventory.app.projection.WarehouseStatsDTO;
 import org.inventory.app.service.DashboardService;
 import org.springframework.data.domain.PageRequest;
@@ -52,6 +53,12 @@ public class DashboardController {
         PagedResponseDTO<WarehouseStatsDTO> warehouses = dashboardService.findWarehousesWithStats(pageable);
         return ResponseEntity.ok(warehouses);
 
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<DashboardSummaryStatsDTO> getSummary() {
+        DashboardSummaryStatsDTO summary = dashboardService.getDashboardSummary();
+        return ResponseEntity.ok(summary);
     }
 
     private Pageable createPageable(int page, int size, String sortDirection) {

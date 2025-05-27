@@ -1,5 +1,6 @@
 package org.inventory.app.repository;
 
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Boolean existsByBrandId(Long id);
 
     Boolean existsBySupplierId(Long id);
+
+    Long countByProductStatus(ProductStatus productStatus);
 }

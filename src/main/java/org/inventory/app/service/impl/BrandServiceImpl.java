@@ -36,7 +36,8 @@ public class BrandServiceImpl implements BrandService {
 
     @Caching(evict = {
             @CacheEvict(value = {"brands", "brand", "brandCount"}, allEntries = true),
-            @CacheEvict(value = {"brandStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"brandStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public BrandDTO createBrand(BrandDTO brandDTO) {
         String name = brandDTO.getName().trim();
@@ -46,7 +47,7 @@ public class BrandServiceImpl implements BrandService {
         });
 
         Brand savedBrand = brandRepository.save(brandMapper.toEntity(brandDTO));
-        log.info("Created new brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats' evicted.", savedBrand.getId());
+        log.info("Created new brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats','dashboardSummary' evicted.", savedBrand.getId());
         return brandMapper.toDto(savedBrand);
     }
 
@@ -104,7 +105,8 @@ public class BrandServiceImpl implements BrandService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"brands", "brand", "brandCount"}, allEntries = true),
-            @CacheEvict(value = {"brandStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"brandStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public void deleteBrand(Long id) {
         if (!brandRepository.existsById(id)) {
@@ -117,7 +119,7 @@ public class BrandServiceImpl implements BrandService {
         }
 
         brandRepository.deleteById(id);
-        log.info("Deleted brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats' evicted.", id);
+        log.info("Deleted brand with ID: {}. Cache 'brands', 'brand', 'brandCount', 'brandStats', 'dashboardSummary' evicted.", id);
     }
 
     @Override

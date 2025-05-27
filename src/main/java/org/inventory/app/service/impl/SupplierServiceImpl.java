@@ -32,7 +32,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier","supplierCount"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier","supplierCount","dashboardSummary"}, allEntries = true)
     public SupplierDTO createSupplier(SupplierDTO supplierDTO) {
         String name = supplierDTO.getName().trim();
         String email = supplierDTO.getContactEmail().trim();
@@ -43,7 +43,7 @@ public class SupplierServiceImpl implements SupplierService {
         });
 
         Supplier savedSupplier = supplierRepository.save(supplierMapper.toEntity(supplierDTO));
-        log.info("Created new supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", savedSupplier.getId());
+        log.info("Created new supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' and 'dashboardSummary' evicted.", savedSupplier.getId());
         return supplierMapper.toDto(savedSupplier);
     }
 
@@ -72,7 +72,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier", "supplierCount"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount","dashboardSummary"}, allEntries = true)
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
         supplierRepository.findById(id)
                 .orElseThrow(() -> {
@@ -94,13 +94,13 @@ public class SupplierServiceImpl implements SupplierService {
         updated.setId(id);
 
         Supplier saved = supplierRepository.save(updated);
-        log.info("Updated supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", id);
+        log.info("Updated supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' and 'dashboardSummary' evicted.", id);
         return supplierMapper.toDto(saved);
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier", "supplierCount"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount","dashboardSummary"}, allEntries = true)
     public void deleteSupplier(Long id) {
         if (!supplierRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent supplier with ID {}", id);
@@ -111,7 +111,7 @@ public class SupplierServiceImpl implements SupplierService {
             throw new EntityHasAssociatedItemsException("Supplier", id);
         }
         supplierRepository.deleteById(id);
-        log.info("Deleted supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' evicted.", id);
+        log.info("Deleted supplier with ID: {}. Cache 'suppliers' and 'supplier' and 'supplierCount' and 'dashboardSummary' evicted.", id);
     }
 
     @Override

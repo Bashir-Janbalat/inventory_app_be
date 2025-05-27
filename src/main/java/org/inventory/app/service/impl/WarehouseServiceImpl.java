@@ -55,11 +55,12 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"warehouses", "warehouse", "pagedWarehouses"}, allEntries = true),
-            @CacheEvict(value = {"warehouseStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"warehouseStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public WarehouseDTO createWarehouse(WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.save(warehouseMapper.toEntity(warehouseDTO));
-        log.info("Created new warehouses with ID: {}. Cache 'warehouses','warehouse','pagedWarehouses', 'warehouseStats' evicted.", warehouse.getId());
+        log.info("Created new warehouses with ID: {}. Cache 'warehouses','warehouse','pagedWarehouses', 'warehouseStats','dashboardSummary' evicted.", warehouse.getId());
         return warehouseMapper.toDto(warehouse);
     }
 
@@ -67,7 +68,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"warehouses", "warehouse", "pagedWarehouses"}, allEntries = true),
-            @CacheEvict(value = {"warehouseStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"warehouseStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public WarehouseDTO updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.findById(id)
@@ -80,7 +82,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouse.setName(warehouseDTO.getName().trim());
         warehouse.setAddress(warehouseDTO.getAddress().trim());
         Warehouse saved = warehouseRepository.save(warehouse);
-        log.info("Updated warehouse with ID: {}. Cache 'warehouses','warehouse','pagedWarehouses','warehouseStats' evicted.", id);
+        log.info("Updated warehouse with ID: {}. Cache 'warehouses','warehouse','pagedWarehouses','warehouseStats','dashboardSummary' evicted.", id);
         return warehouseMapper.toDto(saved);
     }
 
@@ -88,7 +90,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"warehouses", "warehouse", "pagedWarehouses"}, allEntries = true),
-            @CacheEvict(value = {"warehouseStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"warehouseStats"}, allEntries = true), // on Dashboard
+            @CacheEvict(value = {"dashboardSummary"}, allEntries = true)
     })
     public void deleteWarehous(Long id) {
         if (!warehouseRepository.existsById(id)) {
@@ -101,7 +104,8 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
 
         warehouseRepository.deleteById(id);
-        log.info("Deleted Warehous with ID: {}. Cache 'warehouses','warehouse' ,'pagedWarehouses','warehouseStats' evicted.", id);
+        log.info("Deleted Warehous with ID: {}. Cache 'warehouses','warehouse' ,'pagedWarehouses','warehouseStats','dashboardSummary'  evicted.", id);
+
     }
 
     @Override

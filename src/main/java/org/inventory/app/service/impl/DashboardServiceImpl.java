@@ -3,12 +3,12 @@ package org.inventory.app.service.impl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.PagedResponseDTO;
+import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.projection.BrandStatsDTO;
 import org.inventory.app.projection.CategoryStatsDTO;
+import org.inventory.app.projection.DashboardSummaryStatsDTO;
 import org.inventory.app.projection.WarehouseStatsDTO;
-import org.inventory.app.repository.BrandRepository;
-import org.inventory.app.repository.CategoryRepository;
-import org.inventory.app.repository.WarehouseRepository;
+import org.inventory.app.repository.*;
 import org.inventory.app.service.DashboardService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -21,9 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
 
+    private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final WarehouseRepository warehouseRepository;
+    private final StockRepository stockRepository;
+    private final SupplierRepository supplierRepository;
 
     @Override
     @Cacheable(value = "brandStats", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
@@ -52,5 +55,30 @@ public class DashboardServiceImpl implements DashboardService {
         log.info("Fetched {} warehouses with stats from DB (page {} size {}) (and cached in warehousesStats)",
                 warehouses.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(warehouses);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "dashboardSummary")
+    public DashboardSummaryStatsDTO getDashboardSummary() {
+        long totalProducts = productRepository.count();
+        long totalActiveProducts = productRepository.countByProductStatus(ProductStatus.ACTIVE);
+        long totalCategories = categoryRepository.count();
+        long totalBrands = brandRepository.count();
+        long totalSuppliers = supplierRepository.count();
+        long totalWarehouses = warehouseRepository.count();
+
+        Long totalStockQuantity = stockRepository.sumAllStockQuantities();
+        if (totalStockQuantity == null) totalStockQuantity = 0L;
+
+        return DashboardSummaryStatsDTO.builder()
+                .totalProducts(totalProducts)
+                .totalActiveProducts(totalActiveProducts)
+                .totalCategories(totalCategories)
+                .totalBrands(totalBrands)
+                .totalSuppliers(totalSuppliers)
+                .totalWarehouses(totalWarehouses)
+                .totalStockQuantity(totalStockQuantity)
+                .build();
     }
 }
