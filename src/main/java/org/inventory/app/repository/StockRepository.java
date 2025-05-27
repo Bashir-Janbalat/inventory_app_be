@@ -24,6 +24,7 @@ public interface StockRepository extends JpaRepository<Stock, StockId> {
     Long countProductsOutOfStock();
 
     @Query("SELECT COUNT(p) FROM products p WHERE " +
-           "(SELECT COALESCE(SUM(s.quantity), 0) FROM stock s WHERE s.product = p) <= :count")
+           "(SELECT COALESCE(SUM(s.quantity), 0) FROM stock s WHERE s.product = p) > 0 " +
+           "AND (SELECT COALESCE(SUM(s.quantity), 0) FROM stock s WHERE s.product = p) <= :count")
     Long countProductsLowStock(Long count);
 }
