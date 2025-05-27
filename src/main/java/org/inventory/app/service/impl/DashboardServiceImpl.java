@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
+import org.inventory.app.enums.StockStatus;
 import org.inventory.app.projection.*;
 import org.inventory.app.repository.*;
 import org.inventory.app.service.DashboardService;
@@ -88,5 +89,22 @@ public class DashboardServiceImpl implements DashboardService {
         List<ProductStatusCountStatsDTO> result = productRepository.countProductsByStatus();
         log.info("Fetched product status summary: {}", result);
         return new ValueWrapper<>(result);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable("stockStatusSummary")
+    public ValueWrapper<List<StockStatusCountStatsDTO>> getStockStatusSummary() {
+        long outOfStockCount = stockRepository.countProductsOutOfStock();
+        long totalProducts = productRepository.count();
+        long lowStockCount = stockRepository.countProductsLowStock(10L);
+        long inStockCount = totalProducts - outOfStockCount - lowStockCount;
+
+
+        return new ValueWrapper<>(List.of(
+                new StockStatusCountStatsDTO(StockStatus.IN_STOCK, inStockCount),
+                new StockStatusCountStatsDTO(StockStatus.OUT_OF_STOCK, outOfStockCount),
+                new StockStatusCountStatsDTO(StockStatus.LOW_STOCK, lowStockCount))
+        );
     }
 }

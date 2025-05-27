@@ -10,8 +10,14 @@ import java.util.List;
 public interface DashboardService {
 
     PagedResponseDTO<BrandStatsDTO> findBrandsWithStats(Pageable pageable);
+
     PagedResponseDTO<CategoryStatsDTO> findCategoriesWithStats(Pageable pageable);
+
     PagedResponseDTO<WarehouseStatsDTO> findWarehousesWithStats(Pageable pageable);
+
     DashboardSummaryStatsDTO getDashboardSummary();
+
     ValueWrapper<List<ProductStatusCountStatsDTO>> countProductsByStatus();
+
+    ValueWrapper<List<StockStatusCountStatsDTO>> getStockStatusSummary();
 }

@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary"}, allEntries = true),
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary"}, allEntries = true),
     })
     public ProductDTO createProduct(ProductDTO dto) {
         if (dto == null) {
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
                     MovementReason.CREATED, stock.getQuantity(),
                     stock.getWarehouse().getName(), stock.getProduct().getName(), getCurrentUserName());
         });
-        log.info("Created product with ID {}. Cache 'products','product','searchProducts','productCount','dashboardSummary','productStatusSummary' evicted.", savedProduct.getId());
+        log.info("Created product with ID {}. Cache 'products','product','searchProducts','productCount','dashboardSummary','productStatusSummary','stockStatusSummary' evicted.", savedProduct.getId());
         return productMapper.toDto(savedProduct);
     }
 
@@ -99,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary"}, allEntries = true),
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary"}, allEntries = true),
     })
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
@@ -110,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
         patchProductFromDTO(product, dto);
         Product saved = productRepository.save(product);
 
-        log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount','dashboardSummary','productStatusSummary' evicted.", id);
+        log.info("Updated product with ID {}. Cache 'products','product','searchProducts','productCount','dashboardSummary','productStatusSummary','stockStatusSummary' evicted.", id);
         return productMapper.toDto(saved);
     }
 
@@ -207,7 +207,7 @@ public class ProductServiceImpl implements ProductService {
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary"}, allEntries = true)
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary"}, allEntries = true)
     })
     public void deleteProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
@@ -223,7 +223,7 @@ public class ProductServiceImpl implements ProductService {
         }
         stockMovementRepository.saveAll(movements);
         productRepository.deleteById(id);
-        log.info("Deleted product with ID {}. Cache 'products','product','searchProducts','productCount','dashboardSummary','productStatusSummary' evicted.", id);
+        log.info("Deleted product with ID {}. Cache 'products','product','searchProducts','productCount','dashboardSummary','productStatusSummary','stockStatusSummary' evicted.", id);
     }
 
     @Override

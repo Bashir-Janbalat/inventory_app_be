@@ -65,6 +65,11 @@ public class DashboardController {
         return ResponseEntity.ok(dashboardService.countProductsByStatus().getValue());
     }
 
+    @GetMapping("/stock-status-summary")
+    public ResponseEntity<List<StockStatusCountStatsDTO>> getStockStatusSummary() {
+        return ResponseEntity.ok(dashboardService.getStockStatusSummary().getValue());
+    }
+
     private Pageable createPageable(int page, int size, String sortDirection) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
