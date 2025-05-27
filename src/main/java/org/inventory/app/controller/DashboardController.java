@@ -27,10 +27,7 @@ public class DashboardController {
     public ResponseEntity<PagedResponseDTO<BrandStatsDTO>> getAllBrandsWithProductCount(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by("name").descending() :
-                Sort.by("name").ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = createPageable(page, size, sortDirection);
         PagedResponseDTO<BrandStatsDTO> brands = dashboardService.findBrandsWithStats(pageable);
         return ResponseEntity.ok(brands);
     }
@@ -41,11 +38,7 @@ public class DashboardController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "asc") String sortDirection) {
 
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by("name").descending() :
-                Sort.by("name").ascending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = createPageable(page, size, sortDirection);
         PagedResponseDTO<CategoryStatsDTO> statsPage = dashboardService.findCategoriesWithStats(pageable);
         return ResponseEntity.ok(statsPage);
     }
@@ -55,12 +48,16 @@ public class DashboardController {
     getWarehousesWithStats(@RequestParam(defaultValue = "0") Integer page,
                            @RequestParam(defaultValue = "10") Integer size,
                            @RequestParam(defaultValue = "asc") String sortDirection) {
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by("name").descending() :
-                Sort.by("name").ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = createPageable(page, size, sortDirection);
         PagedResponseDTO<WarehouseStatsDTO> warehouses = dashboardService.findWarehousesWithStats(pageable);
         return ResponseEntity.ok(warehouses);
 
+    }
+
+    private Pageable createPageable(int page, int size, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
+                Sort.by("name").descending() :
+                Sort.by("name").ascending();
+        return PageRequest.of(page, size, sort);
     }
 }
