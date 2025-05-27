@@ -107,4 +107,12 @@ public class DashboardServiceImpl implements DashboardService {
                 new StockStatusCountStatsDTO(StockStatus.LOW_STOCK, lowStockCount))
         );
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable("monthlyProductCount")
+    public ValueWrapper<List<MonthlyProductCountStatsDTO>> findMonthlyProductCountStats() {
+        List<MonthlyProductCountStatsDTO> productCountStatsDTOS = productRepository.countProductsPerMonth();
+        return new ValueWrapper<>(productCountStatsDTOS);
+    }
 }

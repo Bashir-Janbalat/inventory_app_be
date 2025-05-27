@@ -100,7 +100,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehouse", "warehousesStats"}, allEntries = true),
             @CacheEvict(value = "purchase", key = "#id"),
             @CacheEvict(value = {"purchases", "supplierProducts", "statusProducts",}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary"}, allEntries = true),
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary","monthlyProductCount"}, allEntries = true),
     })
     public PurchaseDTO updatePurchaseStatus(Long id, PurchaseStatus status) {
         if (status != PurchaseStatus.COMPLETED && status != PurchaseStatus.CANCELLED) {
@@ -122,7 +122,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         }
         purchase.setStatus(PurchaseStatus.COMPLETED);
         Purchase updated = purchaseRepository.save(purchase);
-        log.info("Updated purchase status successfully for id: {} Cache 'purchases','purchase','supplierProducts','statusProducts','stockStatusSummary' evicted", id);
+        log.info("Updated purchase status successfully for id: {} Cache 'purchases','purchase','supplierProducts','statusProducts','stockStatusSummary','monthlyProductCount' evicted", id);
         return purchaseMapper.toDto(updated);
     }
 

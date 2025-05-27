@@ -1,7 +1,7 @@
 package org.inventory.app.repository;
 
-import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.model.Product;
+import org.inventory.app.projection.MonthlyProductCountStatsDTO;
 import org.inventory.app.projection.ProductStatusCountStatsDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +29,13 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @Query("SELECT new org.inventory.app.projection.ProductStatusCountStatsDTO(p.productStatus, COUNT(p)) FROM products p GROUP BY p.productStatus")
     List<ProductStatusCountStatsDTO> countProductsByStatus();
+
+    @Query(value = """
+            SELECT 
+                DATE_FORMAT(p.created_at, '%Y-%m') AS month,
+                COUNT(p.id) AS count
+            FROM products p
+            GROUP BY DATE_FORMAT(p.created_at, '%Y-%m')
+            ORDER BY month""", nativeQuery = true)
+    List<MonthlyProductCountStatsDTO> countProductsPerMonth();
 }

@@ -20,4 +20,6 @@ public interface DashboardService {
     ValueWrapper<List<ProductStatusCountStatsDTO>> countProductsByStatus();
 
     ValueWrapper<List<StockStatusCountStatsDTO>> getStockStatusSummary();
+
+    ValueWrapper<List<MonthlyProductCountStatsDTO>> findMonthlyProductCountStats();
 }

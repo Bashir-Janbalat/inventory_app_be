@@ -76,4 +76,11 @@ public class DashboardController {
                 Sort.by("name").ascending();
         return PageRequest.of(page, size, sort);
     }
+
+
+    @GetMapping("/monthly-product-counts")
+    public ResponseEntity<List<MonthlyProductCountStatsDTO>> getMonthlyProductCounts() {
+        List<MonthlyProductCountStatsDTO> counts = dashboardService.findMonthlyProductCountStats().getValue();
+        return ResponseEntity.ok(counts);
+    }
 }
