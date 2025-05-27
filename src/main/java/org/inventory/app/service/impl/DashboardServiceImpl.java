@@ -2,12 +2,9 @@ package org.inventory.app.service.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
-import org.inventory.app.enums.ProductStatus;
-import org.inventory.app.projection.BrandStatsDTO;
-import org.inventory.app.projection.CategoryStatsDTO;
-import org.inventory.app.projection.DashboardSummaryStatsDTO;
-import org.inventory.app.projection.WarehouseStatsDTO;
+import org.inventory.app.projection.*;
 import org.inventory.app.repository.*;
 import org.inventory.app.service.DashboardService;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -62,7 +61,6 @@ public class DashboardServiceImpl implements DashboardService {
     @Cacheable(value = "dashboardSummary")
     public DashboardSummaryStatsDTO getDashboardSummary() {
         long totalProducts = productRepository.count();
-        long totalActiveProducts = productRepository.countByProductStatus(ProductStatus.ACTIVE);
         long totalCategories = categoryRepository.count();
         long totalBrands = brandRepository.count();
         long totalSuppliers = supplierRepository.count();
@@ -71,14 +69,24 @@ public class DashboardServiceImpl implements DashboardService {
         Long totalStockQuantity = stockRepository.sumAllStockQuantities();
         if (totalStockQuantity == null) totalStockQuantity = 0L;
 
-        return DashboardSummaryStatsDTO.builder()
+        DashboardSummaryStatsDTO summary = DashboardSummaryStatsDTO.builder()
                 .totalProducts(totalProducts)
-                .totalActiveProducts(totalActiveProducts)
                 .totalCategories(totalCategories)
                 .totalBrands(totalBrands)
                 .totalSuppliers(totalSuppliers)
                 .totalWarehouses(totalWarehouses)
                 .totalStockQuantity(totalStockQuantity)
                 .build();
+        log.info("Dashboard summary: {}", summary);
+        return summary;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable("productStatusSummary")
+    public ValueWrapper<List<ProductStatusCountStatsDTO>> countProductsByStatus() {
+        List<ProductStatusCountStatsDTO> result = productRepository.countProductsByStatus();
+        log.info("Fetched product status summary: {}", result);
+        return new ValueWrapper<>(result);
     }
 }

@@ -2,10 +2,7 @@ package org.inventory.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.PagedResponseDTO;
-import org.inventory.app.projection.BrandStatsDTO;
-import org.inventory.app.projection.CategoryStatsDTO;
-import org.inventory.app.projection.DashboardSummaryStatsDTO;
-import org.inventory.app.projection.WarehouseStatsDTO;
+import org.inventory.app.projection.*;
 import org.inventory.app.service.DashboardService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -59,6 +58,11 @@ public class DashboardController {
     public ResponseEntity<DashboardSummaryStatsDTO> getSummary() {
         DashboardSummaryStatsDTO summary = dashboardService.getDashboardSummary();
         return ResponseEntity.ok(summary);
+    }
+
+    @GetMapping("/product-status-summary")
+    public ResponseEntity<List<ProductStatusCountStatsDTO>> getProductStatusSummary() {
+        return ResponseEntity.ok(dashboardService.countProductsByStatus().getValue());
     }
 
     private Pageable createPageable(int page, int size, String sortDirection) {

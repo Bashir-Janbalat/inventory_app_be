@@ -14,7 +14,6 @@ import java.io.Serializable;
 @Builder
 public class DashboardSummaryStatsDTO implements Serializable {
     private long totalProducts;
-    private long totalActiveProducts;
     private long totalCategories;
     private long totalBrands;
     private long totalSuppliers;
