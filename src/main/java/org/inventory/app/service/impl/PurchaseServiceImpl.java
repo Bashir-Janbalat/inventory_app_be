@@ -99,7 +99,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             @CacheEvict(value = {"products", "product", "searchProducts"}, allEntries = true),
             @CacheEvict(value = {"warehouses", "pagedWarehouses", "warehouse", "warehousesStats"}, allEntries = true),
             @CacheEvict(value = "purchase", key = "#id"),
-            @CacheEvict(value = {"purchases", "supplierProducts", "statusProducts",}, allEntries = true)
+            @CacheEvict(value = {"purchases", "supplierProducts", "statusProducts",}, allEntries = true),
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary"}, allEntries = true),
     })
     public PurchaseDTO updatePurchaseStatus(Long id, PurchaseStatus status) {
         if (status != PurchaseStatus.COMPLETED && status != PurchaseStatus.CANCELLED) {
