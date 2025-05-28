@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: 'mysql:8'
-    container_name: mysql_db
+    container_name: mysql
     restart: always
     environment:
       MYSQL_DATABASE: '${DATABASE_NAME}'
@@ -17,7 +17,7 @@ services:
 
   redis:
     image: 'redis:7'
-    container_name: redis_server
+    container_name: redis
     restart: always
     ports:
       - '${REDIS_PORT_LOCAL_TO_CONTAINER}:${REDIS_PORT_CONTAINER}'
@@ -25,8 +25,8 @@ services:
       - inventory_net
 
   backend:
-    image: 'bashirjanbalat/inventory_app:latest'
-    container_name: inventory_app_be
+    image: 'bashirjanbalat/inventory_app_be:latest'
+    container_name: app_be
     depends_on:
       - db
       - redis
@@ -39,7 +39,7 @@ services:
 
   frontend:
     image: 'bashirjanbalat/inventory_app_fe:latest'
-    container_name: inventory_app_fe
+    container_name: app_fe
     depends_on:
       - db
       - redis
