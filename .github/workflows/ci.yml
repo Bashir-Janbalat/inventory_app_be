@@ -41,7 +41,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/inventory_app_be:${TAG_NAME} .
+          docker build --build-arg APP_VERSION=${{ env.TAG_NAME }} -t ${{ secrets.DOCKER_USERNAME }}/inventory_app_be:${{ env.TAG_NAME }} .
           docker tag ${{ secrets.DOCKER_USERNAME }}/inventory_app_be:${TAG_NAME} ${{ secrets.DOCKER_USERNAME }}/inventory_app_be:latest
 
       - name: Push Docker image to Docker Hub
