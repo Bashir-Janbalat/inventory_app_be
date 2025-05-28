@@ -43,6 +43,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
                        OR (:movementType != 'TRANSFER' AND sm.movementType = :movementType))
                 AND (:start IS NULL OR sm.createdAt >= :start)
                 AND (:end IS NULL OR sm.createdAt <= :end)
+                ORDER BY sm.createdAt DESC
             """)
     Page<StockMovementSummaryDTO> findAllProjected(Pageable pageable,
                                                    @Param("start") LocalDateTime start,
