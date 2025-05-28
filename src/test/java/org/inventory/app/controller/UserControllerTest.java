@@ -48,13 +48,13 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/users/activate/{userId} - should activate user")
+    @DisplayName("Post /api/users/activate/{userId} - should activate user")
     void activateUser() throws Exception {
         when(jwtTokenProvider.getTokenFromRequest(any(HttpServletRequest.class))).thenReturn("Token");
         when(jwtTokenProvider.validateToken(anyString())).thenReturn(true);
         when(jwtTokenProvider.getUsername(anyString())).thenReturn("testRoleUserManagement");
 
-        performGetRequest(BASE_URL_USERS + "/activate/" + testUser.getId())
+        performPostRequest(BASE_URL_USERS + "/activate/" + testUser.getId(), "{}")
                 .andExpect(status().isOk())
                 .andExpect(content().string("User activated successfully"));
     }
