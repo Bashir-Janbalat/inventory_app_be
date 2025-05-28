@@ -108,3 +108,9 @@ Die zentrale Idee ist:
     - Mengen und Preise ≥ 0
     - Eindeutige `sku` pro Produkt
     - Eindeutiger Name für Marken & Kategorien
+
+## API Documentation
+
+The full API documentation is available via Swagger UI:
+
+👉 [Swagger UI](http://localhost:8081/swagger-ui/index.html)

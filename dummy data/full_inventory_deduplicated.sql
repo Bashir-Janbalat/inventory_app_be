@@ -2124,8 +2124,7 @@ VALUES ('https://cdn.dummyjson.com/products/images/womens-watches/Womens%20Wrist
         194);
 
 
-insert into warehouses (address, name)
-values ("Berlin Lager", "Berlin Lager");
+insert into warehouses (address, name) values ("Berlin Lager", "Berlin Lager");
 
 
 INSERT INTO stock (product_id, quantity, warehouse_id)
@@ -3092,21 +3091,16 @@ INSERT INTO product_attributes (product_id, attribute_id, attribute_value)
 VALUES (194, 2, '50g');
 INSERT INTO product_attributes (product_id, attribute_id, attribute_value)
 VALUES (194, 5, '50g');
-INSERT INTO roles (id, name)
-VALUES (1, 'ROLE_ADMIN'),
-       (2, 'ROLE_USER'),
-       (3, 'ROLE_MODERATOR'),
-       (4, 'ROLE_USER_MANAGEMENT');
+
 
 INSERT INTO users (id, name, username, email, password)
-VALUES (1, 'Ali Ahmed', 'ali.a', 'ali.ahmed@example.com', 'cGFzc3dvcmQxMjM='),
-       (2, 'Sara Khalid', 'sara.k', 'sara.khalid@example.com', 'bXlzZWNyZXQ='),
-       (3, 'Omar Farid', 'omar.f', 'omar.farid@example.com', 'bGV0bWVpbg=='),
-       (4, 'Noura Samir', 'noura.s', 'noura.samir@example.com', 'd2VsY29tZQ==');
+VALUES (2, 'Ali Ahmed', 'ali.a', 'ali.ahmed@example.com', 'cGFzc3dvcmQxMjM='),
+       (3, 'Sara Khalid', 'sara.k', 'sara.khalid@example.com', 'bXlzZWNyZXQ='),
+       (4, 'Omar Farid', 'omar.f', 'omar.farid@example.com', 'bGV0bWVpbg=='),
+       (5, 'Noura Samir', 'noura.s', 'noura.samir@example.com', 'd2VsY29tZQ==');
 
 INSERT INTO user_roles (user_id, role_id)
-VALUES (1, 1),
-       (1, 2),
+VALUES (2, 1),
        (2, 2),
        (2, 4),
        (3, 3),
