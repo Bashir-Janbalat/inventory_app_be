@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok().body(users);
     }
 
-    @GetMapping("/activate/{userId}")
+    @PostMapping("/activate/{userId}")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
     public ResponseEntity<String> activateUser(@PathVariable Long userId) {
         userService.activateUser(userId);
