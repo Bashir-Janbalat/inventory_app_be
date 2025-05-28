@@ -72,7 +72,7 @@ public class UserControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/users/roles/create-role - should create new role")
+    @DisplayName("POST /api/users/roles - should create new role")
     void createRole() throws Exception {
         when(jwtTokenProvider.getTokenFromRequest(any(HttpServletRequest.class))).thenReturn("Token");
         when(jwtTokenProvider.validateToken(anyString())).thenReturn(true);
@@ -80,13 +80,13 @@ public class UserControllerTest extends BaseControllerTest {
 
         String roleName = "ROLE_TEST";
         String content = MAPPER.writeValueAsString(RoleDTO.builder().name(roleName).build());
-        performPostRequest(BASE_URL_USERS + "/roles/create-role",content)
+        performPostRequest(BASE_URL_USERS + "/roles", content)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is(roleName)));
     }
 
     @Test
-    @DisplayName("POST /api/users/assign-role - should assign role to user")
+    @DisplayName("POST /api/users/{userId}/roles- should assign role to user")
     void assignRoleToUser() throws Exception {
         when(jwtTokenProvider.getTokenFromRequest(any(HttpServletRequest.class))).thenReturn("Token");
         when(jwtTokenProvider.validateToken(anyString())).thenReturn(true);
@@ -95,7 +95,7 @@ public class UserControllerTest extends BaseControllerTest {
         Role role = roleRepository.save(new Role("ROLE_CUSTOM"));
         String content = MAPPER.writeValueAsString(RoleDTO.builder().name(role.getName()).build());
 
-        performPostRequest(BASE_URL_USERS + "/assign-role?userId=" + testUser.getId(),
+        performPostRequest(BASE_URL_USERS + "/" + testUser.getId() + "/roles",
                 content)
                 .andExpect(status().isNoContent());
     }
