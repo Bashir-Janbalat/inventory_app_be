@@ -30,12 +30,6 @@ jobs:
           echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
           echo "Tag = ${GITHUB_REF#refs/tags/}"
 
-      - name: Set Maven version from Git tag
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "Using version: $VERSION"
-          mvn versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
-
       - name: Build and package the app
         run: mvn clean package -DskipTests
 

@@ -10,5 +10,5 @@
  ▸ Application : ${spring.application.name}
  ▸ Profile     : ${spring.profiles.active}
  ▸ Database    : ${spring.datasource.url}
- ▸ Version     : ${project.version}
+ ▸ Version     : ${app.version}
  ▸ JWT Secured 🔐
