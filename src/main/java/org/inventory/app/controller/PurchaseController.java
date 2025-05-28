@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class PurchaseController {
     private final PurchaseService purchaseService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PurchaseDTO> createPurchase(@Valid @RequestBody PurchaseDTO purchaseDTO) {
         log.info("Request to create Purchase: {}", purchaseDTO);
         PurchaseDTO created = purchaseService.createPurchase(purchaseDTO);
@@ -60,6 +62,7 @@ public class PurchaseController {
     }
 
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updatePurchaseStatus(@PathVariable Long id, @RequestParam PurchaseStatus status) {
         log.info("Request to update purchase status - id: {}, status: {}", id, status);
         purchaseService.updatePurchaseStatus(id, status);
