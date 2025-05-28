@@ -1,5 +1,7 @@
 package org.inventory.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +28,12 @@ import java.util.List;
 @RequestMapping("/api/purchases")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Purchases", description = "Endpoints for managing purchases")
 public class PurchaseController {
 
     private final PurchaseService purchaseService;
 
+    @Operation(summary = "Create a new purchase (ADMIN role required)")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PurchaseDTO> createPurchase(@Valid @RequestBody PurchaseDTO purchaseDTO) {
@@ -38,6 +42,7 @@ public class PurchaseController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get paginated purchases with optional filtering by date")
     @GetMapping
     public ResponseEntity<PagedResponseDTO<PurchaseDTO>>
     getAllPurchases(@RequestParam(defaultValue = "0") int page,
@@ -54,6 +59,7 @@ public class PurchaseController {
         return ResponseEntity.ok(purchases);
     }
 
+    @Operation(summary = "Get purchase details by ID")
     @GetMapping("/{id}")
     public ResponseEntity<PurchaseDTO> getPurchaseById(@PathVariable Long id) {
         log.info("Request to get purchase by id: {}", id);
@@ -61,6 +67,7 @@ public class PurchaseController {
         return ResponseEntity.ok(purchaseDTO);
     }
 
+    @Operation(summary = "Update status of a purchase (ADMIN role required)")
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updatePurchaseStatus(@PathVariable Long id, @RequestParam PurchaseStatus status) {
@@ -69,11 +76,14 @@ public class PurchaseController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Get products supplied by a specific supplier")
     @GetMapping("/supplierProducts")
     public ResponseEntity<List<PurchaseProductDTO>> getProductsForSupplier(@RequestParam Long supplierId) {
         ValueWrapper<List<PurchaseProductDTO>> productsForSupplier = purchaseService.getProductsForSupplier(supplierId);
         return ResponseEntity.ok(productsForSupplier.getValue());
     }
+
+    @Operation(summary = "Get products filtered by product status")
     @GetMapping("/statusProducts")
     public ResponseEntity<List<PurchaseProductDTO>> getProductsByStatus(@RequestParam ProductStatus productStatus) {
         ValueWrapper<List<PurchaseProductDTO>> productsForSupplier = purchaseService.getProductsByStatus(productStatus);

@@ -1,5 +1,7 @@
 package org.inventory.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 @Slf4j
+@Tag(name = "Authentication", description = "Endpoints for user authentication and password management")
 public class AuthController {
 
     private final AuthService authService;
@@ -26,6 +29,7 @@ public class AuthController {
     private final PasswordResetTokenService passwordResetTokenService;
     private final UserService userService;
 
+    @Operation(summary = "User login", description = "Authenticate user and generate JWT token")
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDTO loginDto) {
 
@@ -37,12 +41,14 @@ public class AuthController {
         return new ResponseEntity<>(authResponseDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "User registration", description = "Register a new user account")
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@RequestBody @Valid UserDTO userDTO) {
         authService.signup(userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "User logout", description = "Invalidate the JWT token to log out user")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
@@ -51,12 +57,14 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Request password reset link", description = "Send password reset link to user's email")
     @PostMapping("/send-reset-link")
     public ResponseEntity<String> requestReset(@RequestParam @Email String email) {
         passwordResetTokenService.createTokenForUser(email);
         return ResponseEntity.ok("Password reset link sent to your email.");
     }
 
+    @Operation(summary = "Reset password", description = "Reset user's password using reset token")
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody @Valid PasswordResetRequestDTO request) {
         Optional<PasswordResetTokenDTO> resetTokenDTO = passwordResetTokenService.validateToken(request.getToken());

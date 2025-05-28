@@ -1,5 +1,7 @@
 package org.inventory.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.ErrorLogDTO;
 import org.inventory.app.dto.PagedResponseDTO;
@@ -15,11 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/dev/logs")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('DEVELOPER')")
+@Tag(name = "Error Logs", description = "Manage error logs and filtering")
 public class ErrorLogController {
 
     private final ErrorLogService errorLogService;
 
-
+    @Operation(summary = "Get filtered error logs",
+            description = "Retrieve paginated error logs filtered by date, status, type, path, message, and resolution status")
     @GetMapping
     public ResponseEntity<PagedResponseDTO<ErrorLogDTO>> getAllLogs(
             @RequestParam(defaultValue = "0") int page,
@@ -38,6 +42,8 @@ public class ErrorLogController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Mark error log as resolved",
+            description = "Mark a specific error log as resolved by its ID")
     @PutMapping("/{id}/resolve")
     public ResponseEntity<Void> markAsResolved(@PathVariable Long id) {
         errorLogService.markAsResolved(id);

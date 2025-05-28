@@ -1,5 +1,7 @@
 package org.inventory.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.common.ValueWrapper;
@@ -17,17 +19,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/brands")
 @RequiredArgsConstructor
+@Tag(name = "Brands", description = "Operations related to product brands")
 public class BrandController {
 
     private final BrandService brandService;
 
-
+    @Operation(summary = "Create a new brand", description = "Create a new product brand")
     @PostMapping
     public ResponseEntity<BrandDTO> createBrand(@RequestBody @Valid BrandDTO brandDTO) {
         BrandDTO createdBrand = brandService.createBrand(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBrand);
     }
 
+    @Operation(summary = "Get paginated list of brands", description = "Retrieve a paginated list of brands with sorting")
     @GetMapping
     public ResponseEntity<PagedResponseDTO<BrandDTO>> getAllBrands(
             @RequestParam(defaultValue = "0") Integer page,
@@ -40,22 +44,26 @@ public class BrandController {
         return ResponseEntity.ok(brands);
     }
 
+    @Operation(summary = "Get brand by ID", description = "Retrieve a brand's details by its ID")
     @GetMapping("/{id}")
     public ResponseEntity<BrandDTO> getBrandById(@PathVariable Long id) {
         return ResponseEntity.ok(brandService.getBrandById(id));
     }
 
+    @Operation(summary = "Update brand by ID", description = "Update an existing brand's details by its ID")
     @PutMapping("/{id}")
     public ResponseEntity<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDTO) {
         return ResponseEntity.ok(brandService.updateBrand(id, brandDTO));
     }
 
+    @Operation(summary = "Get total number of brands", description = "Get the total count of all brands")
     @GetMapping("/brand-size")
     public ResponseEntity<Long> getTotalBrandCount() {
         ValueWrapper<Long> count = brandService.getTotalBrandCount();
         return ResponseEntity.ok(count.getValue());
     }
 
+    @Operation(summary = "Delete brand by ID", description = "Delete a brand by its ID (ADMIN role required)")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteBrand(@PathVariable Long id) {

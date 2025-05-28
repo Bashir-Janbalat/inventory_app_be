@@ -1,6 +1,8 @@
 package org.inventory.app.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +26,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @Slf4j
+@Tag(name = "Users", description = "Operations related to user and role management")
 public class UserController {
 
     private final UserService userService;
     private final RoleService roleService;
 
+
+    @Operation(summary = "Get all users with pagination (USER_MANAGEMENT or USER_VIEW role required)")
     @GetMapping
     @PreAuthorize("hasAnyRole('USER_VIEW', 'USER_MANAGEMENT')")
     public ResponseEntity<PagedResponseDTO<UserDTO>> getAllUsers(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
@@ -38,6 +43,7 @@ public class UserController {
         return ResponseEntity.ok().body(users);
     }
 
+    @Operation(summary = "Activate a user account (USER_MANAGEMENT role required)")
     @PostMapping("/activate/{userId}")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
     public ResponseEntity<String> activateUser(@PathVariable Long userId) {
@@ -45,26 +51,30 @@ public class UserController {
         return ResponseEntity.ok("User activated successfully");
     }
 
+    @Operation(summary = "Get all roles (USER_MANAGEMENT or USER_VIEW role required)")
     @GetMapping("/roles")
     @PreAuthorize("hasAnyRole('USER_VIEW', 'USER_MANAGEMENT')")
     public ResponseEntity<List<RoleDTO>> getAllRoles() {
         return ResponseEntity.ok().body(roleService.getAllRoles().getValue());
     }
 
-    @PostMapping("/assign-role")
+    @Operation(summary = "Assign a role to a user (USER_MANAGEMENT role required)")
+    @PostMapping("/{userId}/roles")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
-    public ResponseEntity<Void> assignRole(@RequestParam Long userId, @RequestBody @Valid RoleDTO role) {
+    public ResponseEntity<Void> assignRole(@PathVariable Long userId, @RequestBody @Valid RoleDTO role) {
         userService.assignRoleFor(userId, role);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/roles/create-role")
+    @Operation(summary = "Create a new role (USER_MANAGEMENT role required)")
+    @PostMapping("/roles")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
     public ResponseEntity<RoleDTO> createRole(@RequestBody @Valid RoleDTO role) {
         ValueWrapper<RoleDTO> roleDTO = roleService.createRole(role.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(roleDTO.getValue());
     }
 
+    @Operation(summary = "Remove a role from a user (USER_MANAGEMENT role required)")
     @DeleteMapping("/{userId}/roles/{roleId}")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
     public ResponseEntity<Void> removeRoleFromUser(@PathVariable Long userId, @PathVariable Long roleId) {
@@ -72,7 +82,8 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/roles/remove-role-from-all/{roleId}")
+    @Operation(summary = "Delete a role from all users and system (USER_MANAGEMENT role required)")
+    @DeleteMapping("/roles/{roleId}")
     @PreAuthorize("hasRole('USER_MANAGEMENT')")
     public ResponseEntity<Void> removeRoleFromAllUsers(@PathVariable Long roleId) {
         roleService.deleteRole(roleId);

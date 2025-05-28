@@ -1,5 +1,7 @@
 package org.inventory.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.enums.MovementType;
@@ -20,11 +22,13 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/stockMovements")
 @RequiredArgsConstructor
+@Tag(name = "Stock Movements", description = "Endpoints for managing stock movements")
 public class StockMovementController {
 
 
     private final StockMovementService stockMovementService;
 
+    @Operation(summary = "Get paginated stock movements with optional filters")
     @GetMapping
     public ResponseEntity<PagedResponseDTO<StockMovementSummaryDTO>> getAll(@RequestParam(defaultValue = "0") int page,
                                                                             @RequestParam(defaultValue = "10") int size,
