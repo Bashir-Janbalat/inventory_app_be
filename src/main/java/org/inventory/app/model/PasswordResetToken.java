@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "password_reset_tokens")
+@Table(name = "password_reset_token_users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

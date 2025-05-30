@@ -178,12 +178,12 @@ CREATE TABLE purchase_items
 CREATE INDEX idx_purchase_supplier ON purchases (supplier_id);
 CREATE INDEX idx_item_product ON purchase_items (product_id);
 
--- changeset Bashir:17
+--changeset Bashir:17
 ALTER TABLE users
     ADD active BOOLEAN NOT NULL DEFAULT FALSE;
 
--- changeset Bashir:18
-CREATE TABLE password_reset_tokens
+--changeset Bashir:18
+CREATE TABLE password_reset_token_users
 (
     id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     token   VARCHAR(512) NOT NULL,
@@ -191,7 +191,8 @@ CREATE TABLE password_reset_tokens
     used    BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_user_password_reset FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
--- changeset Bashir:19
+
+--changeset Bashir:19
 CREATE TABLE error_logs
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -201,6 +202,38 @@ CREATE TABLE error_logs
     message     TEXT,
     path        VARCHAR(512),
     stack_trace TEXT,
-    resolved  BOOLEAN DEFAULT FALSE,
-    resolved_at TIMESTAMP NULL
+    resolved    BOOLEAN DEFAULT FALSE,
+    resolved_at TIMESTAMP   NULL
+);
+
+--changeset Bashir:20
+CREATE TABLE customers
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email      VARCHAR(255) NOT NULL UNIQUE,
+    name       VARCHAR(255),
+    password   VARCHAR(255) NOT NULL,
+    phone      VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+--changeset Bashir:21
+CREATE TABLE password_reset_token_customers
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token       VARCHAR(512) NOT NULL,
+    customer_id BIGINT       NOT NULL,
+    used        BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_customer_password_reset FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
+);
+
+--changeset Bashir:22
+CREATE TABLE customer_roles
+(
+    customer_id BIGINT NOT NULL,
+    role_id     BIGINT NOT NULL,
+    PRIMARY KEY (customer_id, role_id),
+    CONSTRAINT FK_customer_roles_role FOREIGN KEY (role_id) REFERENCES roles (id),
+    CONSTRAINT FK_customer_roles_customer FOREIGN KEY (customer_id) REFERENCES customers (id)
 );
