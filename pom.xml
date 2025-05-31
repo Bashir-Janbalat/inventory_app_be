@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.inventory.app</groupId>
-    <artifactId>inventory_app</artifactId>
+    <artifactId>inventory_app_be</artifactId>
     <version>0.0.1-SNAPSHOT</version> <!-- lookup finalName -->
     <name>inventory_app</name>
     <description>inventory_app</description>
