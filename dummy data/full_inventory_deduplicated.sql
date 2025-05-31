@@ -2124,7 +2124,7 @@ VALUES ('https://cdn.dummyjson.com/products/images/womens-watches/Womens%20Wrist
         194);
 
 
-insert into warehouses (address, name) values ("Berlin Lager", "Berlin Lager");
+insert into warehouses (address, name) values ('Berlin Lager', 'Berlin Lager');
 
 
 INSERT INTO stock (product_id, quantity, warehouse_id)
@@ -3107,4 +3107,9 @@ VALUES (2, 1),
        (3, 2),
        (4, 2),
        (4, 4);
+
+update products set created_at = '2025-02-20 07:29:11',product_status='DELETED' where id > 0 and id < 20;
+update products set created_at = '2025-03-20 07:29:11',product_status='DISCONNECTED' where id > 20 and id < 40;
+update products set created_at = '2025-01-20 07:29:11',product_status='ACTIVE' where id > 40 and id < 100000;
+
 
