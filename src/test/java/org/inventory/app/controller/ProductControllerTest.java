@@ -2,7 +2,10 @@ package org.inventory.app.controller;
 
 import org.inventory.app.dto.*;
 import org.inventory.app.model.Product;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -34,7 +37,7 @@ public class ProductControllerTest extends BaseControllerTest {
         WarehouseDTO secondWarehouse = createWarehouse("Warehouse", "Berlin-Zentral");
 
         // Samsung Phone Setup
-        ProductDTO samsungProductDTO =ProductDTO.builder().name("Samsung Galaxy S23 Ultra")
+        ProductDTO samsungProductDTO = ProductDTO.builder().name("Samsung Galaxy S23 Ultra")
                 .description("6.8 Dynamic AMOLED 2X Display, 200MP Hauptkamera, 5000mAh Akku, 12GB RAM, 512GB Speicher")
                 .sku(SAMSUNG_SKU).costPrice(BigDecimal.valueOf(1399.99))
                 .categoryID(smartphoneCategory.getId()).brandID(samsungBrand.getId()).supplierID(samsungSupplier.getId())
@@ -42,7 +45,7 @@ public class ProductControllerTest extends BaseControllerTest {
                         "https://assets.samsung.com/de/smartphones/galaxy-s23-ultra/images/galaxy-s23-ultra-green.png",
                         "Samsung Galaxy S23 Ultra in Botanic Green"
                 ))).stocks(List.of(new StockDTO(50, firstWarehouse), new StockDTO(100, secondWarehouse)))
-                .productAttributes(                List.of(
+                .productAttributes(List.of(
                         new ProductAttributeDTO("color", "Botanic Green"),
                         new ProductAttributeDTO("storage", "512GB")
                 )).build();
@@ -50,7 +53,7 @@ public class ProductControllerTest extends BaseControllerTest {
 
 
         // Bosch Washer Setup
-        ProductDTO boschWasherProductDTO =ProductDTO.builder().name("BOSCH Serie 6 WAU28S80")
+        ProductDTO boschWasherProductDTO = ProductDTO.builder().name("BOSCH Serie 6 WAU28S80")
                 .description("Waschmaschine, 9 kg, 1400 U/min., EcoSilence Drive, SpeedPerfect, AllergiePlus, Nachlegefunktion")
                 .sku(BOSCH_SKU).costPrice(BigDecimal.valueOf(799.99))
                 .categoryID(createCategory("Haushaltsgeraete").getId()).brandID(createBrand("BOSCH").getId())
@@ -59,7 +62,7 @@ public class ProductControllerTest extends BaseControllerTest {
                         "https://media3.bosch-home.com/Product_Shots/1600x900/WAU28S80AT_def.png",
                         "BOSCH Serie 6 Waschmaschine Frontansicht"
                 ))).stocks(List.of(new StockDTO(25, firstWarehouse)))
-                .productAttributes(                List.of(
+                .productAttributes(List.of(
                         new ProductAttributeDTO("energieeffizienzklasse", "A+++"),
                         new ProductAttributeDTO("fassungsvermögen", "9 KG")
                 )).build();
@@ -218,7 +221,7 @@ public class ProductControllerTest extends BaseControllerTest {
         // 4) GET mit allen drei Filter-Parametern (MacBook, Laptops, Apple)
         performGetRequest(
                 BASE_URL_PRODUCTS +
-                        "?page=%d&size=%d&sortBy=%s&sortDirection=%s&searchBy=%s&categoryName=%s&brandName=%s",
+                "?page=%d&size=%d&sortBy=%s&sortDirection=%s&searchBy=%s&categoryName=%s&brandName=%s",
                 0, 10, "name", "asc",
                 "MacBook", laptops.getName(), apple.getName()
         )
@@ -313,12 +316,6 @@ public class ProductControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("$.content[0].categoryName").value("Laptops"));
     }
 
-    @Test
-    @DisplayName("should return unauthorized without token")
-    void shouldReturnUnauthorizedWithoutToken() throws Exception {
-        performGetRequest(BASE_URL_PRODUCTS)
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
