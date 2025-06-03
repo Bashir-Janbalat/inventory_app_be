@@ -41,6 +41,7 @@ public class SecurityConfig {
                     authorize.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
                     authorize.requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll();
                     authorize.requestMatchers(HttpMethod.GET, "/api/products/**").permitAll();
+                    authorize.requestMatchers(HttpMethod.GET, "/api/brands/**").permitAll();
                     authorize.anyRequest().authenticated();
                 }).httpBasic(Customizer.withDefaults());
 
