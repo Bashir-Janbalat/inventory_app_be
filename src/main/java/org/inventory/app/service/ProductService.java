@@ -18,5 +18,6 @@ public interface ProductService {
 
     PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
                                                 String brandName, String supplierName, String sortDirection,
+                                                Integer minPrice, Integer maxPrice,
                                                 String sortBy, ProductStatus productStatus , Pageable pageable);
 }

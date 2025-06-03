@@ -3112,4 +3112,6 @@ update products set created_at = '2025-02-20 07:29:11',product_status='DELETED' 
 update products set created_at = '2025-03-20 07:29:11',product_status='DISCONNECTED' where id > 20 and id < 40;
 update products set created_at = '2025-01-20 07:29:11',product_status='ACTIVE' where id > 40 and id < 100000;
 
+UPDATE products SET selling_price = cost_price;
+
 

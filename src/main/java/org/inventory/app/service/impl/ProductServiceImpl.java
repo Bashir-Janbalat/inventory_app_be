@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary","monthlyProductCount"}, allEntries = true),
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary", "stockStatusSummary", "monthlyProductCount"}, allEntries = true),
     })
     public ProductDTO createProduct(ProductDTO dto) {
         if (dto == null) {
@@ -99,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary","monthlyProductCount"}, allEntries = true),
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary", "stockStatusSummary", "monthlyProductCount"}, allEntries = true),
     })
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product product = productRepository.findById(id)
@@ -207,7 +207,7 @@ public class ProductServiceImpl implements ProductService {
     @Caching(evict = {
             @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
-            @CacheEvict(value = {"dashboardSummary", "productStatusSummary","stockStatusSummary","monthlyProductCount"}, allEntries = true)
+            @CacheEvict(value = {"dashboardSummary", "productStatusSummary", "stockStatusSummary", "monthlyProductCount"}, allEntries = true)
     })
     public void deleteProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
@@ -232,13 +232,16 @@ public class ProductServiceImpl implements ProductService {
             value = "searchProducts",
             key = "'search:' + #searchBy + ':categoryName:' + #categoryName + ':brandName:' + #brandName +" +
                   "':supplierName:' + #supplierName " +
+                  "+ ':minPrice:' + #minPrice + ':maxPrice:' + #maxPrice " +
                   "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
                   "+ ':productStatus:' + #productStatus" +
                   "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
                                                        String brandName, String supplierName, String sortDirection,
+                                                       Integer minPrice, Integer maxPrice,
                                                        String sortBy, ProductStatus productStatus, Pageable pageable) {
-        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty() && productStatus == null) {
+        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()
+            && productStatus == null && maxPrice == null && minPrice == null) {
             log.info("Empty search parameters - fetching all products.");
             return getAllProducts(pageable);
         }
@@ -248,7 +251,8 @@ public class ProductServiceImpl implements ProductService {
                 .and(ProductSpecifications.hasCategory(categoryName))
                 .and(ProductSpecifications.hasBrand(brandName))
                 .and(ProductSpecifications.hasSupplier(supplierName))
-                .and(ProductSpecifications.hasStatus(productStatus));
+                .and(ProductSpecifications.hasStatus(productStatus))
+                .and(ProductSpecifications.hasPriceBetween(minPrice, maxPrice));
 
         Page<Product> result = productRepository.findAll(spec, pageable);
         log.info("Fetched {} products based on search filters from DB (and cached in searchProducts)", result.getTotalElements());

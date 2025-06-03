@@ -37,6 +37,8 @@ public class ProductController {
             @RequestParam(defaultValue = "") String categoryName,
             @RequestParam(defaultValue = "") String brandName,
             @RequestParam(defaultValue = "") String supplierName,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) ProductStatus productStatus) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by(sortBy).descending() :
@@ -48,6 +50,8 @@ public class ProductController {
                 brandName,
                 supplierName,
                 sortDirection,
+                minPrice,
+                maxPrice,
                 sortBy,
                 productStatus,
                 pageable

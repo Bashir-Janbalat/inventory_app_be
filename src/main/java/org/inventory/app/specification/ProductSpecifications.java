@@ -1,9 +1,12 @@
 package org.inventory.app.specification;
 
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
 import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.model.Product;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.math.BigDecimal;
 
 public class ProductSpecifications {
 
@@ -60,5 +63,20 @@ public class ProductSpecifications {
             return cb.equal(root.get("productStatus"), productStatus);
         };
 
+    }
+
+    public static Specification<Product> hasPriceBetween(Integer minPrice, Integer maxPrice) {
+        return (root, query, criteriaBuilder) -> {
+            Path<BigDecimal> pricePath = root.get("sellingPrice");
+
+            if (minPrice == null && maxPrice == null) return null;
+            if (minPrice != null && maxPrice != null) {
+                return criteriaBuilder.between(pricePath, BigDecimal.valueOf(minPrice), BigDecimal.valueOf(maxPrice));
+            } else if (minPrice != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(pricePath, BigDecimal.valueOf(minPrice));
+            } else {
+                return criteriaBuilder.lessThanOrEqualTo(pricePath, BigDecimal.valueOf(maxPrice));
+            }
+        };
     }
 }
