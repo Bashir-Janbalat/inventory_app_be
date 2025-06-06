@@ -237,3 +237,36 @@ CREATE TABLE customer_roles
     CONSTRAINT FK_customer_roles_role FOREIGN KEY (role_id) REFERENCES roles (id),
     CONSTRAINT FK_customer_roles_customer FOREIGN KEY (customer_id) REFERENCES customers (id)
 );
+
+-- changeset Bashir:23
+CREATE TABLE cart
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id BIGINT,
+    session_id  VARCHAR(255),
+    status      ENUM ('ACTIVE', 'CONVERTED', 'EXPIRED') DEFAULT 'ACTIVE',
+    created_at  TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT FK_cart_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
+);
+
+-- changeset Bashir:24
+CREATE TABLE cart_items
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cart_id    BIGINT         NOT NULL,
+    product_id BIGINT         NOT NULL,
+    quantity   INT            NOT NULL CHECK (quantity > 0),
+    unit_price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_cart_product (cart_id, product_id),
+    CONSTRAINT FK_cart_item_cart FOREIGN KEY (cart_id) REFERENCES cart (id) ON DELETE CASCADE,
+    CONSTRAINT FK_cart_item_product FOREIGN KEY (product_id) REFERENCES products (id)
+);
+
+-- changeset Bashir:25
+CREATE INDEX idx_cart_customer_id ON cart (customer_id);
+CREATE INDEX idx_cart_session_id ON cart (session_id);
+CREATE INDEX idx_cart_items_cart_id ON cart_items (cart_id);
+CREATE INDEX idx_cart_items_product_id ON cart_items (product_id);
