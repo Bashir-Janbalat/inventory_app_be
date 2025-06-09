@@ -32,7 +32,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier","supplierCount","dashboardSummary"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount", "dashboardSummary"}, allEntries = true)
     public SupplierDTO createSupplier(SupplierDTO supplierDTO) {
         String name = supplierDTO.getName().trim();
         String email = supplierDTO.getContactEmail().trim();
@@ -66,13 +66,14 @@ public class SupplierServiceImpl implements SupplierService {
     @Cacheable(value = "suppliers", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<SupplierDTO> getAllSuppliers(Pageable pageable) {
         Page<Supplier> suppliers = supplierRepository.findAll(pageable);
-        log.info("Fetched {} suppliers from DB (and cached in 'suppliers')", suppliers.getTotalElements());
+        log.info("Fetched {} suppliers from DB (page {} size {}) (and cached in 'suppliers')",
+                suppliers.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(suppliers.map(supplierMapper::toDto));
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier", "supplierCount","dashboardSummary"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount", "dashboardSummary"}, allEntries = true)
     public SupplierDTO updateSupplier(Long id, SupplierDTO supplierDTO) {
         supplierRepository.findById(id)
                 .orElseThrow(() -> {
@@ -100,7 +101,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"suppliers", "supplier", "supplierCount","dashboardSummary"}, allEntries = true)
+    @CacheEvict(value = {"suppliers", "supplier", "supplierCount", "dashboardSummary"}, allEntries = true)
     public void deleteSupplier(Long id) {
         if (!supplierRepository.existsById(id)) {
             log.warn("Attempted to delete non-existent supplier with ID {}", id);

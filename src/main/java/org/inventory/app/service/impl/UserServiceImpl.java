@@ -92,7 +92,8 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "users", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<UserDTO> getAllUsers(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
-        log.info("Fetched {} users", users.getTotalElements());
+        log.info("Fetched {} users from DB (page {} size {}) (and cached in 'users') ",
+                users.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(users.map(userMapper::toDto));
     }
 

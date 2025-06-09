@@ -57,7 +57,8 @@ public class ProductServiceImpl implements ProductService {
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<ProductDTO> getAllProducts(Pageable pageable) {
         Page<Product> productPage = productRepository.findAll(pageable);
-        log.info("Fetched {} products from DB (and cached in 'products')", productPage.getTotalElements());
+        log.info("Fetched {} products from DB (page {} size {}) (and cached in 'products')",
+                productPage.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(productPage.map(productMapper::toDto));
     }
 
@@ -242,7 +243,6 @@ public class ProductServiceImpl implements ProductService {
                                                        String sortBy, ProductStatus productStatus, Pageable pageable) {
         if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()
             && productStatus == null && maxPrice == null && minPrice == null) {
-            log.info("Empty search parameters - fetching all products.");
             return getAllProducts(pageable);
         }
 
@@ -255,7 +255,8 @@ public class ProductServiceImpl implements ProductService {
                 .and(ProductSpecifications.hasPriceBetween(minPrice, maxPrice));
 
         Page<Product> result = productRepository.findAll(spec, pageable);
-        log.info("Fetched {} products based on search filters from DB (and cached in searchProducts)", result.getTotalElements());
+        log.info("Fetched {} products based on search filters from DB (page {} size {}) (and cached in searchProducts)",
+                result.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(result.map(productMapper::toDto));
     }
 

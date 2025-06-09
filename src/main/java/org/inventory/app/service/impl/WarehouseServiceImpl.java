@@ -47,7 +47,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     public PagedResponseDTO<WarehouseDTO> getPagedWarehouses(Pageable pageable) {
         Page<Warehouse> warehouses = warehouseRepository.findAll(pageable);
         log.info("Fetched {} warehouses from DB (page {} size {}) (and cached in pagedWarehouses)",
-                warehouses.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+                warehouses.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(warehouses.map(warehouseMapper::toDto));
     }
 

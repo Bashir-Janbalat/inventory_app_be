@@ -79,7 +79,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchases = purchaseRepository.findAll(pageable);
         }
 
-        log.info("Fetched {} purchases (page {} size {}) from DB (and cached in 'purchases')", purchases.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        log.info("Fetched {} purchases (page {} size {}) from DB (and cached in 'purchases')", purchases.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(purchases.map(purchaseMapper::toDto));
     }
 

@@ -70,7 +70,7 @@ public class BrandServiceImpl implements BrandService {
     @Cacheable(value = "brands", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<BrandDTO> getAllBrands(Pageable pageable) {
         Page<Brand> brands = brandRepository.findAll(pageable);
-        log.info("Fetched {} brands from DB (page {} size {}) (and cached in brands)", brands.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        log.info("Fetched {} brands from DB (page {} size {}) (and cached in brands)", brands.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(brands.map(brandMapper::toDto));
     }
 

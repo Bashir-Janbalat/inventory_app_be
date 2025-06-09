@@ -69,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Cacheable(value = "categories", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponseDTO<CategoryDTO> getAllCategories(Pageable pageable) {
         Page<Category> categories = categoryRepository.findAll(pageable);
-        log.info("Fetched {} categories (page {} size {}) from DB (and cached in 'categories')", categories.getTotalElements(), pageable.getPageNumber(), pageable.getPageSize());
+        log.info("Fetched {} categories (page {} size {}) from DB (and cached in 'categories')", categories.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(categories.map(categoryMapper::toDto));
     }
 
