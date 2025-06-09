@@ -270,3 +270,34 @@ CREATE INDEX idx_cart_customer_id ON cart (customer_id);
 CREATE INDEX idx_cart_session_id ON cart (session_id);
 CREATE INDEX idx_cart_items_cart_id ON cart_items (cart_id);
 CREATE INDEX idx_cart_items_product_id ON cart_items (product_id);
+
+-- changeset Bashir:26
+CREATE TABLE wishlist
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id BIGINT,
+    session_id  VARCHAR(255),
+    status      ENUM ('ACTIVE', 'CONVERTED', 'EXPIRED') DEFAULT 'ACTIVE',
+    created_at  TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP                               DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT FK_wishlist_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
+);
+
+-- changeset Bashir:27
+CREATE TABLE wishlist_items
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    wishlist_id BIGINT NOT NULL,
+    product_id  BIGINT NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_wishlist_product (wishlist_id, product_id),
+    CONSTRAINT FK_wishlist_item_wishlist FOREIGN KEY (wishlist_id) REFERENCES wishlist (id) ON DELETE CASCADE,
+    CONSTRAINT FK_wishlist_item_product FOREIGN KEY (product_id) REFERENCES products (id)
+);
+
+-- changeset Bashir:28
+CREATE INDEX idx_wishlist_customer_id ON wishlist (customer_id);
+CREATE INDEX idx_wishlist_session_id ON wishlist (session_id);
+CREATE INDEX idx_wishlist_items_wishlist_id ON wishlist_items (wishlist_id);
+CREATE INDEX idx_wishlist_items_product_id ON wishlist_items (product_id);
