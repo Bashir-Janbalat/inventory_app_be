@@ -1,6 +1,7 @@
 --liquibase formatted sql
 
 --changeset Bashir:1
+--comment: 'Create attributes table to store product attributes like color, size, etc.'
 CREATE TABLE attributes
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -8,6 +9,7 @@ CREATE TABLE attributes
 );
 
 --changeset Bashir:2
+--comment: 'Create brands table to store product brand information'
 CREATE TABLE brands
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -18,6 +20,7 @@ CREATE TABLE brands
 );
 
 --changeset Bashir:3
+--comment: 'Create categories table to classify products into different groups'
 CREATE TABLE categories
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -28,6 +31,7 @@ CREATE TABLE categories
 );
 
 --changeset Bashir:4
+--comment: 'Create roles table for user and customer roles'
 CREATE TABLE roles
 (
     id   BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -35,6 +39,7 @@ CREATE TABLE roles
 );
 
 --changeset Bashir:5
+--comment: 'Create suppliers table to store supplier details'
 CREATE TABLE suppliers
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -48,6 +53,7 @@ CREATE TABLE suppliers
 );
 
 --changeset Bashir:6
+--comment: 'Create products table to store product information and references to brand, category, and supplier'
 CREATE TABLE products
 (
     id             BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -69,6 +75,7 @@ CREATE TABLE products
 );
 
 --changeset Bashir:7
+--comment: 'Create images table to store product image URLs'
 CREATE TABLE images
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -79,6 +86,7 @@ CREATE TABLE images
 );
 
 --changeset Bashir:8
+--comment: 'Create product_attributes table to map products to their attributes'
 CREATE TABLE product_attributes
 (
     attribute_value VARCHAR(255) NULL,
@@ -90,6 +98,7 @@ CREATE TABLE product_attributes
 );
 
 --changeset Bashir:9
+--comment: 'Create stock_movements table to track inventory movements'
 CREATE TABLE stock_movements
 (
     id                    BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -107,6 +116,7 @@ CREATE TABLE stock_movements
 );
 
 --changeset Bashir:10
+--comment: 'Create users table to store application user details'
 CREATE TABLE users
 (
     id       BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -119,6 +129,7 @@ CREATE TABLE users
 );
 
 --changeset Bashir:11
+--comment: 'Create user_roles table to map users to their roles'
 CREATE TABLE user_roles
 (
     user_id BIGINT NOT NULL,
@@ -129,6 +140,7 @@ CREATE TABLE user_roles
 );
 
 --changeset Bashir:12
+--comment: 'Create warehouses table to store warehouse locations'
 CREATE TABLE warehouses
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -139,6 +151,7 @@ CREATE TABLE warehouses
 );
 
 --changeset Bashir:13
+--comment: 'Create stock table to track stock quantity per product and warehouse'
 CREATE TABLE stock
 (
     product_id   BIGINT NOT NULL,
@@ -150,6 +163,7 @@ CREATE TABLE stock
 );
 
 --changeset Bashir:14
+--comment: 'Create purchases table to store purchase orders from suppliers'
 CREATE TABLE purchases
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -160,7 +174,9 @@ CREATE TABLE purchases
     CONSTRAINT FK_purchase_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
 );
 
---changeset Bashir:15
+
+-- changeset Bashir:15
+--comment: 'Create purchase_items table to store purchased product details'
 CREATE TABLE purchase_items
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -174,15 +190,18 @@ CREATE TABLE purchase_items
     CONSTRAINT FK_item_warehouse FOREIGN KEY (warehouse_id) REFERENCES warehouses (id)
 );
 
---changeset Bashir:16
+-- changeset Bashir:16
+--comment: 'Create indexes for purchase and purchase_items tables'
 CREATE INDEX idx_purchase_supplier ON purchases (supplier_id);
 CREATE INDEX idx_item_product ON purchase_items (product_id);
 
---changeset Bashir:17
+-- changeset Bashir:17
+--comment: 'Add active flag to users table'
 ALTER TABLE users
     ADD active BOOLEAN NOT NULL DEFAULT FALSE;
 
---changeset Bashir:18
+-- changeset Bashir:18
+--comment: 'Create password_reset_token_users table for user password recovery'
 CREATE TABLE password_reset_token_users
 (
     id      BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -192,7 +211,8 @@ CREATE TABLE password_reset_token_users
     CONSTRAINT fk_user_password_reset FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
---changeset Bashir:19
+-- changeset Bashir:19
+--comment: 'Create error_logs table to log system errors'
 CREATE TABLE error_logs
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -206,7 +226,8 @@ CREATE TABLE error_logs
     resolved_at TIMESTAMP   NULL
 );
 
---changeset Bashir:20
+-- changeset Bashir:20
+--comment: 'Create customers table to store customer details'
 CREATE TABLE customers
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -218,7 +239,8 @@ CREATE TABLE customers
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
---changeset Bashir:21
+-- changeset Bashir:21
+--comment: 'Create password_reset_token_customers table for customer password recovery'
 CREATE TABLE password_reset_token_customers
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -228,7 +250,8 @@ CREATE TABLE password_reset_token_customers
     CONSTRAINT fk_customer_password_reset FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
 );
 
---changeset Bashir:22
+-- changeset Bashir:22
+--comment: 'Create customer_roles table to map customers to roles'
 CREATE TABLE customer_roles
 (
     customer_id BIGINT NOT NULL,
@@ -239,6 +262,7 @@ CREATE TABLE customer_roles
 );
 
 -- changeset Bashir:23
+--comment: 'Create cart table for shopping cart functionality'
 CREATE TABLE cart
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -251,6 +275,7 @@ CREATE TABLE cart
 );
 
 -- changeset Bashir:24
+--comment: 'Create cart_items table to store items in carts'
 CREATE TABLE cart_items
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -266,12 +291,14 @@ CREATE TABLE cart_items
 );
 
 -- changeset Bashir:25
+--comment: 'Create indexes for cart and cart_items tables'
 CREATE INDEX idx_cart_customer_id ON cart (customer_id);
 CREATE INDEX idx_cart_session_id ON cart (session_id);
 CREATE INDEX idx_cart_items_cart_id ON cart_items (cart_id);
 CREATE INDEX idx_cart_items_product_id ON cart_items (product_id);
 
 -- changeset Bashir:26
+--comment: 'Create wishlist table for customer wishlists'
 CREATE TABLE wishlist
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -284,6 +311,7 @@ CREATE TABLE wishlist
 );
 
 -- changeset Bashir:27
+--comment: 'Create wishlist_items table to store items in wishlists CREATE TABLE wishlist_items'
 CREATE TABLE wishlist_items
 (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -297,7 +325,82 @@ CREATE TABLE wishlist_items
 );
 
 -- changeset Bashir:28
+--comment: 'Create indexes for wishlist and wishlist_items tables'
 CREATE INDEX idx_wishlist_customer_id ON wishlist (customer_id);
 CREATE INDEX idx_wishlist_session_id ON wishlist (session_id);
 CREATE INDEX idx_wishlist_items_wishlist_id ON wishlist_items (wishlist_id);
 CREATE INDEX idx_wishlist_items_product_id ON wishlist_items (product_id);
+
+-- changeset Bashir:29
+--comment: 'Create customer_addresses table to store customer address details'
+CREATE TABLE customer_addresses
+(
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id  BIGINT                                     NOT NULL,
+    address_line VARCHAR(255),
+    city         VARCHAR(255),
+    state        VARCHAR(255),
+    postal_code  VARCHAR(50),
+    country      VARCHAR(100),
+    address_type ENUM ('SHIPPING', 'BILLING') DEFAULT 'BILLING',
+    is_default   BOOLEAN                      DEFAULT FALSE NOT NULL,
+    is_deleted   BOOLEAN                      DEFAULT FALSE NOT NULL,
+    created_at   TIMESTAMP                    DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_customer_addresses_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
+);
+CREATE INDEX idx_customer_addresses_customer_id ON customer_addresses (customer_id);
+
+-- changeset Bashir:30
+--comment: 'Create orders table to store customer orders'
+CREATE TABLE orders
+(
+    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id         BIGINT                                                              NOT NULL,
+    status              ENUM ('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    total_amount        DECIMAL(19, 2)                                                      NOT NULL DEFAULT 0.00,
+    shipping_address_id BIGINT,
+    billing_address_id  BIGINT,
+    created_at          TIMESTAMP                                                                    DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP                                                                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE,
+    CONSTRAINT fk_orders_shipping_address FOREIGN KEY (shipping_address_id) REFERENCES customer_addresses (id) ON DELETE SET NULL,
+    CONSTRAINT fk_orders_billing_address FOREIGN KEY (billing_address_id) REFERENCES customer_addresses (id) ON DELETE SET NULL
+);
+CREATE INDEX idx_orders_customer_id ON orders (customer_id);
+
+-- changeset Bashir:31
+--comment: 'Create order_items table to store items in orders'
+CREATE TABLE order_items
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id    BIGINT NOT NULL,
+    product_id  BIGINT NOT NULL,
+    quantity    INT,
+    unit_price  DECIMAL(19, 2),
+    total_price DECIMAL(19, 2),
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_items_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+);
+CREATE INDEX idx_order_items_order_id ON order_items (order_id);
+CREATE INDEX idx_order_items_product_id ON order_items (product_id);
+
+-- changeset Bashir:32
+--comment: 'Create payments table to store payment transactions for orders'
+CREATE TABLE payments
+(
+    id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id         BIGINT                                              NOT NULL,
+    status           ENUM ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED') NOT NULL DEFAULT 'PENDING',
+    payment_method   VARCHAR(50),
+    amount           DECIMAL(19, 2),
+    transaction_id   VARCHAR(100),
+    response_message VARCHAR(255),
+    created_at       TIMESTAMP                                                    DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP                                                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_payments_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_payments_order_id ON payments (order_id);
