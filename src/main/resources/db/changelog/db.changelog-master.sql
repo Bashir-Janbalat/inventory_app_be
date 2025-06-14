@@ -356,7 +356,8 @@ CREATE INDEX idx_customer_addresses_customer_id ON customer_addresses (customer_
 CREATE TABLE orders
 (
     id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
-    customer_id         BIGINT                                                              NOT NULL,
+    customer_id         BIGINT,
+    cart_id             BIGINT,
     status              ENUM ('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
     total_amount        DECIMAL(19, 2)                                                      NOT NULL DEFAULT 0.00,
     shipping_address_id BIGINT,
@@ -364,10 +365,12 @@ CREATE TABLE orders
     created_at          TIMESTAMP                                                                    DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP                                                                    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE,
+    CONSTRAINT fk_orders_cart FOREIGN KEY (cart_id) REFERENCES cart (id) ON DELETE SET NULL,
     CONSTRAINT fk_orders_shipping_address FOREIGN KEY (shipping_address_id) REFERENCES customer_addresses (id) ON DELETE SET NULL,
     CONSTRAINT fk_orders_billing_address FOREIGN KEY (billing_address_id) REFERENCES customer_addresses (id) ON DELETE SET NULL
 );
 CREATE INDEX idx_orders_customer_id ON orders (customer_id);
+CREATE INDEX idx_orders_cart_id ON orders (cart_id);
 
 -- changeset Bashir:31
 --comment: 'Create order_items table to store items in orders'
