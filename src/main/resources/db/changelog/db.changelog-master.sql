@@ -411,4 +411,5 @@ CREATE INDEX idx_payments_order_id ON payments (order_id);
 
 -- changeset Bashir:33
 --comment: 'Add columns country_code and dial_code to store customer`s country and dialing code'
-ALTER TABLE customers ADD COLUMN country_code VARCHAR(2) NULL, ADD COLUMN dial_code VARCHAR(10) NULL;
+ALTER TABLE customers ADD COLUMN country_code VARCHAR(2) NULL;
+ALTER TABLE customers ADD COLUMN dial_code VARCHAR(10) NULL;
