@@ -261,9 +261,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "featuredProducts", key = "'featured'")
-    public ValueWrapper<List<ProductDTO>> getFeaturedProducts() {
-        List<Product> featured = productRepository.findByIsFeaturedTrue();
+    @Cacheable(value = "featuredProducts", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public ValueWrapper<List<ProductDTO>> getFeaturedProducts(Pageable pageable) {
+        List<Product> featured = productRepository.findByIsFeaturedTrue(pageable);
         return new ValueWrapper<>(featured.stream().map(productMapper::toDto).toList());
     }
 

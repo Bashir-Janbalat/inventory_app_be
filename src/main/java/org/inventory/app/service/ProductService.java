@@ -28,7 +28,7 @@ public interface ProductService {
                                                 Integer minPrice, Integer maxPrice,
                                                 String sortBy, ProductStatus productStatus, Pageable pageable);
 
-    ValueWrapper<List<ProductDTO>> getFeaturedProducts();
+    ValueWrapper<List<ProductDTO>> getFeaturedProducts(Pageable pageable);
 
     ValueWrapper<List<ProductDTO>> getRelatedProducts(Long productId, int limit, boolean byCategory, boolean byBrand);
 }
