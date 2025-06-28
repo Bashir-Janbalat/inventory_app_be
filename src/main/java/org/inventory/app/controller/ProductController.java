@@ -99,10 +99,11 @@ public class ProductController {
 
     @Operation(summary = "Get featured products")
     @GetMapping("/featured")
-    public ResponseEntity<List<ProductDTO>> getFeaturedProducts(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<PagedResponseDTO<ProductDTO>> getFeaturedProducts(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(productService.getFeaturedProducts(pageable).getValue());
+        PagedResponseDTO<ProductDTO> result = productService.getFeaturedProducts(pageable);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "Get related products for a specific product")

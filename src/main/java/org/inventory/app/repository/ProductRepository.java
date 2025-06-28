@@ -41,7 +41,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             ORDER BY month""", nativeQuery = true)
     List<MonthlyProductCountStatsDTO> countProductsPerMonth();
 
-    List<Product> findByIsFeaturedTrue(Pageable pageable);
+    Page<Product> findByIsFeaturedTrue(Pageable pageable);
 
     List<Product> findByCategoryAndIdNot(Category category, Long excludedId,Pageable pageable);
 
