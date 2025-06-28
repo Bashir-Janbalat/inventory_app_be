@@ -120,6 +120,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "categoryCount")
     public ValueWrapper<Long> getTotalCategoryCount() {
         Long count = categoryRepository.count();

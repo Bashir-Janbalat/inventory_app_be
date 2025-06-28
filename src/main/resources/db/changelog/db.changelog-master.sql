@@ -411,5 +411,24 @@ CREATE INDEX idx_payments_order_id ON payments (order_id);
 
 -- changeset Bashir:33
 --comment: 'Add columns country_code and dial_code to store customer`s country and dialing code'
-ALTER TABLE customers ADD COLUMN country_code VARCHAR(2) NULL;
-ALTER TABLE customers ADD COLUMN dial_code VARCHAR(10) NULL;
+ALTER TABLE customers
+    ADD COLUMN country_code VARCHAR(2) NULL;
+ALTER TABLE customers
+    ADD COLUMN dial_code VARCHAR(10) NULL;
+
+
+-- changeset Bashir:34
+--comment: 'Add is_featured column to flag featured products for frontend display or recommendation'
+ALTER TABLE products
+    ADD COLUMN is_featured BOOLEAN DEFAULT FALSE;
+
+-- changeset Bashir:35
+--comment: 'Create a join table to represent a Many-to-Many relationship between products and their related products'
+CREATE TABLE related_products
+(
+    product_id         BIGINT NOT NULL,
+    related_product_id BIGINT NOT NULL,
+    PRIMARY KEY (product_id, related_product_id),
+    CONSTRAINT fk_product_related_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    CONSTRAINT fk_related_product FOREIGN KEY (related_product_id) REFERENCES products (id) ON DELETE CASCADE
+);

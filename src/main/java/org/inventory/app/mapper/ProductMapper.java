@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.dto.ImageDTO;
 import org.inventory.app.dto.ProductDTO;
+import org.inventory.app.dto.SimpleProductDTO;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.model.*;
 import org.inventory.app.repository.*;
@@ -60,6 +61,20 @@ public class ProductMapper {
         }
         if (!product.getProductAttributes().isEmpty()) {
             dto.setProductAttributes(product.getProductAttributes().stream().map(productAttributeMapper::toDto).toList());
+        }
+        if (product.getRelatedProducts() != null && !product.getRelatedProducts().isEmpty()) {
+            List<SimpleProductDTO> relatedDtos = product.getRelatedProducts().stream()
+                    .map(related -> {
+                        SimpleProductDTO simpleDto = new SimpleProductDTO();
+                        simpleDto.setId(related.getId());
+                        simpleDto.setName(related.getName());
+                        if (!related.getImages().isEmpty()) {
+                            simpleDto.setImageUrl(related.getImages().get(0).getImageUrl());
+                        }
+                        simpleDto.setSellingPrice(related.getSellingPrice());
+                        return simpleDto;
+                    }).toList();
+            dto.setRelatedProducts(relatedDtos);
         }
         return dto;
     }

@@ -48,5 +48,5 @@ public class ProductDTO extends BaseDTO implements Serializable {
     @Builder.Default
     private List<ProductAttributeDTO> productAttributes = new ArrayList<>();
 
-
+    private List<SimpleProductDTO> relatedProducts;
 }

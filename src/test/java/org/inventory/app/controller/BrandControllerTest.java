@@ -32,7 +32,7 @@ public class BrandControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("should create new brand")
-    @WithMockUser(roles = {"ADMIN"})
+    @WithMockUser
     void createBrand() throws Exception {
         BrandDTO brandDTO = BrandDTO.builder()
                 .name("New Test Brand")

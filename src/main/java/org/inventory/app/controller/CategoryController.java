@@ -26,6 +26,7 @@ public class CategoryController {
 
     @Operation(summary = "Create a new category", description = "Create a new product category")
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO categoryDTO) {
         CategoryDTO createdCategory = categoryService.createCategory(categoryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
@@ -52,6 +53,7 @@ public class CategoryController {
 
     @Operation(summary = "Update category by ID", description = "Update an existing category's information by ID")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
         return ResponseEntity.ok(categoryService.updateCategory(id, categoryDTO));
     }

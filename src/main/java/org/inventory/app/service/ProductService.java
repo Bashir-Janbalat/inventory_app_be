@@ -7,17 +7,28 @@ import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.ProductStatus;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ProductService {
 
-    PagedResponseDTO<ProductDTO> getAllProducts(Pageable pageable );
+    PagedResponseDTO<ProductDTO> getAllProducts(Pageable pageable);
+
     ProductDTO getProductById(Long id);
+
     ProductDTO createProduct(ProductDTO dto);
+
     ProductDTO updateProduct(Long id, ProductDTO dto);
+
     void deleteProduct(Long id);
+
     ValueWrapper<Long> getTotalProductCount();
 
     PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
                                                 String brandName, String supplierName, String sortDirection,
                                                 Integer minPrice, Integer maxPrice,
-                                                String sortBy, ProductStatus productStatus , Pageable pageable);
+                                                String sortBy, ProductStatus productStatus, Pageable pageable);
+
+    ValueWrapper<List<ProductDTO>> getFeaturedProducts();
+
+    ValueWrapper<List<ProductDTO>> getRelatedProducts(Long productId, int limit, boolean byCategory, boolean byBrand);
 }

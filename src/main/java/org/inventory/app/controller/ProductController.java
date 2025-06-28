@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -67,6 +69,7 @@ public class ProductController {
 
     @Operation(summary = "Create a new product")
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ProductDTO> createProduct(@RequestBody @Valid ProductDTO dto) {
         ProductDTO createdProduct = productService.createProduct(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
@@ -92,5 +95,21 @@ public class ProductController {
     public ResponseEntity<Long> getProductSize() {
         ValueWrapper<Long> productCount = productService.getTotalProductCount();
         return ResponseEntity.ok(productCount.getValue());
+    }
+
+    @Operation(summary = "Get featured products")
+    @GetMapping("/featured")
+    public ResponseEntity<List<ProductDTO>> getFeaturedProducts() {
+        return ResponseEntity.ok(productService.getFeaturedProducts().getValue());
+    }
+
+    @Operation(summary = "Get related products for a specific product")
+    @GetMapping("/{productId}/related")
+    public ResponseEntity<List<ProductDTO>> getRelatedProducts(@PathVariable Long productId,
+                                                               @RequestParam(defaultValue = "5") int limit,
+                                                               @RequestParam(defaultValue = "true") boolean byCategory,
+                                                               @RequestParam(defaultValue = "true") boolean byBrand) {
+        int safeLimit = Math.min(limit, 20);
+        return ResponseEntity.ok(productService.getRelatedProducts(productId, safeLimit, byCategory, byBrand).getValue());
     }
 }

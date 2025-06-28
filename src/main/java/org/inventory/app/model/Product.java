@@ -55,4 +55,15 @@ public class Product extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus = ProductStatus.INACTIVE;
+
+    @Column(name = "is_featured")
+    private boolean isFeatured = false;
+
+    @ManyToMany
+    @JoinTable(
+            name = "related_products",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "related_product_id")
+    )
+    private List<Product> relatedProducts = new ArrayList<>();
 }

@@ -1,5 +1,7 @@
 package org.inventory.app.repository;
 
+import org.inventory.app.model.Brand;
+import org.inventory.app.model.Category;
 import org.inventory.app.model.Product;
 import org.inventory.app.projection.MonthlyProductCountStatsDTO;
 import org.inventory.app.projection.ProductStatusCountStatsDTO;
@@ -38,4 +40,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             GROUP BY DATE_FORMAT(p.created_at, '%Y-%m')
             ORDER BY month""", nativeQuery = true)
     List<MonthlyProductCountStatsDTO> countProductsPerMonth();
+
+    List<Product> findByIsFeaturedTrue();
+
+    List<Product> findByCategoryAndIdNot(Category category, Long excludedId,Pageable pageable);
+
+    List<Product> findByBrandAndIdNot(Brand brand, Long excludedId,Pageable pageable);
 }

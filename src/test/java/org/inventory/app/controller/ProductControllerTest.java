@@ -82,7 +82,7 @@ public class ProductControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN"})
+    @WithMockUser(roles = {"USER"})
     @DisplayName("should create a new product")
     public void createNewLaptopProductShouldReturnCreatedProduct() throws Exception {
         CategoryDTO laptops = createCategory("Laptops");
@@ -147,7 +147,7 @@ public class ProductControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN"})
+    @WithMockUser
     @DisplayName("should filter products by search term, categoryName and brandName")
     public void shouldFilterMacBookOnly() throws Exception {
         // 1) Setup: Kategorie, Marken und Supplier anlegen
@@ -233,7 +233,7 @@ public class ProductControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN"})
+    @WithMockUser
     @DisplayName("should filter products by categoryName only")
     public void shouldFilterProductsByCategoryName() throws Exception {
         // 1) Setup: zwei Kategorien, eine für Laptops und eine für Smartphones
@@ -400,7 +400,7 @@ public class ProductControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN"})
+    @WithMockUser
     @DisplayName("should return product searched by name")
     void shouldReturnProductSearchedBy() throws Exception {
 

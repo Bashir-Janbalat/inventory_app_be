@@ -1,5 +1,6 @@
 package org.inventory.app.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.inventory.app.common.ValueWrapper;
@@ -24,6 +25,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -31,10 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -76,7 +75,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
+            @CacheEvict(value = {"products", "product", "searchProducts", "productCount", "featuredProducts", "relatedProducts"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
             @CacheEvict(value = {"dashboardSummary", "productStatusSummary", "stockStatusSummary", "monthlyProductCount"}, allEntries = true),
     })
@@ -98,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
+            @CacheEvict(value = {"products", "product", "searchProducts", "productCount", "featuredProducts", "relatedProducts"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
             @CacheEvict(value = {"dashboardSummary", "productStatusSummary", "stockStatusSummary", "monthlyProductCount"}, allEntries = true),
     })
@@ -206,7 +205,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = {"products", "product", "searchProducts", "productCount"}, allEntries = true),
+            @CacheEvict(value = {"products", "product", "searchProducts", "productCount", "featuredProducts", "relatedProducts"}, allEntries = true),
             @CacheEvict(value = {"statusProducts", "supplierProducts"}, allEntries = true),
             @CacheEvict(value = {"dashboardSummary", "productStatusSummary", "stockStatusSummary", "monthlyProductCount"}, allEntries = true)
     })
@@ -258,6 +257,48 @@ public class ProductServiceImpl implements ProductService {
         log.info("Fetched {} products based on search filters from DB (page {} size {}) (and cached in searchProducts)",
                 result.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
         return new PagedResponseDTO<>(result.map(productMapper::toDto));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "featuredProducts", key = "'featured'")
+    public ValueWrapper<List<ProductDTO>> getFeaturedProducts() {
+        List<Product> featured = productRepository.findByIsFeaturedTrue();
+        return new ValueWrapper<>(featured.stream().map(productMapper::toDto).toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "relatedProducts", key = "'productId:' + #productId + ':limit:' + #limit + ':cat:' + #byCategory + ':brand:' + #byBrand")
+    public ValueWrapper<List<ProductDTO>> getRelatedProducts(Long productId, int limit, boolean byCategory, boolean byBrand) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        Pageable pageable = PageRequest.of(0, limit);
+        Set<Product> relatedSet = new LinkedHashSet<>(product.getRelatedProducts());
+
+        if (byCategory && relatedSet.size() < limit) {
+            List<Product> byCategoryList = productRepository.findByCategoryAndIdNot(product.getCategory(), product.getId(), pageable);
+            for (Product p : byCategoryList) {
+                if (relatedSet.size() >= limit) break;
+                relatedSet.add(p);
+            }
+        }
+
+        if (byBrand && relatedSet.size() < limit) {
+            List<Product> byBrandList = productRepository.findByBrandAndIdNot(product.getBrand(), product.getId(), pageable);
+            for (Product p : byBrandList) {
+                if (relatedSet.size() >= limit) break;
+                relatedSet.add(p);
+            }
+        }
+
+        List<ProductDTO> dtos = relatedSet.stream()
+                .limit(limit)
+                .map(productMapper::toDto)
+                .toList();
+
+        return new ValueWrapper<>(dtos);
     }
 
     @Override

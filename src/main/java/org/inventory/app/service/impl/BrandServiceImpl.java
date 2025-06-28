@@ -123,6 +123,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @Cacheable(value = "brandCount")
     public ValueWrapper<Long> getTotalBrandCount() {
         Long count = brandRepository.count();

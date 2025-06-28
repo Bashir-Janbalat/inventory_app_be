@@ -26,6 +26,7 @@ public class BrandController {
 
     @Operation(summary = "Create a new brand", description = "Create a new product brand")
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<BrandDTO> createBrand(@RequestBody @Valid BrandDTO brandDTO) {
         BrandDTO createdBrand = brandService.createBrand(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBrand);
@@ -52,6 +53,7 @@ public class BrandController {
 
     @Operation(summary = "Update brand by ID", description = "Update an existing brand's details by its ID")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDTO) {
         return ResponseEntity.ok(brandService.updateBrand(id, brandDTO));
     }

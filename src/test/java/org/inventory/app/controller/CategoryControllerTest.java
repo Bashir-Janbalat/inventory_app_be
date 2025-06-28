@@ -32,7 +32,7 @@ public class CategoryControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("should create a new category")
-    @WithMockUser(roles = {"ADMIN"})
+    @WithMockUser
     void createCategory() throws Exception {
         CategoryDTO categoryDTO = CategoryDTO.builder()
                 .name("New Test Category")
