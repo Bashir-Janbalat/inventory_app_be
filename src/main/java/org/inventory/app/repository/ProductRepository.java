@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -42,8 +43,28 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     List<MonthlyProductCountStatsDTO> countProductsPerMonth();
 
     Page<Product> findByIsFeaturedTrue(Pageable pageable);
-
-    List<Product> findByCategoryAndIdNot(Category category, Long excludedId,Pageable pageable);
-
-    List<Product> findByBrandAndIdNot(Brand brand, Long excludedId,Pageable pageable);
+    @Query("""
+                SELECT p FROM products p
+                WHERE p.category = :category
+                  AND p.id <> :excludedId
+                  AND EXISTS (
+                      SELECT s FROM stock s
+                      WHERE s.product = p AND s.quantity > 0
+                  )
+            """)
+    List<Product> findByCategoryAndIdNot(@Param("category") Category category,
+                                         @Param("excludedId") Long excludedId,
+                                         Pageable pageable);
+    @Query("""
+    SELECT p FROM products p
+    WHERE p.brand = :brand
+      AND p.id <> :excludedId
+      AND EXISTS (
+          SELECT s FROM stock s
+          WHERE s.product = p AND s.quantity > 0
+      )
+""")
+    List<Product> findByBrandAndIdNot(@Param("brand") Brand brand,
+                                      @Param("excludedId") Long excludedId,
+                                      Pageable pageable);
 }
