@@ -36,12 +36,14 @@ public class BrandController {
     @GetMapping
     public ResponseEntity<PagedResponseDTO<BrandDTO>> getAllBrands(
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "asc") String sortDirection) {
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(required = false) String searchByCategory) {
         Sort sort = sortDirection.equalsIgnoreCase("desc") ?
                 Sort.by("name").descending() :
                 Sort.by("name").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        PagedResponseDTO<BrandDTO> brands = brandService.getAllBrands(pageable);
+        PagedResponseDTO<BrandDTO> brands = brandService.getAllBrands(searchByCategory,pageable);
         return ResponseEntity.ok(brands);
     }
 

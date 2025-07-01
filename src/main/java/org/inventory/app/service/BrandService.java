@@ -11,7 +11,7 @@ public interface BrandService {
 
     BrandDTO getBrandById(Long id);
 
-    PagedResponseDTO<BrandDTO> getAllBrands(Pageable pageable);
+    PagedResponseDTO<BrandDTO> getAllBrands(String searchByCategory,Pageable pageable);
 
     BrandDTO updateBrand(Long id, BrandDTO brandDTO);
 

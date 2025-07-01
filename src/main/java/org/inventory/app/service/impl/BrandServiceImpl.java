@@ -67,10 +67,22 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "brands", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public PagedResponseDTO<BrandDTO> getAllBrands(Pageable pageable) {
-        Page<Brand> brands = brandRepository.findAll(pageable);
-        log.info("Fetched {} brands from DB (page {} size {}) (and cached in brands)", brands.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
+    @Cacheable(
+            value = "brands",
+            key = "'searchByCategory:' + #searchByCategory + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize"
+    )
+    public PagedResponseDTO<BrandDTO> getAllBrands(String searchByCategory, Pageable pageable) {
+        Page<Brand> brands;
+
+        if (searchByCategory == null || searchByCategory.trim().isEmpty()) {
+            brands = brandRepository.findAll(pageable);
+        } else {
+            brands = brandRepository.findByProductCategoryNameContainingIgnoreCase(searchByCategory, pageable);
+        }
+
+        log.info("Fetched {} brands from DB (searchByCategory='{}') (page {}, size {})",
+                brands.getContent().size(), searchByCategory, pageable.getPageNumber(), pageable.getPageSize());
+
         return new PagedResponseDTO<>(brands.map(brandMapper::toDto));
     }
 
@@ -78,7 +90,7 @@ public class BrandServiceImpl implements BrandService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = {"brands", "brand", "brandCount"}, allEntries = true),
-            @CacheEvict(value = {"brandStats"}, allEntries = true) // on Dashboard
+            @CacheEvict(value = {"brandStats"}, allEntries = true)
     })
     public BrandDTO updateBrand(Long id, BrandDTO brandDTO) {
         Brand brand = brandRepository.findById(id)
