@@ -1,5 +1,7 @@
 package org.inventory.app.specification;
 
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import org.inventory.app.enums.ProductStatus;
@@ -77,6 +79,27 @@ public class ProductSpecifications {
             } else {
                 return criteriaBuilder.lessThanOrEqualTo(pricePath, BigDecimal.valueOf(maxPrice));
             }
+        };
+    }
+
+
+    public static Specification<Product> isInStock(Boolean inStock) {
+        return (root, query, cb) -> {
+            Join<Object, Object> stockJoin = root.join("stocks", JoinType.LEFT);
+
+            query.groupBy(root.get("id"));
+
+            Expression<Long> totalQuantity = cb.sumAsLong(stockJoin.get("quantity"));
+
+            if (inStock == null) return cb.conjunction();
+
+            if (inStock) {
+                query.having(cb.greaterThan(totalQuantity, 0L));
+            } else {
+                query.having(cb.equal(totalQuantity, 0L));
+            }
+
+            return cb.conjunction();
         };
     }
 }

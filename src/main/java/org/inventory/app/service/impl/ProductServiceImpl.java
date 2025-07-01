@@ -3,6 +3,7 @@ package org.inventory.app.service.impl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.inventory.app.common.ProductSearchFilter;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.ImageDTO;
 import org.inventory.app.dto.PagedResponseDTO;
@@ -10,7 +11,6 @@ import org.inventory.app.dto.ProductAttributeDTO;
 import org.inventory.app.dto.ProductDTO;
 import org.inventory.app.enums.MovementReason;
 import org.inventory.app.enums.MovementType;
-import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.exception.ResourceNotFoundException;
 import org.inventory.app.mapper.ImageMapper;
 import org.inventory.app.mapper.ProductAttributeMapper;
@@ -230,32 +230,37 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     @Cacheable(
             value = "searchProducts",
-            key = "'search:' + #searchBy + ':categoryName:' + #categoryName + ':brandName:' + #brandName +" +
-                  "':supplierName:' + #supplierName " +
-                  "+ ':minPrice:' + #minPrice + ':maxPrice:' + #maxPrice " +
-                  "+ ':sortBy:' + #sortBy + ':sortDirection:' + #sortDirection " +
-                  "+ ':productStatus:' + #productStatus" +
-                  "+ ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
-                                                       String brandName, String supplierName, String sortDirection,
-                                                       Integer minPrice, Integer maxPrice,
-                                                       String sortBy, ProductStatus productStatus, Pageable pageable) {
-        if (searchBy.isEmpty() && categoryName.isEmpty() && brandName.isEmpty() && supplierName.isEmpty()
-            && productStatus == null && maxPrice == null && minPrice == null) {
+            key = "'search:' + #filter.searchBy + ':categoryName:' + #filter.categoryName + ':brandName:' + #filter.brandName +" +
+                  "':supplierName:' + #filter.supplierName + ':minPrice:' + #filter.minPrice + ':maxPrice:' + #filter.maxPrice +" +
+                  "':sortBy:' + #filter.sortBy + ':sortDirection:' + #filter.sortDirection + ':productStatus:' + #filter.productStatus +" +
+                  "':inStock:' + #filter.inStock + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public PagedResponseDTO<ProductDTO> searchProducts(ProductSearchFilter filter, Pageable pageable) {
+
+        boolean allNull = (filter.getSearchBy() == null || filter.getSearchBy().isBlank())
+                          && (filter.getCategoryName() == null || filter.getCategoryName().isBlank())
+                          && (filter.getBrandName() == null || filter.getBrandName().isBlank())
+                          && (filter.getSupplierName() == null || filter.getSupplierName().isBlank())
+                          && filter.getProductStatus() == null
+                          && filter.getMaxPrice() == null
+                          && filter.getMinPrice() == null
+                          && filter.getInStock() == null;
+
+        if (allNull) {
             return getAllProducts(pageable);
         }
 
         Specification<Product> spec = Specification
-                .where(ProductSpecifications.hasNameLike(searchBy))
-                .and(ProductSpecifications.hasCategory(categoryName))
-                .and(ProductSpecifications.hasBrand(brandName))
-                .and(ProductSpecifications.hasSupplier(supplierName))
-                .and(ProductSpecifications.hasStatus(productStatus))
-                .and(ProductSpecifications.hasPriceBetween(minPrice, maxPrice));
+                .where(ProductSpecifications.hasNameLike(filter.getSearchBy()))
+                .and(ProductSpecifications.hasCategory(filter.getCategoryName()))
+                .and(ProductSpecifications.hasBrand(filter.getBrandName()))
+                .and(ProductSpecifications.hasSupplier(filter.getSupplierName()))
+                .and(ProductSpecifications.hasStatus(filter.getProductStatus()))
+                .and(ProductSpecifications.hasPriceBetween(filter.getMinPrice(), filter.getMaxPrice()))
+                .and(ProductSpecifications.isInStock(filter.getInStock()));
 
         Page<Product> result = productRepository.findAll(spec, pageable);
-        log.info("Fetched {} products based on search filters from DB (page {} size {}) (and cached in searchProducts)",
-                result.getContent().size(), pageable.getPageNumber(), pageable.getPageSize());
+
+        log.info("Fetched {} products with filter object", result.getContent().size());
         return new PagedResponseDTO<>(result.map(productMapper::toDto));
     }
 

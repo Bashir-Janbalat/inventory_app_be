@@ -1,10 +1,10 @@
 package org.inventory.app.service;
 
 
+import org.inventory.app.common.ProductSearchFilter;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
-import org.inventory.app.enums.ProductStatus;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -23,10 +23,7 @@ public interface ProductService {
 
     ValueWrapper<Long> getTotalProductCount();
 
-    PagedResponseDTO<ProductDTO> searchProducts(String searchBy, String categoryName,
-                                                String brandName, String supplierName, String sortDirection,
-                                                Integer minPrice, Integer maxPrice,
-                                                String sortBy, ProductStatus productStatus, Pageable pageable);
+    PagedResponseDTO<ProductDTO> searchProducts(ProductSearchFilter filter, Pageable pageable);
 
     PagedResponseDTO<ProductDTO> getFeaturedProducts(Pageable pageable);
 

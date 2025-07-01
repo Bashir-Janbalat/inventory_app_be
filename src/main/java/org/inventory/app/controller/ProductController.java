@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.inventory.app.common.ProductSearchFilter;
 import org.inventory.app.common.ValueWrapper;
 import org.inventory.app.dto.PagedResponseDTO;
 import org.inventory.app.dto.ProductDTO;
-import org.inventory.app.enums.ProductStatus;
 import org.inventory.app.service.ProductService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,35 +29,18 @@ public class ProductController {
     private final ProductService productService;
 
     @Operation(summary = "Get paginated list of products with filtering and sorting",
-            description = "Search products by name, category, brand, supplier and status with pagination and sorting")
+            description = "Search products by name, category, brand, supplier, status, stock, and price with pagination and sorting")
     @GetMapping
     public ResponseEntity<PagedResponseDTO<ProductDTO>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection,
-            @RequestParam(defaultValue = "") String searchBy,
-            @RequestParam(defaultValue = "") String categoryName,
-            @RequestParam(defaultValue = "") String brandName,
-            @RequestParam(defaultValue = "") String supplierName,
-            @RequestParam(required = false) Integer minPrice,
-            @RequestParam(required = false) Integer maxPrice,
-            @RequestParam(required = false) ProductStatus productStatus) {
-        Sort sort = sortDirection.equalsIgnoreCase("desc") ?
-                Sort.by(sortBy).descending() :
-                Sort.by(sortBy).ascending();
+            @ModelAttribute ProductSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Sort sort = Sort.by(Sort.Direction.fromString(filter.getSortDirection()), filter.getSortBy());
+
         Pageable pageable = PageRequest.of(page, size, sort);
-        PagedResponseDTO<ProductDTO> products = productService.searchProducts(
-                searchBy,
-                categoryName,
-                brandName,
-                supplierName,
-                sortDirection,
-                minPrice,
-                maxPrice,
-                sortBy,
-                productStatus,
-                pageable
-        );
+
+        PagedResponseDTO<ProductDTO> products = productService.searchProducts(filter, pageable);
         return ResponseEntity.ok(products);
     }
 
@@ -100,7 +83,7 @@ public class ProductController {
     @Operation(summary = "Get featured products")
     @GetMapping("/featured")
     public ResponseEntity<PagedResponseDTO<ProductDTO>> getFeaturedProducts(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "10") int size) {
+                                                                            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         PagedResponseDTO<ProductDTO> result = productService.getFeaturedProducts(pageable);
         return ResponseEntity.ok(result);
