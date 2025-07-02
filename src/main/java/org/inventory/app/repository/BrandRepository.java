@@ -31,7 +31,7 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
     FROM brands b
     JOIN b.products p
     JOIN p.category c
-    WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :searchByCategory, '%'))
+    WHERE LOWER(c.name) LIKE LOWER(:searchByCategory)
     """)
     Page<Brand> findByProductCategoryNameContainingIgnoreCase(@Param("searchByCategory") String searchByCategory, Pageable pageable);
 }
