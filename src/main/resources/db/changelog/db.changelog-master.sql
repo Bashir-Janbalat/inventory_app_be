@@ -432,3 +432,19 @@ CREATE TABLE related_products
     CONSTRAINT fk_product_related_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
     CONSTRAINT fk_related_product FOREIGN KEY (related_product_id) REFERENCES products (id) ON DELETE CASCADE
 );
+
+-- changeset Bashir:36
+--comment: 'Create product_reviews table for customer reviews and ratings on products'
+CREATE TABLE product_reviews
+(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_id  BIGINT        NOT NULL,
+    customer_id BIGINT        NOT NULL,
+    rating      DECIMAL(2, 1) NOT NULL CHECK (rating >= 0.5 AND rating <= 5.0),
+    review      TEXT,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT FK_review_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    CONSTRAINT FK_review_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE,
+    CONSTRAINT unique_review_per_product_customer UNIQUE (product_id, customer_id)
+);
