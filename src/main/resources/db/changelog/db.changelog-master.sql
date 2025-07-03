@@ -448,3 +448,5 @@ CREATE TABLE product_reviews
     CONSTRAINT FK_review_customer FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE,
     CONSTRAINT unique_review_per_product_customer UNIQUE (product_id, customer_id)
 );
+CREATE INDEX idx_product_reviews_product_id ON product_reviews (product_id);
+CREATE INDEX idx_product_reviews_customer_id ON product_reviews (customer_id);
