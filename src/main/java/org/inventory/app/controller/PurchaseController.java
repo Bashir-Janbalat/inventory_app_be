@@ -25,7 +25,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/purchases")
+@RequestMapping("/inventory/api/purchases")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Purchases", description = "Endpoints for managing purchases")

@@ -16,7 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/warehouses")
+@RequestMapping("/inventory/api/warehouses")
 @RequiredArgsConstructor
 @Tag(name = "Warehouses", description = "Operations related to warehouse management")
 public class WarehouseController {

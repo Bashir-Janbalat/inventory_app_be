@@ -24,7 +24,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/inventory/api/users")
 @Slf4j
 @Tag(name = "Users", description = "Operations related to user and role management")
 public class UserController {

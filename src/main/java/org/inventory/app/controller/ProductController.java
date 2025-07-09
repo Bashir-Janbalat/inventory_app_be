@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/inventory/api/products")
 @RequiredArgsConstructor
 @Tag(name = "Products", description = "Operations related to products management")
 public class ProductController {

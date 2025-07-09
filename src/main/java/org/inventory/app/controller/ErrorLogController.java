@@ -14,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/dev/logs")
+@RequestMapping("/inventory/api/dev/logs")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('DEVELOPER')")
 @Tag(name = "Error Logs", description = "Manage error logs and filtering")

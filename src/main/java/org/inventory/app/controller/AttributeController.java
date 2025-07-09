@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/attributes")
+@RequestMapping("/inventory/api/attributes")
 @RequiredArgsConstructor
 @Tag(name = "Attributes", description = "Operations related to product attributes")
 public class AttributeController {

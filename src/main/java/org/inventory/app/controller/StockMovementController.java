@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/stockMovements")
+@RequestMapping("/inventory/api/stockMovements")
 @RequiredArgsConstructor
 @Tag(name = "Stock Movements", description = "Endpoints for managing stock movements")
 public class StockMovementController {

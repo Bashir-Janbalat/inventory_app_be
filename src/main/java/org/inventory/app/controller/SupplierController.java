@@ -17,7 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/inventory/api/suppliers")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Suppliers", description = "Operations related to product suppliers")

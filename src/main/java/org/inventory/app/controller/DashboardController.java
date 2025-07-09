@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/inventory/api/dashboard")
 @RequiredArgsConstructor
 @Tag(name = "Dashboard", description = "Endpoints for dashboard statistics and summaries")
 public class DashboardController {
