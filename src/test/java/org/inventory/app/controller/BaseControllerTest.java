@@ -33,14 +33,14 @@ public abstract class BaseControllerTest {
         databaseCleaner.clean();
     }
 
-    protected static final String BASE_URL_PRODUCTS = "/api/products";
-    protected static final String BASE_URL_BRANDS = "/api/brands";
-    protected static final String BASE_URL_SUPPLIERS = "/api/suppliers";
-    protected static final String BASE_URL_CATEGORIES = "/api/categories";
-    protected static final String BASE_LOGIN_URL = "/api/auth/login";
-    protected static final String BASE_SIGNUP_URL = "/api/auth/signup";
-    protected static final String BASE_URL_PURCHASES = "/api/purchases";
-    protected static final String BASE_URL_USERS = "/api/users";
+    protected static final String BASE_URL_PRODUCTS = "/inventory/api/products";
+    protected static final String BASE_URL_BRANDS = "/inventory/api/brands";
+    protected static final String BASE_URL_SUPPLIERS = "/inventory/api/suppliers";
+    protected static final String BASE_URL_CATEGORIES = "/inventory/api/categories";
+    protected static final String BASE_LOGIN_URL = "/inventory/api/auth/login";
+    protected static final String BASE_SIGNUP_URL = "/inventory/api/auth/signup";
+    protected static final String BASE_URL_PURCHASES = "/inventory/api/purchases";
+    protected static final String BASE_URL_USERS = "/inventory/api/users";
     protected static final ObjectMapper MAPPER = createObjectMapper();
 
     private static ObjectMapper createObjectMapper() {
