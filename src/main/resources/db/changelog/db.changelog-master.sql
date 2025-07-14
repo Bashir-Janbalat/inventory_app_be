@@ -450,3 +450,7 @@ CREATE TABLE product_reviews
 );
 CREATE INDEX idx_product_reviews_product_id ON product_reviews (product_id);
 CREATE INDEX idx_product_reviews_customer_id ON product_reviews (customer_id);
+
+-- changeset Bashir:37
+--comment: 'Add email_verified column to customers table for email verification'
+ALTER TABLE customers ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT FALSE;
