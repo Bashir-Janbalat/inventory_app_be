@@ -454,3 +454,14 @@ CREATE INDEX idx_product_reviews_customer_id ON product_reviews (customer_id);
 -- changeset Bashir:37
 --comment: 'Add email_verified column to customers table for email verification'
 ALTER TABLE customers ADD COLUMN email_verified BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- changeset Bashir:38
+--comment: 'Create email_verification_token_customers table for customer email verification'
+CREATE TABLE email_verification_token_customers
+(
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    token        VARCHAR(512) NOT NULL,
+    customer_id  BIGINT       NOT NULL,
+    used         BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_customer_email_verification FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE
+);
